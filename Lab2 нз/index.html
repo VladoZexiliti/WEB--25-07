@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flexbox Lab 26 · Liquid Glass</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Фоновые свечения -->
+  <div class="bg-orbs">
+    <div class="orb orange"></div>
+    <div class="orb blue"></div>
+  </div>
+
+  <!-- Навигация (2 страницы) -->
+  <nav class="glass-nav">
+    <button class="nav-btn active" data-target="page-1">Задание 1</button>
+    <button class="nav-btn" data-target="page-2">Задание 2</button>
+  </nav>
+
+  <!-- ================= СТРАНИЦА 1: ЦИФРЫ ================= -->
+  <section id="page-1" class="page active">
+    <div class="digit-stage">
+      <div class="digits-wrapper">
+        
+        <!-- Цифра 2 -->
+        <div class="digit">
+          <div class="d-row">
+            <div class="d-cell"></div><div class="d-cell"></div><div class="d-cell"></div>
+          </div>
+          <div class="d-row">
+            <div class="d-cell empty"></div><div class="d-cell empty"></div><div class="d-cell"></div>
+          </div>
+          <div class="d-row">
+            <div class="d-cell"></div><div class="d-cell"></div><div class="d-cell"></div>
+          </div>
+          <div class="d-row">
+            <div class="d-cell"></div><div class="d-cell empty"></div><div class="d-cell empty"></div>
+          </div>
+          <div class="d-row">
+            <div class="d-cell"></div><div class="d-cell"></div><div class="d-cell"></div>
+          </div>
+        </div>
+
+        <!-- Цифра 6 -->
+        <div class="digit">
+          <div class="d-row">
+            <div class="d-cell"></div><div class="d-cell"></div><div class="d-cell"></div>
+          </div>
+          <div class="d-row">
+            <div class="d-cell"></div><div class="d-cell empty"></div><div class="d-cell empty"></div>
+          </div>
+          <div class="d-row">
+            <div class="d-cell"></div><div class="d-cell"></div><div class="d-cell"></div>
+          </div>
+          <div class="d-row">
+            <div class="d-cell"></div><div class="d-cell empty"></div><div class="d-cell"></div>
+          </div>
+          <div class="d-row">
+            <div class="d-cell"></div><div class="d-cell"></div><div class="d-cell"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= СТРАНИЦА 2: ТАБЛИЦА ================= -->
+  <section id="page-2" class="page">
+    <div class="controls glass-panel">
+      <!-- Переключение разрешений -->
+      <div class="res-group">
+        <button class="res-btn" data-res="320">320px</button>
+        <button class="res-btn" data-res="768">768px</button>
+        <button class="res-btn active" data-res="1200">1200px</button>
+      </div>
+      
+      <!-- Галочка сетки (Текст перед чекбоксом) -->
+      <label class="glass-checkbox">
+        <span class="label-text">Сетка</span>
+        <input type="checkbox" id="grid-toggle">
+        <span class="checkmark"></span>
+      </label>
+    </div>
+
+    <!-- Контейнер макета -->
+    <div class="viewport-wrapper">
+      <div class="layout-container" id="layout-container">
+        <!-- Сюда JS будет рендерить блоки -->
+        <div class="grid-overlay"></div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+  
+  /* ==========================================
+     1. ПЕРЕКЛЮЧЕНИЕ СТРАНИЦ (ВКЛАДОК)
+     ========================================== */
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const pages = document.querySelectorAll('.page');
+
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      navBtns.forEach(b => b.classList.remove('active'));
+      pages.forEach(p => p.classList.remove('active'));
+      
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.target).classList.add('active');
+    });
+  });
+
+  /* ==========================================
+     2. РЕНДЕР МАКЕТА (ЗАДАНИЕ 2)
+     ========================================== */
+  const layoutContainer = document.getElementById('layout-container');
+  
+  // Структура макетов для 3 разрешений
+  const layouts = {
+    1200: [
+      { row: [ {w:3, c:'#CD5C5C'}, {w:6, c:'#DC143C'}, {w:3, c:'#8B0000'} ] },
+      { row: [ {w:8, c:'#FFC0CB', h:300}, {w:4, stack: [{c:'#FF69B4'}, {c:'#C71585'}]} ] },
+      { row: [ 
+        {w:3, c:'#ADFF2F', h:300}, 
+        {w:9, grid: [
+          ['#32CD32', '#00FA9A', '#2E8B57'],
+          ['#006400', '#9ACD32', '#808000']
+        ]} 
+      ]},
+
+      { row: [ {w:3, c:'#00FF00'}, {w:2, c:'#66CDAA'}, {w:2, c:'#556B2F'}, {w:4, c:'#008080'}, {w:1, c:'#008080'} ] },
+
+      { row: [ {w:1}, {w:4, c:'#FFA07A'}, {w:2}, {w:4, c:'#FF4500'} ] },
+      { row: [ {w:3, c:'#BC8F8F', h:150}, {w:6, c:'#F4A460', h:150}, {w:3, c:'#D2691E'} ] },
+      { row: [ {w:6, c:'#8B4513'}, {w:6, c:'#A52A2A'} ] }
+    ],
+    768: [
+      { row: [ {w:8, c:'#CD5C5C'}, {w:4, c:'#DC143C'} ] },
+      { row: [ {w:6, c:'#FFC0CB', h:300}, {w:6, stack: [{c:'#FF69B4'}, {c:'#C71585'}]} ] },
+      { row: [ 
+        {w:3, c:'#ADFF2F', h:450}, 
+        {w:9, grid: [
+          ['#32CD32', '#00FA9A', '#2E8B57'],
+          ['#006400', '#9ACD32', '#808000'],
+          ['#66CDAA', '#556B2F', '#008080']
+        ]} 
+      ]},
+      { row: [ {w:6, c:'#FFA07A'}, {w:6, c:'#FF4500'} ] },
+      { row: [ {w:4, c:'#BC8F8F', h:300}, {w:4, c:'#D2691E', h:300}, {w:4, stack: [{c:'#8B4513'}, {c:'#A52A2A'}]} ] }
+    ],
+    320: [
+      { row: [ {w:6, c:'#CD5C5C'}, {w:6, c:'#8B0000'} ] },
+      { row: [ {w:12, c:'#FFC0CB', h:300} ] },
+      { row: [ {w:6, c:'#FF69B4', h:300}, {w:6, c:'#C71585', h:300} ] },
+      { row: [ {w:12, c:'#ADFF2F'} ] },
+      { row: [ {w:6, c:'#32CD32'}, {w:6, c:'#00FA9A'} ] },
+      { row: [ {w:6, c:'#006400'}, {w:6, c:'#9ACD32'} ] },
+      { row: [ {w:6, c:'#66CDAA'}, {w:6, c:'#556B2F'} ] },
+      { row: [ {w:6, c:'#FFA07A'}, {w:6, c:'#FF4500'} ] },
+      { row: [ {w:12, c:'#BC8F8F', h:300} ] },
+      { row: [ {w:12, c:'#D2691E'} ] },
+      { row: [ {w:12, c:'#8B4513'} ] },
+      { row: [ {w:12, c:'#A52A2A', h:300} ] }
+    ]
+  };
+
+  // Функция рендера
+  function renderLayout(mode) {
+    const overlay = layoutContainer.querySelector('.grid-overlay');
+    layoutContainer.innerHTML = '';
+    layoutContainer.appendChild(overlay);
+
+    const layoutData = layouts[mode];
+    
+    layoutData.forEach(rowData => {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'g-row';
+
+      rowData.row.forEach(item => {
+        if (item.stack) {
+          const colEl = document.createElement('div');
+          colEl.className = `g-col w-${item.w}`;
+          item.stack.forEach(sub => {
+            const b = document.createElement('div');
+            b.className = 'g-block';
+            b.style.background = sub.c;
+            b.dataset.color = sub.c;
+            colEl.appendChild(b);
+          });
+          rowEl.appendChild(colEl);
+        } 
+        else if (item.grid) {
+          const gridEl = document.createElement('div');
+          gridEl.className = `g-grid w-${item.w}`;
+          item.grid.forEach(gRow => {
+            gRow.forEach(color => {
+              const b = document.createElement('div');
+              b.className = 'g-block';
+              b.style.background = color;
+              b.dataset.color = color;
+              gridEl.appendChild(b);
+            });
+          });
+          rowEl.appendChild(gridEl);
+        } 
+        else {
+          const b = document.createElement('div');
+          b.className = `g-block w-${item.w}`;
+          if (item.h) b.classList.add(`h-${item.h}`);
+          if (item.c) {
+            b.style.background = item.c;
+            b.dataset.color = item.c;
+          } else {
+            b.style.background = 'transparent';
+            b.style.borderColor = 'transparent';
+            b.style.cursor = 'default';
+          }
+          rowEl.appendChild(b);
+        }
+      });
+      layoutContainer.appendChild(rowEl);
+    });
+  }
+
+  renderLayout(1200);
+
+  /* ==========================================
+     3. УПРАВЛЕНИЕ РАЗРЕШЕНИЯМИ
+     ========================================== */
+  const resBtns = document.querySelectorAll('.res-btn');
+  
+  resBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      resBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const res = parseInt(btn.dataset.res);
+      layoutContainer.style.maxWidth = `${res}px`;
+      renderLayout(res);
+    });
+  });
+
+  /* ==========================================
+     4. УПРАВЛЕНИЕ СЕТКОЙ (ГАЛОЧКА)
+     ========================================== */
+  const gridToggle = document.getElementById('grid-toggle');
+  
+  gridToggle.addEventListener('change', (e) => {
+    if (e.target.checked) {
+      layoutContainer.classList.add('show-grid');
+    } else {
+      layoutContainer.classList.remove('show-grid');
+    }
+  });
+
+});
+  </script>
+</body>
+</html>
