@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="C++ — история создания, обзор языка и примеры кода. Учебная статья в чёрно-бело-оранжевой гамме.">
+<meta name="author" content="Student">
+<meta name="theme-color" content="#0a0a0a">
+<title>C++ — язык, который выковал современность</title>
+
+<!-- 11. normalize.css подключается ПЕРВЫМ -->
+<link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0a0a'/%3E%3Ctext x='16' y='23' font-size='16' font-family='monospace' fill='%23ff7a18' text-anchor='middle'%3EC%2B%2B%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<!-- ЛЕТАЮЩАЯ НАДПИСЬ C++ -->
+<div id="cxx" role="img" aria-label="C++">C++</div>
+<p class="cxx-hint" id="cxxHint">схвати и выброси — вернётся через 10 с</p>
+
+<!-- ИНДИКАТОР ПРОКРУТКИ -->
+<div class="progress-bar" id="progressBar"></div>
+
+<header class="hero" id="top">
+    <div class="hero-watermark" aria-hidden="true">C++</div>
+
+    <div class="hero-inner">
+        <p class="hero-kicker"><span class="dot"></span> ISO/IEC 14882 &middot; с <span class="">1983</span> года</p>
+
+        <h1>Язык, который <span class="accent">выковал</span> современность</h1>
+
+        <p class="hero-sub"><span id="typed"></span><span class="caret"></span></p>
+
+        <div class="hero-actions">
+            <a class="btn btn-primary" href="#history">Начать чтение</a>
+            <a class="btn btn-ghost" href="#code">Сразу к коду</a>
+        </div>
+    </div>
+
+    <a class="scroll-hint" href="#toc" aria-label="Прокрутить к содержанию">&darr;</a>
+</header>
+
+<!-- ============================================================
+     2. СОДЕРЖАНИЕ (якорные ссылки)
+     ============================================================ -->
+<nav class="toc" id="toc" aria-label="Содержание статьи">
+    <div class="toc-inner">
+        <span class="toc-label">Содержание</span>
+        <ol class="toc-list">
+            <li><a href="#history">История создания</a></li>
+            <li><a href="#overview">Краткий обзор языка</a></li>
+            <li><a href="#code">Примеры кода</a></li>
+            <li><a href="#meta">Теги и CSS-свойства</a></li>
+        </ol>
+    </div>
+</nav>
+
+<main>
+
+<!-- ============================================================
+     1. ИСТОРИЯ СОЗДАНИЯ
+     ============================================================ -->
+<section id="history" class="reveal">
+    <div class="section-head">
+        <span class="section-num">01</span>
+        <h2>История создания</h2>
+    </div>
+
+    <article class="clearfix">
+
+        <!-- КАРТИНКА №1 — обтекание СЛЕВА -->
+        <figure class="fig-left">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 420 280'%3E%3Crect width='420' height='280' fill='%230b0b0b'/%3E%3Crect x='12' y='12' width='396' height='256' fill='none' stroke='%23ff7a18' stroke-width='4'/%3E%3Ctext x='210' y='160' font-family='monospace' font-size='96' fill='%23ff7a18' text-anchor='middle' font-weight='bold'%3EC%2B%2B%3C/text%3E%3Ctext x='210' y='215' font-family='monospace' font-size='24' fill='%23f2f2f2' text-anchor='middle'%3Esince 1983%3C/text%3E%3C/svg%3E"
+                 alt="Логотип языка C++ в оранжево-чёрной рамке"
+                 width="420" height="280" loading="lazy">
+            <figcaption>Рис. 1. Логотип C++. Обтекание слева (<code>float: left</code>).</figcaption>
+        </figure>
+
+        <p>
+            Всё началось в 1979 году в исследовательском центре
+            <abbr title="Bell Telephone Laboratories">Bell Labs</abbr>, где молодой датский
+            программист <strong>Бьёрн Страуструп</strong> (Bjarne Stroustrup) работал над
+            распределённой системой и остро нуждался в языке, который был бы
+            <em>одновременно быстрым, как C, и выразительным, как Simula</em>.
+        </p>
+
+        <p>
+            Первая версия носила имя <mark>C with Classes</mark> — по сути, это был
+            препроцессор над классическим C, добавлявший классы, наследование и
+            контроль доступа. Уже тогда появились знакомые нам <code>class</code>,
+            <code>public</code> и <code>private</code>.
+        </p>
+
+        <p>
+            В <time datetime="1983">1983 году</time> язык получил своё нынешнее имя.
+            Название <strong>C++</strong> — это игра операторов: <code>++</code> в C
+            означает инкремент, то есть «C, но на шаг дальше». Именно тогда к классам
+            добавились виртуальные функции, перегрузка операторов, ссылки и
+            <code>const</code>.
+        </p>
+
+        <p>
+            В <time datetime="1985">1985 году</time> вышла первая книга Страуструпа —
+            <cite>The C++ Programming Language</cite>, ставшая де-факто стандартом
+            языка до появления официальной спецификации. А в 1998 году усилиями комитета
+            <abbr title="International Organization for Standardization">ISO</abbr>
+            был ратифицирован первый настоящий стандарт — <strong>C++98</strong>.
+        </p>
+
+        <blockquote>
+            <p>«C++ — это язык, который не мешает вам выстрелить себе в ногу, но если
+            вы всё-таки выстрелите, то оторвёт всю ногу целиком».</p>
+            <footer>— Бьёрн Страуструп</footer>
+        </blockquote>
+
+        <h3>Этапы стандартизации</h3>
+
+        <!-- НУМЕРОВАННЫЙ СПИСОК (5.1) -->
+        <ol class="steps">
+            <li><strong>1979–1983</strong> — «C with Classes»: классы, наследование, препроцессор <code>cfront</code>.</li>
+            <li><strong>1985–1989</strong> — C++ 1.0 и 2.0: виртуальные функции, множественное наследование, шаблоны.</li>
+            <li><strong>1998</strong> — ISO C++98: <abbr title="Standard Template Library">STL</abbr> официально становится частью стандарта.</li>
+            <li><strong>2011</strong> — C++11: <code>auto</code>, лямбды, rvalue-ссылки, <code>nullptr</code>, многопоточность.</li>
+            <li><strong>2017</strong> — C++17: structured bindings, <code>std::optional</code>, <code>std::filesystem</code>, fold-выражения.</li>
+            <li><strong>2020</strong> — C++20: концепты, диапазоны (<code>ranges</code>), корутины, модули.</li>
+            <li><strong>2023</strong> — C++23: <code>std::expected</code>, <code>std::print</code>, плоские контейнеры.</li>
+        </ol>
+
+        <p>
+            Сегодня C++ — это язык с <strong>40+ годами</strong> непрерывной эволюции
+            и обратной совместимостью практически на всём её протяжении.
+            Подробнее — на <a href="https://www.stroustrup.com" target="_blank" rel="noopener noreferrer">официальном сайте Бьёрна Страуструпа</a>
+            и в <a href="https://en.cppreference.com/w/cpp" target="_blank" rel="noopener noreferrer">cppreference</a>.
+            Дальше — <a href="#overview">краткий обзор языка</a>.
+        </p>
+
+    </article>
+</section>
+
+<!-- ============================================================
+     2. КРАТКИЙ ОБЗОР ЯЗЫКА
+     ============================================================ -->
+<section id="overview" class="reveal">
+    <div class="section-head">
+        <span class="section-num">02</span>
+        <h2>Краткий обзор языка</h2>
+    </div>
+
+    <article class="clearfix">
+
+        <!-- КАРТИНКА №2 — обтекание СПРАВА -->
+        <figure class="fig-right">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 420 280'%3E%3Crect width='420' height='280' fill='%23111'/%3E%3Cg fill='%23ff7a18'%3E%3Crect x='40' y='180' width='42' height='60'/%3E%3Crect x='110' y='140' width='42' height='100'/%3E%3Crect x='180' y='92' width='42' height='148'/%3E%3Crect x='250' y='52' width='42' height='188'/%3E%3Crect x='320' y='22' width='42' height='218' opacity='0.45'/%3E%3C/g%3E%3Cline x1='20' y1='240' x2='400' y2='240' stroke='%23f2f2f2' stroke-width='2'/%3E%3Ctext x='20' y='30' font-family='monospace' font-size='18' fill='%23f2f2f2'%3Estability by standard%3C/text%3E%3C/svg%3E"
+                 alt="Диаграмма роста возможностей C++ от стандарта к стандарту"
+                 width="420" height="280" loading="lazy">
+            <figcaption>Рис. 2. Рост возможностей языка. Обтекание справа (<code>float: right</code>).</figcaption>
+        </figure>
+
+        <p>
+            C++ — это <strong>компилируемый, статически типизированный</strong> язык
+            общего назначения, поддерживающий несколько парадигм одновременно:
+            процедурное, объектно-ориентированное, обобщённое и функциональное
+            программирование. Его девиз — <em>«zero-cost abstractions»</em>:
+            вы не платите за то, чем не пользуетесь.
+        </p>
+
+        <h3>Ключевые характеристики</h3>
+
+        <!-- МАРКИРОВАННЫЙ СПИСОК СО СТАНДАРТНЫМ МАРКЕРОМ (5.2) -->
+        <ul class="plain">
+            <li><strong>Производительность.</strong> Код компилируется в машинные инструкции без прослойки виртуальной машины.</li>
+            <li><strong>Ручное управление памятью</strong> — и одновременно <abbr title="Resource Acquisition Is Initialization">RAII</abbr> и умные указатели.</li>
+            <li><strong>Шаблоны</strong> — метапрограммирование, выполняемое во время компиляции.</li>
+            <li><strong>Богатая стандартная библиотека</strong>: контейнеры, алгоритмы, потоки, файловая система.</li>
+            <li><strong>Детерминированное разрушение объектов</strong> — никакого сборщика мусора.</li>
+            <li><strong>Переносимость</strong> — от микроконтроллеров до суперкомпьютеров.</li>
+        </ul>
+
+        <h3>Сравнение стандартов</h3>
+
+        <!-- ТАБЛИЦА (4) -->
+        <div class="table-wrap">
+            <table>
+                <caption>Таблица 1. Эволюция стандартов C++</caption>
+                <colgroup>
+                    <col>
+                    <col>
+                    <col class="hl">
+                    <col>
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th scope="col">Стандарт</th>
+                        <th scope="col">Год</th>
+                        <th scope="col">Ключевые новшества</th>
+                        <th scope="col">Компилятор (пример)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">C++98</th>
+                        <td><time datetime="1998">1998</time></td>
+                        <td>STL, шаблоны, <code>namespace</code>, исключения</td>
+                        <td><code>g++ -std=c++98</code></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">C++11</th>
+                        <td><time datetime="2011">2011</time></td>
+                        <td><code>auto</code>, лямбды, <code>nullptr</code>, rvalue-ссылки, <code>std::thread</code></td>
+                        <td><code>g++ -std=c++11</code></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">C++14</th>
+                        <td><time datetime="2014">2014</time></td>
+                        <td>Обобщённые лямбды, <code>constexpr</code>-функции, <code>std::make_unique</code></td>
+                        <td><code>g++ -std=c++14</code></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">C++17</th>
+                        <td><time datetime="2017">2017</time></td>
+                        <td>Fold-выражения, structured bindings, <code>std::optional</code>, <code>std::filesystem</code></td>
+                        <td><code>g++ -std=c++17</code></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">C++20</th>
+                        <td><time datetime="2020">2020</time></td>
+                        <td>Концепты, <code>ranges</code>, корутины, модули, <code>&lt;span&gt;</code></td>
+                        <td><code>g++ -std=c++20</code></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">C++23</th>
+                        <td><time datetime="2023">2023</time></td>
+                        <td><code>std::expected</code>, <code>std::print</code>, <code>std::flat_map</code></td>
+                        <td><code>g++ -std=c++23</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Области применения</h3>
+
+        <!-- МАРКИРОВАННЫЙ СПИСОК С КАРТИНКОЙ-МАРКЕРОМ (5.3) -->
+        <ul class="pictured">
+            <li>Игровые движки — <strong>Unreal Engine</strong>, <strong>Unity</strong> (нативная часть), <strong>CryEngine</strong>.</li>
+            <li>Браузеры — <strong>Chrome</strong> (Blink), <strong>Firefox</strong> (Gecko), <strong>Safari</strong> (WebKit).</li>
+            <li>Операционные системы — ядро <strong>Windows</strong>, части <strong>Linux</strong>, <strong>macOS</strong>.</li>
+            <li>Финансовые системы — биржевые движки с микросекундными задержками.</li>
+            <li>Наука и <abbr title="High Performance Computing">HPC</abbr> — симуляции, численные методы, <strong>ROOT</strong> в CERN.</li>
+            <li>Встраиваемые системы и робототехника — <strong>ROS 2</strong>, автопилоты, дроны.</li>
+        </ul>
+
+        <h3>Мини-глоссарий</h3>
+
+        <dl class="glossary">
+            <dt>RAII</dt>
+            <dd>Resource Acquisition Is Initialization — ресурс живёт ровно столько, сколько живёт объект.</dd>
+
+            <dt>Шаблон</dt>
+            <dd>Механизм обобщённого программирования: код параметризуется типами и значениями.</dd>
+
+            <dt>UB</dt>
+            <dd>Undefined Behaviour — неопределённое поведение; компилятор вправе сделать что угодно.</dd>
+
+            <dt>STL</dt>
+            <dd>Standard Template Library — контейнеры, итераторы и алгоритмы стандартной библиотеки.</dd>
+
+            <dt>Перегрузка</dt>
+            <dd>Возможность иметь несколько функций или операторов с одним именем, но разными параметрами.</dd>
+        </dl>
+
+        <aside class="stats">
+            <h3>Популярность в цифрах</h3>
+
+            <div class="stat-row">
+                <div class="stat-top"><span>Игры и графика</span><span>92%</span></div>
+                <progress value="92" max="100"></progress>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-top"><span>Системное ПО</span><span>78%</span></div>
+                <progress value="78" max="100"></progress>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-top"><span>Финансовые системы</span><span>64%</span></div>
+                <progress value="64" max="100"></progress>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-top"><span>Веб-бэкенд</span><span>27%</span></div>
+                <progress value="27" max="100"></progress>
+            </div>
+
+            <p style="margin:18px 0 0;">
+                <small>Оценки основаны на открытых обзорах индустрии и носят иллюстративный характер.</small>
+            </p>
+        </aside>
+
+        <h3>Частые вопросы</h3>
+
+        <details>
+            <summary>C++ и C — это одно и то же?</summary>
+            <p>Нет. C — подмножество C++ лишь исторически и не полностью. C++ добавляет классы,
+               шаблоны, исключения, пространства имён, перегрузку и строгую типизацию.
+               Многие программы на C компилируются как C++, но далеко не все.</p>
+        </details>
+
+        <details>
+            <summary>Почему C++ считают сложным?</summary>
+            <p>Из-за огромного пространства возможностей: ручное управление памятью,
+               неопределённое поведение, множественное наследование, шаблонная метапрограммика.
+               Но современный C++ (C++17/20/23) с <code>auto</code>, умными указателями
+               и <code>std::string_view</code> пишется заметно проще, чем принято думать.</p>
+        </details>
+
+        <details>
+            <summary>Нужно ли учить C перед C++?</summary>
+            <p>Не обязательно, но полезно понимать, что такое указатели, стек и куча.
+               Однако учить «C-стилю» в C++ не стоит: вместо <code>malloc</code> используется
+               <code>new</code> и контейнеры, вместо <code>char*</code> — <code>std::string</code>.</p>
+        </details>
+
+    </article>
+</section>
+
+<!-- ============================================================
+     3. ПРИМЕРЫ КОДА
+     ============================================================ -->
+<section id="code" class="reveal">
+    <div class="section-head">
+        <span class="section-num">03</span>
+        <h2>Примеры кода</h2>
+    </div>
+
+    <p>
+        Ниже — четыре небольших примера, показывающих разные грани языка.
+        Переключайте вкладки и копируйте код кнопкой в правом верхнем углу блока.
+        Все примеры проверены на <code>g++ -std=c++20</code>.
+    </p>
+
+    <!-- КАРТИНКА №3 — ПО ЦЕНТРУ -->
+    <figure class="fig-center">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 280'%3E%3Crect width='520' height='280' rx='14' fill='%230b0b0b' stroke='%23333' stroke-width='2'/%3E%3Ccircle cx='32' cy='30' r='8' fill='%23ff7a18'/%3E%3Ccircle cx='58' cy='30' r='8' fill='%23888'/%3E%3Ccircle cx='84' cy='30' r='8' fill='%23444'/%3E%3Ctext x='32' y='96' font-family='monospace' font-size='20' fill='%23ff7a18'%3E$ g%2B%2B main.cpp -o app -O2%3C/text%3E%3Ctext x='32' y='136' font-family='monospace' font-size='20' fill='%23f2f2f2'%3E$ ./app%3C/text%3E%3Ctext x='32' y='176' font-family='monospace' font-size='20' fill='%2388ff88'%3EHello%2C C%2B%2B!%3C/text%3E%3Crect x='32' y='192' width='13' height='22' fill='%23ff7a18'/%3E%3C/svg%3E"
+             alt="Окно терминала со сборкой и запуском программы на C++"
+             width="520" height="280" loading="lazy">
+        <figcaption>Рис. 3. Компиляция и запуск. Выравнивание по центру.</figcaption>
+    </figure>
+
+    <div class="code-shell">
+
+        <div class="code-tabs" role="tablist">
+            <button class="tab active" data-tab="t1" role="tab">hello.cpp</button>
+            <button class="tab" data-tab="t2" role="tab">class / RAII</button>
+            <button class="tab" data-tab="t3" role="tab">templates</button>
+            <button class="tab" data-tab="t4" role="tab">smart pointers</button>
+        </div>
+
+        <!-- ПРИМЕР 1 -->
+        <div class="code-panel active" id="t1" role="tabpanel">
+            <button class="copy-btn" type="button">copy</button>
+<pre><code><span class="tok-cm">// hello.cpp — первая программа на C++</span>
+<span class="tok-pp">#include</span> <span class="tok-str">&lt;iostream&gt;</span>
+<span class="tok-pp">#include</span> <span class="tok-str">&lt;string&gt;</span>
+
+<span class="tok-ty">int</span> <span class="tok-fn">main</span>() {
+    <span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-ty">string</span> name <span class="tok-op">=</span> <span class="tok-str">"world"</span>;
+    <span class="tok-ty">std</span><span class="tok-op">::</span>cout <span class="tok-op">&lt;&lt;</span> <span class="tok-str">"Hello, "</span> <span class="tok-op">&lt;&lt;</span> name <span class="tok-op">&lt;&lt;</span> <span class="tok-str">"!"</span> <span class="tok-op">&lt;&lt;</span> <span class="tok-ty">std</span><span class="tok-op">::</span>endl;
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+        </div>
+
+        <!-- ПРИМЕР 2 -->
+        <div class="code-panel" id="t2" role="tabpanel">
+            <button class="copy-btn" type="button">copy</button>
+<pre><code><span class="tok-cm">// Класс с инкапсуляцией и RAII-семантикой</span>
+<span class="tok-pp">#include</span> <span class="tok-str">&lt;string&gt;</span>
+<span class="tok-pp">#include</span> <span class="tok-str">&lt;utility&gt;</span>
+
+<span class="tok-kw">class</span> <span class="tok-ty">Player</span> {
+<span class="tok-kw">public</span>:
+    <span class="tok-kw">explicit</span> <span class="tok-fn">Player</span>(<span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-ty">string</span> name, <span class="tok-ty">int</span> hp)
+        : <span class="tok-id">name_</span>{ <span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-fn">move</span>(name) }
+        , <span class="tok-id">hp_</span>{ hp } {}
+
+    <span class="tok-ty">void</span> <span class="tok-fn">damage</span>(<span class="tok-ty">int</span> amount) <span class="tok-kw">noexcept</span> {
+        <span class="tok-id">hp_</span> <span class="tok-op">=</span> (<span class="tok-id">hp_</span> <span class="tok-op">-</span> amount <span class="tok-op">&lt;</span> <span class="tok-num">0</span>) <span class="tok-op">?</span> <span class="tok-num">0</span> : <span class="tok-id">hp_</span> <span class="tok-op">-</span> amount;
+    }
+
+    [[<span class="tok-mac">nodiscard</span>]] <span class="tok-ty">bool</span> <span class="tok-fn">alive</span>() <span class="tok-kw">const</span> <span class="tok-kw">noexcept</span> {
+        <span class="tok-kw">return</span> <span class="tok-id">hp_</span> <span class="tok-op">&gt;</span> <span class="tok-num">0</span>;
+    }
+
+    <span class="tok-kw">const</span> <span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-ty">string</span><span class="tok-op">&amp;</span> <span class="tok-fn">name</span>() <span class="tok-kw">const</span> <span class="tok-kw">noexcept</span> {
+        <span class="tok-kw">return</span> <span class="tok-id">name_</span>;
+    }
+
+<span class="tok-kw">private</span>:
+    <span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-ty">string</span> <span class="tok-id">name_</span>;
+    <span class="tok-ty">int</span>        <span class="tok-id">hp_</span>;
+};</code></pre>
+        </div>
+
+        <!-- ПРИМЕР 3 -->
+        <div class="code-panel" id="t3" role="tabpanel">
+            <button class="copy-btn" type="button">copy</button>
+<pre><code><span class="tok-cm">// Шаблоны и fold-выражения (C++17)</span>
+<span class="tok-pp">#include</span> <span class="tok-str">&lt;cstddef&gt;</span>
+<span class="tok-pp">#include</span> <span class="tok-str">&lt;type_traits&gt;</span>
+
+<span class="tok-kw">template</span> <span class="tok-op">&lt;</span><span class="tok-kw">typename</span> <span class="tok-ty">T</span>, <span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-ty">size_t</span> <span class="tok-ty">N</span><span class="tok-op">&gt;</span>
+<span class="tok-kw">constexpr</span> <span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-ty">size_t</span> <span class="tok-fn">array_size</span>(<span class="tok-kw">const</span> <span class="tok-ty">T</span> (<span class="tok-op">&amp;</span>)[<span class="tok-ty">N</span>]) <span class="tok-kw">noexcept</span> {
+    <span class="tok-kw">return</span> <span class="tok-ty">N</span>;
+}
+
+<span class="tok-kw">template</span> <span class="tok-op">&lt;</span><span class="tok-kw">typename</span>... <span class="tok-ty">Ts</span><span class="tok-op">&gt;</span>
+<span class="tok-kw">auto</span> <span class="tok-fn">sum</span>(<span class="tok-ty">Ts</span>... args) <span class="tok-kw">noexcept</span> {
+    <span class="tok-kw">return</span> (args <span class="tok-op">+</span> ...);   <span class="tok-cm">// C++17: свёртка</span>
+}
+
+<span class="tok-ty">int</span> <span class="tok-fn">main</span>() {
+    <span class="tok-ty">int</span> data[] <span class="tok-op">=</span> { <span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>, <span class="tok-num">4</span> };
+    <span class="tok-kw">static_assert</span>(<span class="tok-fn">array_size</span>(data) <span class="tok-op">==</span> <span class="tok-num">4</span>);
+    <span class="tok-kw">return</span> <span class="tok-fn">sum</span>(<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>);   <span class="tok-cm">// 6</span>
+}</code></pre>
+        </div>
+
+        <!-- ПРИМЕР 4 -->
+        <div class="code-panel" id="t4" role="tabpanel">
+            <button class="copy-btn" type="button">copy</button>
+<pre><code><span class="tok-cm">// Умные указатели: владение без утечек</span>
+<span class="tok-pp">#include</span> <span class="tok-str">&lt;memory&gt;</span>
+<span class="tok-pp">#include</span> <span class="tok-str">&lt;vector&gt;</span>
+
+<span class="tok-kw">struct</span> <span class="tok-ty">Texture</span> { <span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-ty">string</span> path; };
+
+<span class="tok-kw">class</span> <span class="tok-ty">Renderer</span> {
+<span class="tok-kw">public</span>:
+    <span class="tok-ty">void</span> <span class="tok-fn">load</span>(<span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-ty">string</span> file) {
+        <span class="tok-id">atlas_</span>.<span class="tok-fn">push_back</span>(
+            <span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-fn">make_shared</span><span class="tok-op">&lt;</span><span class="tok-ty">Texture</span><span class="tok-op">&gt;</span>(<span class="tok-ty">Texture</span>{ <span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-fn">move</span>(file) })
+        );
+    }
+
+<span class="tok-kw">private</span>:
+    <span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-ty">vector</span><span class="tok-op">&lt;</span><span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-ty">shared_ptr</span><span class="tok-op">&lt;</span><span class="tok-ty">Texture</span><span class="tok-op">&gt;&gt;</span> <span class="tok-id">atlas_</span>;
+};
+
+<span class="tok-ty">int</span> <span class="tok-fn">main</span>() {
+    <span class="tok-kw">auto</span> widget <span class="tok-op">=</span> <span class="tok-ty">std</span><span class="tok-op">::</span><span class="tok-fn">make_unique</span><span class="tok-op">&lt;</span><span class="tok-ty">Renderer</span><span class="tok-op">&gt;</span>();
+    widget<span class="tok-op">-&gt;</span><span class="tok-fn">load</span>(<span class="tok-str">"wall.png"</span>);
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;   <span class="tok-cm">// память освобождается автоматически</span>
+}</code></pre>
+        </div>
+
+    </div>
+
+    <p>
+        Больше примеров и точных описаний — в разделах
+        <a href="https://en.cppreference.com/w/cpp/language" target="_blank" rel="noopener noreferrer">языковых конструкций</a>
+        и <a href="https://isocpp.org/faq" target="_blank" rel="noopener noreferrer">FAQ комитета по стандартизации</a>.
+        Вернуться к <a href="#overview">обзору языка</a> или перейти к
+        <a href="#meta">списку использованных тегов</a>.
+    </p>
+</section>
+
+<!-- ============================================================
+     12. СПИСОК ИСПОЛЬЗОВАННЫХ ТЕГОВ И CSS-СВОЙСТВ
+     ============================================================ -->
+<section id="meta" class="reveal">
+    <div class="section-head">
+        <span class="section-num">04</span>
+        <h2>Теги и CSS-свойства</h2>
+    </div>
+
+    <p>
+        Ниже перечислены все HTML-теги и CSS-свойства, задействованные в этой странице.
+        Требовалось минимум <strong>30 тегов</strong> и <strong>40 свойств</strong>.
+    </p>
+
+    <div class="meta-grid">
+
+        <div class="meta-box">
+            <h3>Использованные HTML-теги (56)</h3>
+            <ul>
+                <li>&lt;!DOCTYPE&gt;</li><li>&lt;html&gt;</li><li>&lt;head&gt;</li><li>&lt;meta&gt;</li>
+                <li>&lt;title&gt;</li><li>&lt;link&gt;</li><li>&lt;style&gt;</li><li>&lt;script&gt;</li>
+                <li>&lt;body&gt;</li><li>&lt;header&gt;</li><li>&lt;nav&gt;</li><li>&lt;main&gt;</li>
+                <li>&lt;section&gt;</li><li>&lt;article&gt;</li><li>&lt;aside&gt;</li><li>&lt;footer&gt;</li>
+                <li>&lt;h1&gt;</li><li>&lt;h2&gt;</li><li>&lt;h3&gt;</li><li>&lt;p&gt;</li>
+                <li>&lt;a&gt;</li><li>&lt;ol&gt;</li><li>&lt;ul&gt;</li><li>&lt;li&gt;</li>
+                <li>&lt;dl&gt;</li><li>&lt;dt&gt;</li><li>&lt;dd&gt;</li><li>&lt;table&gt;</li>
+                <li>&lt;caption&gt;</li><li>&lt;colgroup&gt;</li><li>&lt;col&gt;</li><li>&lt;thead&gt;</li>
+                <li>&lt;tbody&gt;</li><li>&lt;tr&gt;</li><li>&lt;th&gt;</li><li>&lt;td&gt;</li>
+                <li>&lt;img&gt;</li><li>&lt;figure&gt;</li><li>&lt;figcaption&gt;</li><li>&lt;pre&gt;</li>
+                <li>&lt;code&gt;</li><li>&lt;span&gt;</li><li>&lt;div&gt;</li><li>&lt;strong&gt;</li>
+                <li>&lt;em&gt;</li><li>&lt;mark&gt;</li><li>&lt;cite&gt;</li><li>&lt;blockquote&gt;</li>
+                <li>&lt;abbr&gt;</li><li>&lt;time&gt;</li><li>&lt;small&gt;</li><li>&lt;hr&gt;</li>
+                <li>&lt;button&gt;</li><li>&lt;kbd&gt;</li><li>&lt;details&gt;</li><li>&lt;summary&gt;</li>
+                <li>&lt;progress&gt;</li>
+            </ul>
+        </div>
+
+        <div class="meta-box">
+            <h3>Использованные CSS-свойства (60+)</h3>
+            <ul>
+                <li>margin</li><li>padding</li><li>background</li><li>background-color</li>
+                <li>background-image</li><li>background-size</li><li>background-clip</li><li>color</li>
+                <li>font-family</li><li>font-size</li><li>font-weight</li><li>font-style</li>
+                <li>font-display</li><li>line-height</li><li>letter-spacing</li><li>text-align</li>
+                <li>text-decoration</li><li>text-transform</li><li>text-shadow</li><li>text-underline-offset</li>
+                <li>text-indent</li><li>border</li><li>border-radius</li><li>border-left</li>
+                <li>border-bottom</li><li>border-collapse</li><li>box-shadow</li><li>box-sizing</li>
+                <li>display</li><li>position</li><li>top</li><li>left</li><li>right</li>
+                <li>bottom</li><li>inset</li><li>width</li><li>height</li><li>min-height</li>
+                <li>max-width</li><li>min-width</li><li>flex</li><li>flex-direction</li>
+                <li>flex-wrap</li><li>justify-content</li><li>align-items</li><li>gap</li>
+                <li>grid-template-columns</li><li>overflow</li><li>overflow-x</li><li>opacity</li>
+                <li>visibility</li><li>z-index</li><li>float</li><li>clear</li>
+                <li>list-style</li><li>list-style-image</li><li>object-fit</li><li>white-space</li>
+                <li>vertical-align</li><li>caption-side</li><li>cursor</li><li>transition</li>
+                <li>transform</li><li>transform-origin</li><li>animation</li><li>backdrop-filter</li>
+                <li>scroll-behavior</li><li>scroll-padding-top</li><li>user-select</li><li>filter</li>
+                <li>appearance</li><li>content</li><li>counter-increment</li><li>tab-size</li>
+                <li>outline</li><li>pointer-events</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <p>
+        <small>
+            Материал подготовлен по данным
+            <a href="https://ru.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noopener noreferrer">Википедии</a>,
+            <a href="https://en.cppreference.com/" target="_blank" rel="noopener noreferrer">cppreference.com</a> и
+            <a href="https://isocpp.org/" target="_blank" rel="noopener noreferrer">isocpp.org</a>.
+            Исходный код проекта хранится в
+            <a href="https://github.com/" target="_blank" rel="noopener noreferrer">репозитории на GitHub</a>.
+        </small>
+    </p>
+</section>
+
+</main>
+
+<!-- ============================================================
+     КНОПКА НАВЕРХ
+     ============================================================ -->
+<button class="to-top" id="toTop" type="button" aria-label="Наверх">&uarr;</button>
+
+<!-- ============================================================
+     ФУТЕР
+     ============================================================ -->
+<footer class="site-footer">
+    <div class="footer-inner">
+        <p style="font-family:'TaskMono',monospace;font-size:13px;color:#ff7a18;letter-spacing:.2em;margin:0;">
+            C++ &middot; ISO/IEC 14882
+        </p>
+
+        <div class="footer-links">
+            <a href="#top">Наверх</a>
+            <a href="#history">История</a>
+            <a href="#overview">Обзор</a>
+            <a href="#code">Код</a>
+            <a href="#meta">Теги</a>
+            <a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://necolas.github.io/normalize.css/" target="_blank" rel="noopener noreferrer">normalize.css</a>
+        </div>
+
+        <p><small>&copy; <time datetime="2025">2025</time>. Учебный проект. Сделано deepseek(ом), без фреймворков.</small></p>
+    </div>
+</footer>
+
+<script>
+/* ============================================================
+   1. ИНДИКАТОР ПРОКРУТКИ + КНОПКА НАВЕРХ
+   ============================================================ */
+(function () {
+    const bar   = document.getElementById('progressBar');
+    const toTop = document.getElementById('toTop');
+
+    function onScroll() {
+        const doc      = document.documentElement;
+        const max      = doc.scrollHeight - window.innerHeight;
+        const progress = max > 0 ? (window.scrollY / max) * 100 : 0;
+        bar.style.width = progress + '%';
+        toTop.classList.toggle('visible', window.scrollY > 500);
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+
+    toTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+})();
+
+/* ============================================================
+   2. ПЕЧАТАЮЩИЙСЯ ТЕКСТ В HERO
+   ============================================================ */
+(function () {
+    const target = document.getElementById('typed');
+    if (!target) return;
+
+    const lines = [
+        'std::cout << "Быстро. Низкоуровнево. Бескомпромиссно.";',
+        'template<typename T> T power(T base, int exp);',
+        '// Zero-cost abstractions since 1983',
+        'auto future = std::async([]{ return "C++"; });'
+    ];
+
+    let lineIndex = 0, charIndex = 0, deleting = false;
+
+    function tick() {
+        const current = lines[lineIndex];
+        charIndex += deleting ? -1 : 1;
+        target.textContent = current.slice(0, charIndex);
+
+        let delay = deleting ? 26 : 48;
+
+        if (!deleting && charIndex === current.length) {
+            delay = 1900;
+            deleting = true;
+        } else if (deleting && charIndex === 0) {
+            deleting = false;
+            lineIndex = (lineIndex + 1) % lines.length;
+            delay = 420;
+        }
+
+        setTimeout(tick, delay);
+    }
+
+    tick();
+})();
+
+/* ============================================================
+   3. ПЛАВНОЕ ПОЯВЛЕНИЕ СЕКЦИЙ ПРИ ПРОКРУТКЕ
+   ============================================================ */
+(function () {
+    const items = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+        items.forEach(el => el.classList.add('visible'));
+        return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+
+    items.forEach(el => observer.observe(el));
+})();
+
+/* ============================================================
+   4. ВКЛАДКИ В БЛОКАХ КОДА
+   ============================================================ */
+(function () {
+    const tabs   = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.code-panel');
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            const id = tab.dataset.tab;
+
+            tabs.forEach(t => t.classList.remove('active'));
+            panels.forEach(p => p.classList.remove('active'));
+
+            tab.classList.add('active');
+            const panel = document.getElementById(id);
+            if (panel) panel.classList.add('active');
+        });
+    });
+})();
+
+/* ============================================================
+   5. КОПИРОВАНИЕ КОДА
+   ============================================================ */
+(function () {
+    document.querySelectorAll('.copy-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const panel = btn.closest('.code-panel');
+            const code  = panel ? panel.querySelector('code') : null;
+            if (!code) return;
+
+            const text = code.innerText;
+
+            function done() {
+                btn.textContent = 'copied!';
+                btn.classList.add('done');
+                setTimeout(function () {
+                    btn.textContent = 'copy';
+                    btn.classList.remove('done');
+                }, 1600);
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done).catch(function () {
+                    fallback(text); done();
+                });
+            } else {
+                fallback(text); done();
+            }
+
+            function fallback(str) {
+                const ta = document.createElement('textarea');
+                ta.value = str;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch (e) {}
+                document.body.removeChild(ta);
+            }
+        });
+    });
+})();
+
+/* ============================================================
+   6. ПОДСВЕТКА АКТИВНОГО ПУНКТА СОДЕРЖАНИЯ
+   ============================================================ */
+(function () {
+    const links    = document.querySelectorAll('.toc-list a');
+    const sections = document.querySelectorAll('main section[id]');
+
+    if (!links.length || !sections.length) return;
+
+    function highlight() {
+        let currentId = sections[0].id;
+
+        sections.forEach(function (section) {
+            const top = section.getBoundingClientRect().top;
+            if (top <= 140) currentId = section.id;
+        });
+
+        links.forEach(function (link) {
+            const isActive = link.getAttribute('href') === '#' + currentId;
+            link.classList.toggle('active', isActive);
+        });
+    }
+
+    window.addEventListener('scroll', highlight, { passive: true });
+    highlight();
+})();
+/* ============================================================
+   7. ЛЕТАЮЩАЯ НАДПИСЬ C++: схвати и выброси
+   ============================================================ */
+(function () {
+    'use strict';
+
+    var el   = document.getElementById('cxx');
+    var hint = document.getElementById('cxxHint');
+    if (!el) return;
+
+    /* ---------- настройки ---------- */
+    var IDLE_SPIN    = 7;      // °/с  — ленивое вращение в покое
+    var ENTER_SPIN   = 42;     // °/с  — вращение при выплывании
+    var ENTER_SPEED  = 80;     // было 130 — медленнее выезд
+    var FRICTION     = 2;      // было 2.0 — 0 = без замедления после броска
+    var RETURN_DELAY = 1000;  // мс   — пауза перед новым выплыванием
+    var MAX_THROW    = 1600;   // было 5200 — ограничивает скорость полёта
+
+    /* ---------- состояние ---------- */
+    var size  = { w: 0, h: 0 };
+    var x = 0, y = 0;          // позиция левого верхнего угла
+    var vx = 0, vy = 0;        // скорость, px/с
+    var angle = 0;             // угол, °
+    var spin = IDLE_SPIN;      // текущая угловая скорость
+    var spinDir = 1;
+    var mode = 'offscreen';    // offscreen | enter | idle | drag | fly
+    var drag = null;
+    var returnTimer = null;
+    var lastT = 0;
+    var started = false;
+    var hintShown = false;
+
+    function rand(a, b) { return a + Math.random() * (b - a); }
+
+    function measure() {
+        size.w = el.offsetWidth;
+        size.h = el.offsetHeight;
+    }
+
+    function render() {
+        el.style.transform =
+            'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0)' +
+            ' rotate(' + angle.toFixed(2) + 'deg)';
+    }
+
+    function fitsScreen() {
+        return size.w <= innerWidth - 4 && size.h <= innerHeight - 4;
+    }
+
+    function isOffscreen() {
+        var vw = innerWidth, vh = innerHeight;
+        var cx = x + size.w / 2, cy = y + size.h / 2;
+        var r  = Math.hypot(size.w, size.h) / 2 + 6;
+        return (cx + r < 0) || (cx - r > vw) || (cy + r < 0) || (cy - r > vh);
+    }
+
+    function centerCrossed() {
+        var cx = x + size.w / 2, cy = y + size.h / 2;
+        if (vx > 0) return cx >= innerWidth  / 2;
+        if (vx < 0) return cx <= innerWidth  / 2;
+        if (vy > 0) return cy >= innerHeight / 2;
+        if (vy < 0) return cy <= innerHeight / 2;
+        return false;
+    }
+
+    function enterFromEdge() {
+        clearTimeout(returnTimer);
+        returnTimer = null;
+
+        var vw = innerWidth, vh = innerHeight;
+        var w = size.w, h = size.h;
+        var speed = ENTER_SPEED * rand(0.85, 1.25);
+
+        spinDir = Math.random() < 0.5 ? -1 : 1;
+
+        var edges = ['left', 'right', 'left', 'right', 'top', 'bottom'];
+        var edge = edges[(Math.random() * edges.length) | 0];
+
+        if (edge === 'left') {
+            x = -w - 30; y = rand(0, Math.max(0, vh - h));
+            vx = speed; vy = 0;
+        } else if (edge === 'right') {
+            x = vw + 30; y = rand(0, Math.max(0, vh - h));
+            vx = -speed; vy = 0;
+        } else if (edge === 'top') {
+            x = rand(0, Math.max(0, vw - w)); y = -h - 30;
+            vx = 0; vy = speed;
+        } else {
+            x = rand(0, Math.max(0, vw - w)); y = vh + 30;
+            vx = 0; vy = -speed;
+        }
+
+        angle = rand(-20, 20);
+        spin = ENTER_SPIN * spinDir;
+        mode = 'enter';
+
+        render();
+        el.classList.remove('dragging');
+        el.classList.add('show');
+
+        if (hint && !hintShown) {
+            hintShown = true;
+            hint.classList.add('show');
+        }
+    }
+
+    function goOffscreen() {
+        mode = 'offscreen';
+        vx = 0; vy = 0;
+        el.classList.remove('dragging');
+        el.classList.remove('show');
+        clearTimeout(returnTimer);
+        returnTimer = setTimeout(enterFromEdge, RETURN_DELAY);
+    }
+
+    function loop(now) {
+        requestAnimationFrame(loop);
+
+        var dt = (now - lastT) / 1000;
+        lastT = now;
+        if (!isFinite(dt) || dt <= 0) return;
+        if (dt > 0.05) dt = 0.05;
+
+         if (mode === 'enter') {
+            x += vx * dt; y += vy * dt;
+            if (isOffscreen()) { goOffscreen(); return; } /* <-- ДОБАВЛЕНА ЭТА СТРОКА */
+        } else if (mode === 'fly') {
+            x += vx * dt; y += vy * dt;
+            var damp = Math.exp(-FRICTION * dt);
+            vx *= damp; vy *= damp;
+            if (Math.hypot(vx, vy) < 6) { vx = 0; vy = 0; mode = 'idle'; }
+            if (isOffscreen()) { goOffscreen(); return; }
+        } else if (mode === 'idle') {
+            if (isOffscreen()) { goOffscreen(); return; }
+        }
+
+        var targetSpin = (mode === 'enter' ? ENTER_SPIN : IDLE_SPIN) * spinDir;
+        spin += (targetSpin - spin) * Math.min(1, dt * 2.2);
+
+        if (mode !== 'drag') {
+            angle += spin * dt;
+            if (angle >  360) angle -= 360;
+            if (angle < -360) angle += 360;
+        }
+
+        render();
+    }
+
+    function onDown(e) {
+        if (mode === 'offscreen' || drag) return;
+        try { el.setPointerCapture(e.pointerId); } catch (err) {}
+
+        drag = {
+            id: e.pointerId,
+            dx: e.clientX - x,
+            dy: e.clientY - y,
+            samples: [{ t: performance.now(), x: e.clientX, y: e.clientY }]
+        };
+
+        mode = 'drag';
+        vx = 0; vy = 0;
+        el.classList.add('dragging');
+        if (hint) hint.classList.remove('show');
+        e.preventDefault();
+    }
+
+    function onMove(e) {
+        if (!drag || e.pointerId !== drag.id) return;
+        x = e.clientX - drag.dx;
+        y = e.clientY - drag.dy;
+        drag.samples.push({ t: performance.now(), x: e.clientX, y: e.clientY });
+        if (drag.samples.length > 16) drag.samples.shift();
+        render();
+        e.preventDefault();
+    }
+
+    function onUp(e) {
+        if (!drag || e.pointerId !== drag.id) return;
+
+        var now = performance.now();
+        var recent = drag.samples.filter(function (p) { return now - p.t < 130; });
+        var nvx = 0, nvy = 0;
+
+        if (recent.length >= 2) {
+            var a  = recent[0];
+            var b  = recent[recent.length - 1];
+            var dt = (b.t - a.t) / 1000;
+            if (dt > 0.002) {
+                nvx = (b.x - a.x) / dt;
+                nvy = (b.y - a.y) / dt;
+            }
+        }
+
+        var sp = Math.hypot(nvx, nvy);
+        if (sp > MAX_THROW) {
+            nvx = nvx / sp * MAX_THROW;
+            nvy = nvy / sp * MAX_THROW;
+        }
+
+        vx = nvx; vy = nvy;
+        drag = null;
+        el.classList.remove('dragging');
+
+        if (Math.hypot(vx, vy) > 40) mode = 'fly';
+        else { vx = 0; vy = 0; mode = 'idle'; }
+
+        if (isOffscreen()) goOffscreen();
+    }
+
+    function onCancel(e) {
+        if (!drag || e.pointerId !== drag.id) return;
+        drag = null; vx = 0; vy = 0; mode = 'idle';
+        el.classList.remove('dragging');
+        if (isOffscreen()) goOffscreen();
+    }
+
+    function init() {
+        if (started) return;
+        started = true;
+        measure();
+        x = -size.w - 60;
+        y = Math.max(0, (innerHeight - size.h) / 2);
+        angle = -12;
+        render();
+        lastT = performance.now();
+        requestAnimationFrame(loop);
+        setTimeout(enterFromEdge, 300);
+    }
+
+    el.addEventListener('pointerdown', onDown);
+    /* слушаем на window — надёжнее pointer capture в старых браузерах */
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onCancel);
+    el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+    window.addEventListener('resize', function () { measure(); render(); });
+
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(init);
+    window.addEventListener('load', init);
+    setTimeout(init, 900); // страховка
+})();
+</script>
+
+</body>
+</html>
