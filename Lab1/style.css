@@ -2,27 +2,22 @@
    7. ЛОКАЛЬНО ПОДКЛЮЧЁННЫЙ НЕСТАНДАРТНЫЙ ШРИФТ
    Файлы шрифтов положить в папку ./fonts рядом с index.html
    ============================================================ */
-@font-face{
-    font-family:'TaskDisplay';
-    src:url('fonts/Unbounded-Regular.woff2') format('woff2'),
-        url('fonts/Unbounded-Regular.woff')  format('woff');
-    font-weight:400;
-    font-style:normal;
-    font-display:swap;
+@font-face {
+    font-family: 'TaskDisplay';
+    src: url('fonts/RobotoSlab-Regular.woff2') format('woff2'),
+         url('fonts/RobotoSlab-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
 }
-@font-face{
-    font-family:'TaskDisplay';
-    src:url('fonts/Unbounded-Bold.woff2') format('woff2'),
-        url('fonts/Unbounded-Bold.woff')  format('woff');
-    font-weight:700;
-    font-style:normal;
-    font-display:swap;
-}
-@font-face{
-    font-family:'TaskMono';
-    src:url('fonts/JetBrainsMono-Regular.woff2') format('woff2');
-    font-weight:400;
-    font-display:swap;
+
+@font-face {
+    font-family: 'TaskDisplay';
+    src: url('fonts/RobotoSlab-Bold.woff2') format('woff2'),
+         url('fonts/RobotoSlab-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
 }
 
 /* ============================================================
