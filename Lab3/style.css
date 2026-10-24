@@ -1,0 +1,255 @@
+/* ================= СБРОС ================= */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+    font-family: 'Georgia', serif; 
+    overflow: hidden; 
+    background-color: #1a1a1a;
+}
+
+/* ================= ФОН ================= */
+.bg-blur {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background-image: url('bg.webp'); 
+    
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px) brightness(0.5);
+    z-index: 1;
+}
+
+/* ================= КОНТЕЙНЕР КНИГИ ================= */
+.book-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* Изначально книга спрятана внизу и повернута */
+    transform: translate(-50%, -50%) translateY(100vh) rotate(-5deg);
+    width: 90%;
+    max-width: 950px; /* Широкая, чтобы поместились 2 страницы */
+    z-index: 10;
+    transition: transform 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* Класс, который добавляет JS для выезда */
+.book-wrapper.show {
+    transform: translate(-50%, -50%) translateY(0) rotate(0deg);
+    /* Легкое покачивание */
+    animation: holdBook 6s ease-in-out infinite alternate;
+}
+
+@keyframes holdBook {
+    0% { transform: translate(-50%, -50%) translateY(0) rotate(-1deg); }
+    100% { transform: translate(-50%, -50%) translateY(-10px) rotate(1.5deg); }
+}
+
+/* ================= КНИГА (ОБЛОЖКА) ================= */
+.book {
+    position: relative;
+    background-color: #2e1e12;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 
+        0 30px 60px rgba(0,0,0,0.8), /* Тень на пол */
+        0 0 0 2px #1a1109 inset;      /* Обводка обложки */
+}
+
+/* Корешок по центру */
+.book-spine {
+    position: absolute;
+    top: 15px; bottom: 15px; left: 50%;
+    width: 20px;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 100%);
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* ================= СТРАНИЦЫ (DESKTOP) ================= */
+.book-inner {
+    display: flex;
+    background-color: #f4ecd8;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5) inset;
+}
+
+.page {
+    flex: 1;
+    padding: 40px;
+    position: relative;
+}
+
+.page-left {
+    box-shadow: inset -20px 0 30px -20px rgba(0,0,0,0.5); /* Тень от корешка */
+}
+
+.page-right {
+    box-shadow: inset 20px 0 30px -20px rgba(0,0,0,0.5);
+}
+
+/* ================= ТЕКСТ ================= */
+.book-title {
+    font-family: 'Times New Roman', serif;
+    font-size: 28px;
+    color: #3e2c1c;
+    text-align: center;
+    border-bottom: 2px solid #8b7355;
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+}
+.book-subtitle {
+    text-align: center;
+    font-style: italic;
+    color: #6b5a4a;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+/* ================= ФОРМА ================= */
+fieldset {
+    border: none;
+    margin-bottom: 15px;
+}
+legend {
+    font-weight: bold;
+    color: #5a4a3a;
+    margin-bottom: 15px;
+    font-size: 16px;
+    border-bottom: 1px dashed #8b7355;
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+}
+.form-group label {
+    font-size: 13px;
+    color: #5a4a3a;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"], input[type="email"], input[type="tel"], 
+input[type="date"], input[type="password"], select, textarea {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #8b7355;
+    padding: 8px 5px;
+    font-family: 'Georgia', serif;
+    font-size: 15px;
+    color: #2e1e12;
+    outline: none;
+    transition: all 0.3s;
+    width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+    border-bottom-color: #ff7a18; 
+    background: rgba(255, 122, 24, 0.05);
+}
+
+/* Радиокнопки и чекбоксы */
+.radio-options {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+.radio-group label { margin-bottom: 0; cursor: pointer; }
+.checkbox-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+.checkbox-group label { margin-bottom: 0; cursor: pointer; }
+
+/* Кнопка */
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #5a4a3a;
+    color: #f4ecd8;
+    border: 2px solid #3e2c1c;
+    font-family: 'Georgia', serif;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 2px 2px 0 #3e2c1c;
+    margin-top: 20px;
+}
+.submit-btn:hover {
+    background-color: #3e2c1c;
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 0 #3e2c1c;
+}
+
+/* ================= ЭКРАН УСПЕХА ================= */
+.success-screen {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    /* Убираем плотный чёрный фон, чтобы гифка была видна */
+    background: rgba(10, 10, 10, 0.3); 
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; visibility: hidden;
+    transition: opacity 1s ease, visibility 1s;
+    z-index: 100;
+}
+
+.success-screen.show {
+    opacity: 1; visibility: visible;
+}
+
+/* 👇 НОВЫЕ СТИЛИ ДЛЯ ГИФКИ 👇 */
+.firework-gif {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Растягивает на весь экран без искажений */
+    z-index: 1; /* Позади текста */
+    filter: brightness(0.4); 
+    transition: filter 2s ease, opacity 2s ease;
+}
+
+.firework-gif.darkened {
+    filter: brightness(0.2); /* Делает гифку очень тёмной */
+    opacity: 0.5;            /* Дополнительно делает её полупрозрачной */
+}
+
+.success-content {
+    text-align: center;
+    color: #ff7a18;
+    position: relative;
+    z-index: 2; /* Текст поверх гифки */
+    background: rgba(0, 0, 0, 0.6); /* Полупрозрачная подложка под текстом для читаемости */
+    padding: 40px;
+}
+
+.success-content h2 { font-size: 36px; margin-bottom: 10px; color: #fff; }
+.success-content p { color: #ddd; font-size: 16px; }
+
+/* ================= МОБИЛЬНАЯ ВЕРСИЯ (СВИТОК) ================= */
+@media (max-width: 800px) {
+    .book-wrapper { width: 92%; max-width: 500px; }
+    
+    /* Убираем корешок */
+    .book-spine { display: none; }
+    
+    /* Страницы становятся колонками (свиток) */
+    .book-inner { flex-direction: column; max-height: 85vh; overflow-y: auto; }
+    
+    .page { padding: 25px 20px; }
+    
+    /* Убираем тени корешка, делаем сплошной лист */
+    .page-left { box-shadow: none; border-bottom: 1px dashed #8b7355; }
+    .page-right { box-shadow: none; }
+
+    /* НА МОБИЛЬНЫХ ПРЯЧЕМ LABEL (как требует задание) */
+    .form-group label:not(.checkbox-group label):not(.radio-group label) { display: none; }
+    
+    /* Настраиваем отступы, чтобы влезло больше */
+    .form-group { margin-bottom: 12px; }
+    .book-title { font-size: 24px; }
+}

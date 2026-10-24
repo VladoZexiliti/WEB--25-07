@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Формуляр</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ФОН -->
+    <div class="bg-blur"></div>
+
+    <!-- КОНТЕЙНЕР КНИГИ -->
+    <div class="book-wrapper" id="bookWrapper">
+        
+        <div class="book">
+            <!-- Корешок книги -->
+            <div class="book-spine"></div>
+            
+            <div class="book-inner">
+                <!-- ЛЕВАЯ СТРАНИЦА -->
+                <div class="page page-left">
+                    <h1 class="book-title">Формуляр</h1>
+                    <p class="book-subtitle">Библиотека им.СФУ</p>
+
+                    <form id="readerForm">
+                        <fieldset>
+                            <legend>Личные данные</legend>
+                            
+                            <!-- type="text" -->
+                            <div class="form-group">
+                                <label for="name">Имя и Фамилия</label>
+                                <input type="text" id="name" name="name" placeholder="Введите имя" required>
+                            </div>
+                            
+                            <!-- type="date" -->
+                            <div class="form-group">
+                                <label for="dob">Дата рождения</label>
+                                <input type="date" id="dob" name="dob" required>
+                            </div>
+
+                            <!-- type="tel" -->
+                            <div class="form-group">
+                                <label for="phone">Телефон</label>
+                                <input type="tel" id="phone" name="phone" placeholder="+7 (999) 000-00-00" required>
+                            </div>
+
+                            <!-- type="email" -->
+                            <div class="form-group">
+                                <label for="email">Почта</label>
+                                <input type="email" id="email" name="email" placeholder="example@mail.ru" required>
+                            </div>
+
+                            <!-- type="radio" -->
+                            <div class="form-group radio-group">
+                                <label>Формат книг (хорошо подумай):</label>
+                                <div class="radio-options">
+                                    <input type="radio" id="paper" name="format" value="paper" checked>
+                                    <label for="paper">Бумажные</label>
+                                    
+                                    <input type="radio" id="digital" name="format" value="digital">
+                                    <label for="digital">Бумажные</label>
+                                </div>
+                            </div>
+                        </fieldset>
+                </div>
+
+                <!-- ПРАВАЯ СТРАНИЦА -->
+                <div class="page page-right">
+                        <fieldset>
+                            <legend>Дополнительно</legend>
+                            
+                            <!-- type="text" (адрес) -->
+                            <div class="form-group">
+                                <label for="address">Адрес проживания</label>
+                                <input type="text" id="address" name="address" placeholder="Город, улица, дом" required>
+                            </div>
+
+                            <!-- select / option -->
+                            <div class="form-group">
+                                <label for="genre">Любимый жанр</label>
+                                <select id="genre" name="genre"><option value="horror">Ужасы</option>
+                                <option value="thriller">Триллеры</option>
+                                <option value="romance">Романтика</option>
+                                <option value="history">Исторические</option>
+                                <option value="adventure">Приключения</option>
+                                <option value="biography">Биография</option>
+                                <option value="drama">Драма</option>
+                                </select>
+                            </div>
+
+                            <!-- type="password" -->
+                            <div class="form-group">
+                                <label for="pass">Пароль читателя</label>
+                                <input type="password" id="pass" name="pass" placeholder="••••••••" required>
+                            </div>
+
+                            <!-- textarea -->
+                            <div class="form-group">
+                                <label for="wish">Пожелания</label>
+                                <textarea id="wish" name="wish" rows="2" placeholder="Ваши комментарии..."></textarea>
+                            </div>
+
+                            <!-- type="checkbox" -->
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="agree" name="agree" required>
+                                <label for="agree">Согласен на обработку данных</label>
+                            </div>
+                        </fieldset>
+
+                        <!-- button -->
+                        <button type="submit" class="submit-btn">Записаться</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН УСПЕХА -->
+    <div class="success-screen" id="successScreen">
+    <img src="fireworks.gif" alt="Фейерверк" class="firework-gif">
+        <div class="success-content">
+            <h2>Регистрация прошла успешно!</h2>
+            <p>Добро пожаловать в мир книг. <b>Ваш формуляр готов.<br>И помните:</b> чтение развивает мозг, так что для вас это будет абсолютно новый, незабываемый опыт!</p>
+        </div>
+    </div>
+
+    <script>document.addEventListener('DOMContentLoaded', () => {
+    const bookWrapper = document.getElementById('bookWrapper');
+    const form = document.getElementById('readerForm');
+    const successScreen = document.getElementById('successScreen');
+
+    // 1. Выезд книги при загрузке
+    setTimeout(() => {
+        bookWrapper.classList.add('show');
+    }, 500);
+
+    // 2. Обработка отправки формы
+    form.addEventListener('submit', (e) => {
+        e.preventDefault(); 
+
+        // Отключаем анимацию покачивания
+        bookWrapper.style.animation = 'none'; 
+        
+        // Возвращаем книгу вниз (обратная анимация)
+        bookWrapper.classList.remove('show'); 
+
+        // Показываем экран успеха после того, как книга уедет
+                setTimeout(() => {
+            successScreen.classList.add('show');
+            
+            // 👇 ДОБАВИТЬ ЭТОТ БЛОК 👇
+            // Ждем 5 секунд после появления экрана и затемняем гифку
+            setTimeout(() => {
+                const gif = document.querySelector('.firework-gif');
+                if (gif) {
+                    gif.classList.add('darkened');
+                }
+            }, 500); 
+            // 👆 КОНЕЦ БЛОКА 👆
+
+        }, 1500);
+    });
+});
+
+</script>
+</body>
+</html>
