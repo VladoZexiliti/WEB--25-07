@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon 3D & Boring 2D Experience</title>
+    <!-- Подключаем внешний CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Импорт Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="ui-container">
+        <div class="nav">
+            <button id="btn-car-2d" class="btn-boring active">2D Car</button>
+            <button id="btn-cradle-2d" class="btn-boring">2D Pendulum</button>
+            <button id="btn-car-3d" class="btn-neon">3D Hover Car</button>
+            <button id="btn-cradle-3d" class="btn-neon">3D Cradle</button>
+            </div>
+        <div class="hint" id="hint-text">Нажмите и двигайте мышью, чтобы вращать камеру</div>
+    </div>
+
+    <!-- Контейнер для 3D -->
+    <div id="canvas-container"></div>
+
+<div id="task-car-2d" class="css-task-container">
+    <div class="car-stage">
+        <div class="car-3d">
+            <!-- Задние (левые) колёса — сзади -->
+            <div class="wheel-3d wheel-rear-left"></div>
+            <div class="wheel-3d wheel-front-left"></div>
+
+            <!-- Кузов -->
+            <div class="face b3d-front"></div>
+            <div class="face b3d-back"></div>
+            <div class="face b3d-top"></div>
+            <div class="face b3d-bottom"></div>
+            <div class="face b3d-left"></div>
+            <div class="face b3d-right"></div>
+
+            <!-- Кабина -->
+            <div class="face c3d-front"></div>
+            <div class="face c3d-back"></div>
+            <div class="face c3d-top"></div>
+            <div class="face c3d-left"></div>
+            <div class="face c3d-right"></div>
+
+            <!-- Задний спойлер -->
+            <div class="spoiler-support spoiler-support-left"></div>
+            <div class="spoiler-support spoiler-support-right"></div>
+            <div class="spoiler-bar"></div>
+
+            <!-- Передние (правые) колёса — спереди -->
+            <div class="wheel-3d wheel-rear-right"></div>
+            <div class="wheel-3d wheel-front-right"></div>
+
+            <!-- Неон под машиной -->
+            <div class="car-underglow"></div>
+        </div>
+    </div>
+</div>
+    <!-- ==========================================
+         КОНТЕЙНЕР ДЛЯ 2D МАЯТНИКА
+         ========================================== -->
+<div id="task-cradle-2d" class="css-task-container">
+    <div class="cradle-stage">
+        <div class="cradle-3d">
+            <!-- Верхняя рама: две параллельные перекладины -->
+            <div class="cradle-bar cradle-top-back"></div>
+            <div class="cradle-bar cradle-top-front"></div>
+
+            <!-- Нижняя рама: две параллельные перекладины -->
+            <div class="cradle-bar cradle-bottom-back"></div>
+            <div class="cradle-bar cradle-bottom-front"></div>
+
+            <!-- Четыре ножки (соединяют верхнюю и нижнюю рамы) -->
+            <div class="cradle-leg leg-bl"></div>
+            <div class="cradle-leg leg-br"></div>
+            <div class="cradle-leg leg-fl"></div>
+            <div class="cradle-leg leg-fr"></div>
+
+            <!-- Основание и неоновая подсветка -->
+            <div class="cradle-base"></div>
+            <div class="cradle-underglow"></div>
+
+            <!-- Пять шаров на нитях -->
+            <div class="ball-pivot bp-1"><div class="ball-string"></div><div class="ball-sphere"></div></div>
+            <div class="ball-pivot bp-2"><div class="ball-string"></div><div class="ball-sphere"></div></div>
+            <div class="ball-pivot bp-3"><div class="ball-string"></div><div class="ball-sphere"></div></div>
+            <div class="ball-pivot bp-4"><div class="ball-string"></div><div class="ball-sphere"></div></div>
+            <div class="ball-pivot bp-5"><div class="ball-string"></div><div class="ball-sphere"></div></div>
+        </div>
+    </div>
+</div>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+        // --- 1. БАЗОВАЯ НАСТРОЙКА СЦЕНЫ ---
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x05050a, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 15);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 2;
+
+        // --- 2. СВЕТ И ЦВЕТА ---
+        const neonOrange = 0xff6a00;
+        const neonCrimson = 0xee0979;
+        const neonBlue = 0x00d2ff;
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        scene.add(ambientLight);
+
+        const pointLight1 = new THREE.PointLight(neonOrange, 100, 50);
+        pointLight1.position.set(5, 5, 5);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(neonBlue, 100, 50);
+        pointLight2.position.set(-5, 5, -5);
+        scene.add(pointLight2);
+
+        // --- 3. ПОСТ-ОБРАБОТКА ---
+        const renderScene = new RenderPass(scene, camera);
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0.1;
+        bloomPass.strength = 1.2;
+        bloomPass.radius = 0.5;
+
+        const composer = new EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+
+        // --- 4. СОЗДАНИЕ ОБЪЕКТОВ ---
+        const carGroup = new THREE.Group();
+        const cradleGroup = new THREE.Group();
+        scene.add(carGroup);
+        scene.add(cradleGroup);
+        cradleGroup.visible = false;
+        cradleGroup.position.y = -3;
+
+        // === ЗАДАНИЕ 1: 3D МАШИНА ===
+        const carBodyMat = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9, roughness: 0.1 });
+        const neonMatBlue = new THREE.MeshBasicMaterial({ color: neonBlue });
+        const neonMatCrimson = new THREE.MeshBasicMaterial({ color: neonCrimson });
+
+        const bodyGeo = new THREE.BoxGeometry(4, 0.8, 8);
+        const body = new THREE.Mesh(bodyGeo, carBodyMat);
+        body.position.y = 0.5;
+        carGroup.add(body);
+
+        const cabinMat = new THREE.MeshPhysicalMaterial({
+            color: 0x000000, metalness: 0.1, roughness: 0, transmission: 0.9, 
+            transparent: true, opacity: 0.8, emissive: neonBlue, emissiveIntensity: 0.2
+        });
+        const cabinGeo = new THREE.BoxGeometry(2.5, 0.8, 3);
+        const cabin = new THREE.Mesh(cabinGeo, cabinMat);
+        cabin.position.set(0, 1.3, -0.5);
+        carGroup.add(cabin);
+
+        const wheelGeo = new THREE.TorusGeometry(0.8, 0.1, 16, 32);
+        const wheelPositions = [[-2.2, 0.2, 2.5], [2.2, 0.2, 2.5], [-2.2, 0.2, -2.5], [2.2, 0.2, -2.5]];
+        wheelPositions.forEach(pos => {
+            const wheel = new THREE.Mesh(wheelGeo, neonMatBlue);
+            wheel.position.set(...pos);
+            wheel.rotation.y = Math.PI / 2;
+            carGroup.add(wheel);
+        });
+
+        const beamGeo = new THREE.ConeGeometry(1.5, 8, 32, 1, true);
+        const beamMat = new THREE.MeshBasicMaterial({ color: neonOrange, transparent: true, opacity: 0.3, side: THREE.DoubleSide, blending: THREE.AdditiveBlending });
+        
+        const beamLeft = new THREE.Mesh(beamGeo, beamMat);
+        beamLeft.position.set(-1.5, 0.5, 8);
+        beamLeft.rotation.x = Math.PI / 2;
+        carGroup.add(beamLeft);
+
+        const beamRight = new THREE.Mesh(beamGeo, beamMat);
+        beamRight.position.set(1.5, 0.5, 8);
+        beamRight.rotation.x = Math.PI / 2;
+        carGroup.add(beamRight);
+
+        const boosterGeo = new THREE.BoxGeometry(3, 0.2, 0.5);
+        const booster = new THREE.Mesh(boosterGeo, neonMatCrimson);
+        booster.position.set(0, 1.5, -4);
+        carGroup.add(booster);
+
+        const glowGeo = new THREE.PlaneGeometry(6, 10);
+        const glowMat = new THREE.MeshBasicMaterial({ color: neonCrimson, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending });
+        const underGlow = new THREE.Mesh(glowGeo, glowMat);
+        underGlow.rotation.x = -Math.PI / 2;
+        underGlow.position.y = -0.4;
+        carGroup.add(underGlow);
+
+        // === ЗАДАНИЕ 2: 3D МАЯТНИК ===
+        const frameMat = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.8, roughness: 0.2 });
+        const topBar = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 10, 8), frameMat);
+        topBar.rotation.z = Math.PI / 2;
+        topBar.position.y = 6;
+        cradleGroup.add(topBar);
+
+        const legGeo = new THREE.CylinderGeometry(0.1, 0.1, 6, 8);
+        const leg1 = new THREE.Mesh(legGeo, frameMat);
+        leg1.position.set(-5, 3, 0);
+        cradleGroup.add(leg1);
+        const leg2 = new THREE.Mesh(legGeo, frameMat);
+        leg2.position.set(5, 3, 0);
+        cradleGroup.add(leg2);
+
+        const ballMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: 0.1, emissive: neonBlue, emissiveIntensity: 0.5 });
+        const stringMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 });
+        
+        const balls = [];
+        const ballCount = 5;
+        const spacing = 1.5;
+
+        for (let i = 0; i < ballCount; i++) {
+            const pivot = new THREE.Group();
+            pivot.position.set(-((ballCount - 1) * spacing) / 2 + (i * spacing), 6, 0);
+            const string = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 4, 4), stringMat);
+            string.position.y = -2;
+            pivot.add(string);
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(0.6, 32, 32), ballMat);
+            ball.position.y = -4;
+            pivot.add(ball);
+            cradleGroup.add(pivot);
+            balls.push(pivot);
+        }
+
+        // --- 5. АНИМАЦИЯ И ФИЗИКА ---
+        const clock = new THREE.Clock();
+        const maxAngle = Math.PI / 3;
+        const swingSpeed = 2.5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+
+            if (carGroup.visible && document.getElementById('canvas-container').style.display !== 'none') {
+                carGroup.position.y = Math.sin(time * 2) * 0.2;
+                carGroup.rotation.z = Math.sin(time) * 0.05;
+                underGlow.material.opacity = 0.2 + Math.sin(time * 5) * 0.1;
+                beamLeft.scale.z = 1 + Math.sin(time * 10) * 0.1;
+                beamRight.scale.z = 1 + Math.sin(time * 10) * 0.1;
+            }
+
+            if (cradleGroup.visible && document.getElementById('canvas-container').style.display !== 'none') {
+                const theta = maxAngle * Math.cos(time * swingSpeed);
+
+                if (theta >= 0) {
+                    balls[4].rotation.z = theta;
+                    balls[0].rotation.z = 0; 
+                } else {
+                    balls[0].rotation.z = theta;
+                    balls[4].rotation.z = 0;
+                }
+
+                const camRadius = 18;
+                const camSpeed = 0.3;
+                camera.position.x = Math.sin(time * camSpeed) * camRadius;
+                camera.position.z = Math.cos(time * camSpeed) * camRadius - 10;
+                camera.position.y = 5 + Math.sin(time * 0.5) * 4;
+                camera.lookAt(0, 5, 0);
+            }
+
+            controls.update();
+            composer.render();
+        }
+
+        // --- 6. ИНТЕРФЕЙС И ПЕРЕКЛЮЧЕНИЕ ---
+        const btnCar3d = document.getElementById('btn-car-3d');
+        const btnCradle3d = document.getElementById('btn-cradle-3d');
+        const btnCar2d = document.getElementById('btn-car-2d');
+        const btnCradle2d = document.getElementById('btn-cradle-2d');
+        
+        const canvasContainer = document.getElementById('canvas-container');
+        const taskCar2d = document.getElementById('task-car-2d');
+        const taskCradle2d = document.getElementById('task-cradle-2d');
+        const hintText = document.getElementById('hint-text');
+        const allBtns = [btnCar3d, btnCradle3d, btnCar2d, btnCradle2d];
+
+        function resetUI() {
+            allBtns.forEach(btn => btn.classList.remove('active'));
+            canvasContainer.style.display = 'none';
+            taskCar2d.style.display = 'none';
+            taskCradle2d.style.display = 'none';
+        }
+
+        btnCar3d.addEventListener('click', () => {
+            resetUI();
+            btnCar3d.classList.add('active');
+            canvasContainer.style.display = 'block';
+            carGroup.visible = true;
+            cradleGroup.visible = false;
+            hintText.innerText = "Нажмите и двигайте мышью, чтобы вращать камеру";
+            hintText.style.display = 'block';
+            
+            controls.enabled = true;
+            camera.position.set(0, 5, 15);
+            camera.lookAt(0, 0, 0);
+            controls.target.set(0, 0, 0);
+        });
+
+        btnCradle3d.addEventListener('click', () => {
+            resetUI();
+            btnCradle3d.classList.add('active');
+            canvasContainer.style.display = 'block';
+            carGroup.visible = false;
+            cradleGroup.visible = true;
+            hintText.innerText = "Движения камеры происходят автоматически";
+            hintText.style.display = 'block';
+            
+            controls.enabled = false; 
+        });
+
+        btnCar2d.addEventListener('click', () => {
+            resetUI();
+            btnCar2d.classList.add('active');
+            taskCar2d.style.display = 'flex';
+            hintText.style.display = 'none'; // Скрываем подсказку для 3D
+        });
+
+        btnCradle2d.addEventListener('click', () => {
+            resetUI();
+            btnCradle2d.classList.add('active');
+            taskCradle2d.style.display = 'flex';
+            hintText.style.display = 'none'; // Скрываем подсказку для 3D
+        });
+
+        // --- 7. РЕСАЙЗ ОКНА ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Инициализация
+        btnCar2d.click(); // Запускаем 3D машину по умолчанию
+        animate();
+    </script>
+</body>
+</html>

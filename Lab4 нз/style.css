@@ -1,0 +1,651 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #05050a;
+    font-family: 'Orbitron', sans-serif;
+    color: white;
+}
+
+/* Навигация и UI */
+#ui-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; 
+    z-index: 10000; /* Чтобы меню всегда было сверху */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.nav {
+    pointer-events: auto;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* --- ИДЕАЛЬНЫЕ 3D КНОПКИ (НЕОН) --- */
+.btn-neon {
+    background: none;
+    border: 1px solid transparent;
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 30px;
+    transition: 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.btn-neon:hover {
+    color: #00d2ff;
+    border-color: #00d2ff;
+    box-shadow: 0 0 15px #00d2ff;
+}
+
+.btn-neon.active {
+    background: linear-gradient(90deg, #ff6a00, #ee0979, #00d2ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    border-color: rgba(255, 255, 255, 0.3);
+    font-weight: bold;
+}
+
+/* --- СКУЧНЫЕ 2D КНОПКИ (TIMES NEW ROMAN) --- */
+.btn-boring {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 11px; /* Маленькие */
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    border-radius: 8px; /* Скругленные края */
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: none; /* Никаких плавных переходов */
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.btn-boring:hover {
+    background-color: #e0e0e0;
+    color: black;
+    border-color: #999;
+}
+
+.btn-boring.active {
+    background-color: black;
+    color: white;
+    border-color: black;
+    font-weight: bold;
+}
+
+.hint {
+    pointer-events: auto;
+    margin-bottom: 20px;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 2px;
+    font-size: 14px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* =========================================
+   ОБЩИЕ СТИЛИ ДЛЯ 2D ЗАДАЧ
+   ========================================= */
+.css-task-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none; /* Скрыто по умолчанию, JS управляет видимостью */
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+
+/* =========================================
+   ЗАДАНИЕ 3: 2D МАШИНА (CSS ART) — 3D-версия
+   ========================================= */
+
+#task-car-2d {
+    perspective: 2400px;
+    perspective-origin: 50% 42%;
+}
+
+.car-stage {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.car-3d {
+    position: relative;
+    width: 0;
+    height: 0;
+    transform-style: preserve-3d;
+    will-change: transform;
+    animation: carFloat 6s ease-in-out infinite;
+}
+
+@keyframes carFloat {
+    0%, 100% {
+        transform: scale(0.85) rotateX(-18deg) rotateY(-28deg) translateY(-4px);
+    }
+    50% {
+        transform: scale(0.85) rotateX(-18deg) rotateY(-28deg) translateY(6px);
+    }
+}
+
+/* --- Общие стили граней --- */
+.face {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    backface-visibility: hidden;
+    border-radius: 4px;
+}
+
+/* ====== КУЗОВ ====== */
+
+.b3d-front {
+    width: 170px;
+    height: 80px;
+    transform: translate(-50%, -50%) translateX(200px) rotateY(90deg);
+    background:
+        radial-gradient(ellipse 30px 14px at 22% 62%, #ffffff 0%, #a8d8ff 30%, rgba(168, 216, 255, 0) 75%),
+        radial-gradient(ellipse 30px 14px at 78% 62%, #ffffff 0%, #a8d8ff 30%, rgba(168, 216, 255, 0) 75%),
+        linear-gradient(180deg, #3a4a72 0%, #1f2745 45%, #0a0d18 100%);
+    box-shadow:
+        inset 0 -8px 20px rgba(0, 0, 0, 0.8),
+        inset 0 4px 10px rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.b3d-back {
+    width: 170px;
+    height: 80px;
+    transform: translate(-50%, -50%) translateX(-200px) rotateY(-90deg);
+    background:
+        radial-gradient(ellipse 20px 10px at 22% 55%, #ff3b3b 0%, rgba(255, 59, 59, 0) 70%),
+        radial-gradient(ellipse 20px 10px at 78% 55%, #ff3b3b 0%, rgba(255, 59, 59, 0) 70%),
+        linear-gradient(180deg, #1a2038 0%, #0a0d18 100%);
+    box-shadow:
+        inset 0 -8px 20px rgba(0, 0, 0, 0.8),
+        inset 0 4px 10px rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.b3d-top {
+    width: 400px;
+    height: 170px;
+    transform: translate(-50%, -50%) translateY(-40px) rotateX(90deg);
+    background:
+        linear-gradient(180deg,
+            transparent 0%,
+            transparent 42%,
+            rgba(0, 210, 255, 0.4) 43%,
+            rgba(0, 210, 255, 0.4) 45%,
+            transparent 46%,
+            transparent 54%,
+            rgba(0, 210, 255, 0.4) 55%,
+            rgba(0, 210, 255, 0.4) 57%,
+            transparent 58%,
+            transparent 100%),
+        linear-gradient(180deg, #3a4a72 0%, #1f2745 50%, #0a0d18 100%);
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+}
+
+.b3d-bottom {
+    width: 400px;
+    height: 170px;
+    transform: translate(-50%, -50%) translateY(40px) rotateX(-90deg);
+    background: #05070d;
+    border-radius: 8px;
+}
+
+.b3d-left {
+    width: 400px;
+    height: 80px;
+    transform: translate(-50%, -50%) translateZ(-85px) rotateY(180deg);
+    background:
+        linear-gradient(180deg,
+            transparent 0%,
+            transparent 70%,
+            rgba(0, 210, 255, 0.5) 71%,
+            rgba(0, 210, 255, 0.5) 73%,
+            transparent 74%,
+            transparent 100%),
+        linear-gradient(180deg, #2a3450 0%, #1a2038 55%, #0a0d18 100%);
+    box-shadow: inset 0 -8px 20px rgba(0, 0, 0, 0.7);
+    border-radius: 6px;
+}
+
+.b3d-right {
+    width: 400px;
+    height: 80px;
+    transform: translate(-50%, -50%) translateZ(85px);
+    background:
+        linear-gradient(180deg,
+            transparent 0%,
+            transparent 70%,
+            rgba(0, 210, 255, 0.6) 71%,
+            rgba(0, 210, 255, 0.6) 73%,
+            transparent 74%,
+            transparent 100%),
+        linear-gradient(180deg, #3a4a72 0%, #1f2745 55%, #0a0d18 100%);
+    box-shadow: inset 0 -8px 20px rgba(0, 0, 0, 0.7);
+    border-radius: 6px;
+}
+
+/* ====== КАБИНА ====== */
+
+.c3d-front {
+    width: 160px;
+    height: 60px;
+    transform: translate(-50%, -50%) translate3d(-40px, -70px, 70px);
+    background: linear-gradient(180deg,
+        rgba(0, 210, 255, 0.15) 0%,
+        #05070d 30%,
+        #0a0d18 100%);
+    border: 1px solid rgba(0, 210, 255, 0.4);
+    border-radius: 10px 10px 2px 2px;
+    box-shadow:
+        inset 0 2px 8px rgba(0, 210, 255, 0.3),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.8);
+}
+
+.c3d-back {
+    width: 160px;
+    height: 60px;
+    transform: translate(-50%, -50%) translate3d(-40px, -70px, -70px) rotateY(180deg);
+    background: linear-gradient(180deg,
+        rgba(0, 210, 255, 0.1) 0%,
+        #05070d 35%,
+        #0a0d18 100%);
+    border: 1px solid rgba(0, 210, 255, 0.25);
+    border-radius: 10px 10px 2px 2px;
+    box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.8);
+}
+
+.c3d-top {
+    width: 160px;
+    height: 140px;
+    transform: translate(-50%, -50%) translate3d(-40px, -100px, 0) rotateX(90deg);
+    background: linear-gradient(180deg, #3a4a72 0%, #1f2745 70%, #1a2038 100%);
+    border-radius: 8px;
+}
+
+.c3d-left {
+    width: 140px;
+    height: 60px;
+    transform: translate(-50%, -50%) translate3d(-120px, -70px, 0) rotateY(-90deg);
+    background:
+        radial-gradient(ellipse at 30% 50%, rgba(0, 210, 255, 0.1) 0%, transparent 60%),
+        linear-gradient(180deg, #05070d 0%, #0a0d18 100%);
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    border-radius: 4px;
+    box-shadow:
+        inset 0 2px 10px rgba(0, 210, 255, 0.2),
+        inset 0 -4px 10px rgba(0, 0, 0, 0.8);
+}
+
+.c3d-right {
+    width: 140px;
+    height: 60px;
+    transform: translate(-50%, -50%) translate3d(40px, -70px, 0) rotateY(90deg);
+    background:
+        radial-gradient(ellipse at 30% 50%, rgba(0, 210, 255, 0.15) 0%, transparent 60%),
+        linear-gradient(180deg, #05070d 0%, #0a0d18 100%);
+    border: 1px solid rgba(0, 210, 255, 0.4);
+    border-radius: 4px;
+    box-shadow:
+        inset 0 2px 10px rgba(0, 210, 255, 0.3),
+        inset 0 -4px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* ====== КОЛЕСА ====== */
+
+.wheel-3d {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 35% 35%,
+            #2a2a2a 0%,
+            #0a0a0a 40%,
+            #000 70%);
+    box-shadow:
+        inset 0 0 20px rgba(0, 0, 0, 1),
+        inset 3px 3px 10px rgba(255, 255, 255, 0.08);
+}
+
+.wheel-3d::before {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 35% 35%,
+            #e0e4f0 0%,
+            #a0a8b8 20%,
+            #6a7080 50%,
+            #3a4050 80%,
+            #1a1f28 100%);
+    box-shadow:
+        inset 0 0 12px rgba(0, 0, 0, 0.9),
+        0 0 8px rgba(0, 210, 255, 0.3);
+}
+
+.wheel-3d::after {
+    content: '';
+    position: absolute;
+    top: 38%;
+    left: 38%;
+    width: 24%;
+    height: 24%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ffffff, #a0a8b8 50%, #4a5060 100%);
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.8);
+}
+
+.wheel-front-right {
+    transform: translate(-50%, -50%) translate3d(140px, 55px, 92px);
+}
+
+.wheel-front-left {
+    transform: translate(-50%, -50%) translate3d(140px, 55px, -92px);
+}
+
+.wheel-rear-right {
+    transform: translate(-50%, -50%) translate3d(-140px, 55px, 92px);
+}
+
+.wheel-rear-left {
+    transform: translate(-50%, -50%) translate3d(-140px, 55px, -92px);
+}
+
+/* ====== СПОЙЛЕР ====== */
+
+.spoiler-support {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 18px;
+    background: linear-gradient(180deg, #4a5a82 0%, #1a2038 100%);
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(0, 210, 255, 0.3);
+}
+
+.spoiler-support-left {
+    transform: translate(-50%, -50%) translate3d(-180px, -50px, -60px);
+}
+
+.spoiler-support-right {
+    transform: translate(-50%, -50%) translate3d(-180px, -50px, 60px);
+}
+
+.spoiler-bar {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 140px;
+    background: linear-gradient(90deg, #4a5a82 0%, #0a0d18 50%, #4a5a82 100%);
+    border-radius: 3px;
+    box-shadow:
+        0 0 10px rgba(0, 210, 255, 0.5),
+        inset 0 0 4px rgba(0, 210, 255, 0.3);
+    transform: translate(-50%, -50%) translate3d(-180px, -56px, 0) rotateX(90deg);
+}
+
+/* ====== НЕОН ПОД МАШИНОЙ ====== */
+
+.car-underglow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 380px;
+    height: 200px;
+    transform: translate(-50%, -50%) translateY(96px) rotateX(90deg);
+    background: radial-gradient(ellipse at center,
+        rgba(0, 210, 255, 0.5) 0%,
+        rgba(0, 210, 255, 0.2) 35%,
+        rgba(0, 210, 255, 0.05) 60%,
+        transparent 80%);
+    border-radius: 50%;
+    pointer-events: none;
+    backface-visibility: visible;
+}
+
+/* =========================================
+   ЗАДАНИЕ 4: МАЯТНИК (3D CSS ART)
+   ========================================= */
+
+#task-cradle-2d {
+    perspective: 2200px;
+    perspective-origin: 50% 42%;
+}
+
+.cradle-stage {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cradle-3d {
+    position: relative;
+    width: 0;
+    height: 0;
+    transform-style: preserve-3d;
+    animation: cradleFloat 6s ease-in-out infinite;
+}
+
+@keyframes cradleFloat {
+    0%, 100% { transform: scale(0.85) rotateX(-10deg) rotateY(-24deg) translateY(-2px); }
+    50%      { transform: scale(0.85) rotateX(-10deg) rotateY(-24deg) translateY(4px); }
+}
+
+/* --- Горизонтальные перекладины (4 шт.) --- */
+.cradle-bar {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 500px;
+    height: 14px;
+    margin-left: -250px;
+    margin-top: -7px;
+    border-radius: 7px;
+    background: linear-gradient(180deg,
+        #c8d0e0 0%, #8a90a0 22%, #5a6070 50%, #3a4050 78%, #2a3040 100%);
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.7),
+        0 0 14px rgba(0, 210, 255, 0.25);
+}
+
+.cradle-top-back    { transform: translate3d(0, 0, -60px); }
+.cradle-top-front   { transform: translate3d(0, 0,  60px); }
+.cradle-bottom-back { transform: translate3d(0, 220px, -60px); }
+.cradle-bottom-front{ transform: translate3d(0, 220px,  60px); }
+
+/* --- Ножки: от верхней рамы (y=0) до нижней (y=220) --- */
+.cradle-leg {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 14px;
+    height: 220px;
+    margin-left: -7px;
+    background: linear-gradient(90deg,
+        #1a2030 0%, #4a5060 25%, #9aa0b0 50%, #4a5060 75%, #1a2030 100%);
+    border-radius: 4px;
+    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.5);
+}
+
+.leg-bl { transform: translate3d(-230px, 0, -60px); }
+.leg-br { transform: translate3d( 230px, 0, -60px); }
+.leg-fl { transform: translate3d(-230px, 0,  60px); }
+.leg-fr { transform: translate3d( 230px, 0,  60px); }
+
+/* --- Основание (пол) --- */
+.cradle-base {
+    position: absolute;
+    top: 220px;
+    left: 50%;
+    width: 500px;
+    height: 160px;
+    margin-left: -250px;
+    margin-top: -80px;
+    transform: rotateX(90deg);
+    background: linear-gradient(180deg,
+        #4a5060 0%, #2a3040 55%, #12151f 100%);
+    border-radius: 14px;
+    box-shadow:
+        inset 0 0 25px rgba(0, 0, 0, 0.7),
+        0 0 20px rgba(0, 210, 255, 0.2);
+}
+
+/* --- Неоновая подсветка --- */
+.cradle-underglow {
+    position: absolute;
+    top: 220px;
+    left: 50%;
+    width: 560px;
+    height: 280px;
+    margin-left: -280px;
+    margin-top: -140px;
+    transform: rotateX(90deg) translateZ(-25px);
+    background: radial-gradient(ellipse at center,
+        rgba(0, 210, 255, 0.5) 0%,
+        rgba(0, 210, 255, 0.18) 30%,
+        rgba(0, 210, 255, 0.04) 60%,
+        transparent 80%);
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(4px);
+}
+
+/* --- Пивоты шаров --- */
+.ball-pivot {
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    width: 60px;
+    height: 180px;
+    margin-left: -30px;
+    transform-origin: 50% 0;
+    transform-style: preserve-3d;
+}
+
+/* Шаг 50px = диаметр шара → шары касаются друг друга */
+.bp-1 { translate: -100px 0; animation: swingLeft  2s infinite linear; }
+.bp-2 { translate:  -50px 0; }
+.bp-3 { translate:    0px 0; }
+.bp-4 { translate:   50px 0; }
+.bp-5 { translate:  100px 0; animation: swingRight 2s infinite linear; }
+
+/* --- Нить --- */
+.ball-string {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 130px;
+    margin-left: -1px;
+    background: linear-gradient(180deg,
+        rgba(200, 220, 240, 0.95) 0%,
+        rgba(120, 140, 170, 0.8) 60%,
+        rgba(80, 100, 130, 0.7) 100%);
+    box-shadow: 0 0 3px rgba(0, 210, 255, 0.4);
+}
+
+/* --- Шар --- */
+.ball-sphere {
+    position: absolute;
+    top: 130px;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    margin-left: -25px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 32% 28%,
+            rgba(255, 255, 255, 0.95) 0%,
+            rgba(255, 255, 255, 0.55) 6%,
+            rgba(200, 220, 255, 0.15) 18%,
+            transparent 35%),
+        radial-gradient(circle at 38% 35%,
+            #dde4ee 0%, #a8b0c0 20%, #606880 55%, #2a3040 85%, #0a0d14 100%);
+    box-shadow:
+        inset -6px -6px 12px rgba(0, 0, 0, 0.85),
+        inset 4px 4px 12px rgba(255, 255, 255, 0.15),
+        0 0 15px rgba(0, 210, 255, 0.35),
+        0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Контр-вращение: блик не «катится» по шару при качании */
+.bp-1 .ball-sphere { animation: counterLeft  2s infinite linear; }
+.bp-5 .ball-sphere { animation: counterRight 2s infinite linear; }
+
+/* --- ФИЗИКА ---
+   rotate(+35deg) → шар уходит ВЛЕВО (наружу)
+   rotate(-35deg) → шар уходит ВПРАВО (наружу)
+
+   Цикл (2 сек):
+    0 %  — левый шар отведён влево
+    25 % — левый ударил центр, импульс передан правому
+    25–75 % — правый отлетает вправо и возвращается
+    75 % — правый ударил центр, импульс передан левому
+    75–100 % — левый отлетает влево (возврат к 0%)
+*/
+@keyframes swingLeft {
+    0%, 100% { rotate:  35deg; }  /* отведён ВЛЕВО (наружу)   */
+    25%, 75% { rotate:   0deg; }  /* в центре, касается ряда  */
+}
+
+@keyframes swingRight {
+    0%, 25%, 75%, 100% { rotate: 0deg; }   /* в центре              */
+    50%                { rotate: -35deg; } /* отлетел ВПРАВО (наружу) */
+}
+
+/* Контр-вращение шара компенсирует поворот пивота */
+@keyframes counterLeft {
+    0%, 100% { rotate: -35deg; }
+    25%, 75% { rotate:   0deg; }
+}
+
+@keyframes counterRight {
+    0%, 25%, 75%, 100% { rotate:  0deg; }
+    50%                { rotate: 35deg; }
+}
