@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Формуляр</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="bg-blur"></div>
+
+    <div class="book-wrapper" id="bookWrapper">
+        <div class="book" id="book">
+            <div class="book-spine"></div>
+
+            <!-- ФОРМА теперь оборачивает обе страницы -->
+            <form class="book-inner" id="readerForm" novalidate>
+
+                <!-- ЛЕВАЯ СТРАНИЦА -->
+                <div class="page page-left">
+                    <h1 class="book-title">Формуляр</h1>
+                    <p class="book-subtitle">Библиотека им. СФУ</p>
+
+                    <fieldset>
+                        <legend>Личные данные</legend>
+
+                        <div class="form-group" data-field="name">
+                            <label for="name">Имя и Фамилия</label>
+                            <input type="text" id="name" name="name"
+                                   placeholder="Иван Иванов" required>
+                            <span class="error-message"></span>
+                        </div>
+
+                        <div class="form-group" data-field="dob">
+                            <label for="dob">Дата рождения</label>
+                            <input type="date" id="dob" name="dob" required>
+                            <span class="error-message"></span>
+                        </div>
+
+                        <div class="form-group" data-field="phone">
+                            <label for="phone">Телефон</label>
+                            <input type="tel" id="phone" name="phone"
+                                   placeholder="+7 (999) 000-00-00"
+                                   maxlength="18" required>
+                            <span class="error-message"></span>
+                        </div>
+
+                        <div class="form-group" data-field="email">
+                            <label for="email">Почта</label>
+                            <input type="email" id="email" name="email"
+                                   placeholder="example@mail.ru" required>
+                            <span class="error-message"></span>
+                        </div>
+
+                        <div class="form-group radio-group" data-field="format">
+                            <label>Формат книг (хорошо подумай):</label>
+                            <div class="radio-options">
+                                <input type="radio" id="paper" name="format" value="paper" checked>
+                                <label for="paper">Бумажные</label>
+
+                                <input type="radio" id="digital" name="format" value="digital">
+                                <label for="digital">Электронные</label>
+                            </div>
+                            <span class="error-message"></span>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- ПРАВАЯ СТРАНИЦА -->
+                <div class="page page-right">
+                    <fieldset>
+                        <legend>Дополнительно</legend>
+
+                        <div class="form-group" data-field="address">
+                            <label for="address">Адрес проживания</label>
+                            <input type="text" id="address" name="address"
+                                   placeholder="Город, улица, дом" required>
+                            <span class="error-message"></span>
+                        </div>
+
+                        <div class="form-group" data-field="genre">
+                            <label for="genre">Любимый жанр</label>
+                            <select id="genre" name="genre">
+                                <option value="horror">Ужасы</option>
+                                <option value="thriller">Триллеры</option>
+                                <option value="romance">Романтика</option>
+                                <option value="history">Исторические</option>
+                                <option value="adventure">Приключения</option>
+                                <option value="biography">Биография</option>
+                                <option value="drama">Драма</option>
+                            </select>
+                            <span class="error-message"></span>
+                        </div>
+
+                        <div class="form-group" data-field="pass">
+                            <label for="pass">Пароль читателя</label>
+                            <input type="password" id="pass" name="pass"
+                                   placeholder="••••••••" required>
+                            <span class="error-message"></span>
+                        </div>
+
+                        <div class="form-group" data-field="wish">
+                            <label for="wish">Пожелания</label>
+                            <textarea id="wish" name="wish" rows="2"
+                                      placeholder="Ваши комментарии..."></textarea>
+                            <span class="error-message"></span>
+                        </div>
+
+                        <div class="form-group checkbox-group" data-field="agree">
+                            <input type="checkbox" id="agree" name="agree" required>
+                            <label for="agree">Согласен на обработку данных</label>
+                            <span class="error-message"></span>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="submit-btn">Записаться</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- ЭКРАН УСПЕХА -->
+    <div class="success-screen" id="successScreen">
+        <img src="fireworks.gif" alt="Фейерверк" class="firework-gif">
+        <div class="success-content">
+            <h2>Регистрация прошла успешно!</h2>
+            <p>Добро пожаловать в мир книг. <b>Ваш формуляр готов.</b></p>
+
+            <!-- сюда JS выведет введённые данные -->
+            <div class="summary" id="summary"></div>
+
+            <button type="button" class="back-btn" id="backBtn">← Заполнить ещё раз</button>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const bookWrapper   = document.getElementById('bookWrapper');
+    const book          = document.getElementById('book');
+    const form          = document.getElementById('readerForm');
+    const successScreen = document.getElementById('successScreen');
+    const summaryEl     = document.getElementById('summary');
+    const backBtn       = document.getElementById('backBtn');
+    const gif           = document.querySelector('.firework-gif');
+
+    /* ---------- появление книги ---------- */
+    setTimeout(() => bookWrapper.classList.add('show'), 500);
+
+    /* ---------- словарики для вывода ---------- */
+    const FORMAT_LABELS = { paper: 'Бумажные', digital: 'Электронные' };
+    const GENRE_LABELS  = {
+        horror: 'Ужасы', thriller: 'Триллеры', romance: 'Романтика',
+        history: 'Исторические', adventure: 'Приключения',
+        biography: 'Биография', drama: 'Драма'
+    };
+
+    /* ---------- ПРАВИЛА ВАЛИДАЦИИ ---------- */
+    const rules = {
+        name(v) {
+            if (!v) return 'Укажите имя и фамилию';
+            if (v.length < 2) return 'Слишком короткое имя';
+            if (v.length > 60) return 'Слишком длинное имя';
+            if (!/^[А-ЯЁа-яёA-Za-z][А-ЯЁа-яёA-Za-z\s-]*$/.test(v))
+                return 'Только буквы, пробелы и дефис';
+            if (!/\s/.test(v)) return 'Введите имя и фамилию через пробел';
+            return '';
+        },
+        dob(v) {
+            if (!v) return 'Укажите дату рождения';
+            const d = new Date(v);
+            if (isNaN(d)) return 'Некорректная дата';
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            if (d > today) return 'Дата не может быть в будущем';
+            let age = today.getFullYear() - d.getFullYear();
+            const m = today.getMonth() - d.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+            if (age < 14) return 'Запись доступна с 14 лет';
+            if (age > 120) return 'Проверьте дату рождения';
+            return '';
+        },
+        phone(v) {
+            if (!v) return 'Укажите телефон';
+            if (!/^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/.test(v))
+                return 'Формат: +7 (999) 000-00-00';
+            return '';
+        },
+        email(v) {
+            if (!v) return 'Укажите почту';
+            if (!/^[^\s@]+@[^\s@]+\.[A-Za-zА-Яа-я]{2,}$/.test(v))
+                return 'Некорректный email';
+            return '';
+        },
+        address(v) {
+            if (!v) return 'Укажите адрес';
+            if (v.length < 5) return 'Слишком короткий адрес';
+            if (v.length > 100) return 'Слишком длинный адрес';
+            return '';
+        },
+        pass(v) {
+            if (!v) return 'Придумайте пароль';
+            if (v.length < 6) return 'Минимум 6 символов';
+            if (!/[A-Za-zА-Яа-я]/.test(v)) return 'Пароль должен содержать буквы';
+            if (!/\d/.test(v)) return 'Пароль должен содержать цифры';
+            return '';
+        },
+        agree(_v, el) { return el.checked ? '' : 'Необходимо согласие на обработку данных'; }
+    };
+
+    const FIELDS = ['name', 'dob', 'phone', 'email', 'address', 'genre', 'pass', 'agree'];
+
+    /* ---------- утилиты показа ошибок ---------- */
+    function groupOf(name) {
+        return form.querySelector(`[data-field="${name}"]`);
+    }
+    function showError(name, msg) {
+        const g = groupOf(name);
+        if (!g) return;
+        g.classList.add('invalid');
+        const el = g.querySelector('.error-message');
+        if (el) el.textContent = msg;
+    }
+    function clearError(name) {
+        const g = groupOf(name);
+        if (!g) return;
+        g.classList.remove('invalid');
+        const el = g.querySelector('.error-message');
+        if (el) el.textContent = '';
+    }
+
+    function validateField(name) {
+        const el = form.elements[name];
+        if (!el) return '';
+        if (name === 'genre') return el.value ? '' : 'Выберите жанр';
+        const v = (el.value || '').trim();
+        return rules[name] ? rules[name](v, el) : '';
+    }
+
+    /* ---------- маска телефона ---------- */
+    const phoneInput = form.elements['phone'];
+    phoneInput.addEventListener('input', () => {
+        let digits = phoneInput.value.replace(/\D/g, '');
+        if (!digits) { phoneInput.value = ''; return; }
+        if (digits[0] === '8' && digits.length > 1) digits = '7' + digits.slice(1);
+        if (digits[0] !== '7') digits = '7' + digits;
+        digits = digits.slice(0, 11);
+
+        let out = '+7';
+        if (digits.length >= 2) out += ' (' + digits.slice(1, 4);
+        if (digits.length >= 5) out += ') ' + digits.slice(4, 7);
+        if (digits.length >= 8) out += '-' + digits.slice(7, 9);
+        if (digits.length >= 10) out += '-' + digits.slice(9, 11);
+        phoneInput.value = out;
+    });
+
+    /* ---------- live-валидация ---------- */
+    FIELDS.forEach(name => {
+        const el = form.elements[name];
+        if (!el) return;
+        const eventName = (el.type === 'checkbox' || el.type === 'radio') ? 'change' : 'blur';
+
+        el.addEventListener(eventName, () => {
+            const msg = validateField(name);
+            msg ? showError(name, msg) : clearError(name);
+        });
+
+        if (el.type !== 'checkbox' && el.type !== 'radio') {
+            el.addEventListener('input', () => {
+                const g = groupOf(name);
+                if (g && g.classList.contains('invalid')) {
+                    if (!validateField(name)) clearError(name);
+                }
+            });
+        }
+    });
+
+    /* ---------- вывод данных на экран ---------- */
+    function esc(s) {
+        return String(s).replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+    }
+    function formatDate(iso) {
+        if (!iso) return '—';
+        const [y, m, d] = iso.split('-');
+        return `${d}.${m}.${y}`;
+    }
+
+    function buildSummary() {
+        const data = new FormData(form);
+        const rows = [
+            ['Имя и фамилия', data.get('name').trim()],
+            ['Дата рождения', formatDate(data.get('dob'))],
+            ['Телефон',       data.get('phone').trim()],
+            ['Почта',         data.get('email').trim()],
+            ['Формат книг',   FORMAT_LABELS[data.get('format')] || '—'],
+            ['Адрес',         data.get('address').trim()],
+            ['Любимый жанр',  GENRE_LABELS[data.get('genre')] || '—'],
+            ['Пожелания',     (data.get('wish') || '').trim() || '—'],
+        ];
+        return '<h3>Ваши данные:</h3><dl>' +
+            rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('') +
+            '</dl>';
+    }
+
+    /* ---------- отправка формы ---------- */
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        let firstInvalid = null;
+        FIELDS.forEach(name => {
+            const msg = validateField(name);
+            if (msg) {
+                showError(name, msg);
+                if (!firstInvalid) firstInvalid = form.elements[name];
+            } else {
+                clearError(name);
+            }
+        });
+
+        if (firstInvalid) {
+            book.classList.add('shake');
+            book.addEventListener('animationend', () => book.classList.remove('shake'), { once: true });
+            firstInvalid.focus();
+            return;
+        }
+
+        // 1) сначала сохраняем данные для вывода
+        summaryEl.innerHTML = buildSummary();
+
+        // 2) очищаем поля и ошибки
+        form.reset();
+        FIELDS.forEach(clearError);
+        phoneInput.value = '';
+
+        // 3) прячем книгу и показываем экран успеха
+        bookWrapper.style.animation = 'none';
+        bookWrapper.classList.remove('show');
+
+        setTimeout(() => {
+            successScreen.classList.add('show');
+            setTimeout(() => gif && gif.classList.add('darkened'), 500);
+        }, 1500);
+    });
+
+    /* ---------- кнопка «Заполнить ещё раз» ---------- */
+    backBtn.addEventListener('click', () => {
+        successScreen.classList.remove('show');
+        if (gif) gif.classList.remove('darkened');
+        setTimeout(() => {
+            bookWrapper.style.animation = '';
+            bookWrapper.classList.add('show');
+        }, 300);
+    });
+});
+</script>
+</body>
+</html>

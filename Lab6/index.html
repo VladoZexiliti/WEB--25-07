@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Неоновый фон -->
+    <div class="glow-bg"></div>
+
+    <div class="container">
+        <h1 class="game-title">СОЗДАНИЕ ПРОФИЛЯ</h1>
+        
+        <form id="playerForm" class="form-container">
+            
+            <div class="form-row">
+                <div class="input-group">
+                    <label for="name">Имя (Никнейм)</label>
+                    <input type="text" id="name" name="name" placeholder="Введите имя" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="player@domain.com" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group">
+                    <label for="phone">Телефон</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+7 (999) 000-00-00" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="education">Образование</label>
+                    <select id="education" name="education" required>
+                        <option value="" disabled selected>Выберите уровень</option>
+                        <option value="Среднее">Среднее</option>
+                        <option value="Бакалавриат">Бакалавриат</option>
+                        <option value="Магистратура">Магистратура</option>
+                        <option value="Аспирантура">Аспирантура / PhD</option>
+                        <option value="Самоучка">Самоучка</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Загрузить аватарку (необязательно)</label>
+                <input type="file" id="avatarFile" name="avatarFile" accept="image/*" class="file-input">
+            </div>
+
+            <!-- ПОЛ (Радиокнопки) -->
+            <div class="input-group">
+                <label>Пол</label>
+                <div class="custom-options">
+                    <label class="custom-radio">
+                        <input type="radio" name="gender" value="male" checked>
+                        <span class="radio-mark"></span> Мужской
+                    </label>
+                    <label class="custom-radio">
+                        <input type="radio" name="gender" value="female">
+                        <span class="radio-mark"></span> Женский
+                    </label>
+                </div>
+            </div>
+
+            <!-- ХОББИ (Чекбоксы по заданию) -->
+            <div class="input-group">
+                <label>Хобби</label>
+                <div class="custom-options">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="hobby" value="Гейминг">
+                        <span class="check-mark"></span> Гейминг
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="hobby" value="Программирование">
+                        <span class="check-mark"></span> Программирование
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="hobby" value="Спорт">
+                        <span class="check-mark"></span> Спорт
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="hobby" value="Музыка">
+                        <span class="check-mark"></span> Музыка
+                    </label>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="about">О себе</label>
+                <textarea id="about" name="about" rows="3" placeholder="Расскажите о своих достижениях..." required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+        </form>
+
+        <!-- ЭКРАН УСПЕХА -->
+        <div id="successScreen" class="success-screen hidden">
+            <h2 class="success-title">ПРОФИЛЬ СОЗДАН</h2>
+            
+            <!-- Карточка (по умолчанию мужская - голубая) -->
+            <div class="avatar-card male-card" id="profileCard">
+                <img id="avatarImg" class="avatar" src="" alt="Avatar">
+                
+                <div class="player-info">
+                    <h3 id="displayName">Player</h3>
+                    <p id="displayDesc">Увлечения: Нет</p>
+                </div>
+            </div>
+
+            <button id="resetBtn" class="submit-btn" style="margin-top: 30px;">СОЗДАТЬ ЕЩЁ ОДИН</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('playerForm');
+            const successScreen = document.getElementById('successScreen');
+            const avatarImg = document.getElementById('avatarImg');
+            const displayName = document.getElementById('displayName');
+            const displayDesc = document.getElementById('displayDesc');
+            const resetBtn = document.getElementById('resetBtn');
+            const profileCard = document.getElementById('profileCard');
+
+            // Отправка формы
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('name').value;
+                const fileInput = document.getElementById('avatarFile');
+                const selectedGender = document.querySelector('input[name="gender"]:checked').value;
+                
+                // Собираем отмеченные чекбоксы хобби
+                const selectedHobbies = Array.from(document.querySelectorAll('input[name="hobby"]:checked')).map(cb => cb.value);
+
+                // Обработка аватарки
+                if (fileInput.files && fileInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        avatarImg.src = e.target.result;
+                    };
+                    reader.readAsDataURL(fileInput.files[0]);
+                } else {
+                    // Генерация робота, если файл не загружен
+                    const seed = encodeURIComponent(name || 'Player');
+                    avatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${seed}&backgroundColor=ff7a18,ff007f,00e5ff`;
+                }
+
+                // Заполняем данные
+                displayName.textContent = name;
+                displayDesc.textContent = selectedHobbies.length > 0 
+                    ? `Хобби: ${selectedHobbies.join(', ')}` 
+                    : 'Загадочный игрок без хобби';
+
+                // Устанавливаем класс в зависимости от пола (для цветов)
+                if (selectedGender === 'male') {
+                    profileCard.className = 'avatar-card male-card';
+                } else {
+                    profileCard.className = 'avatar-card female-card';
+                }
+
+                // Показываем результат
+                form.style.display = 'none';
+                successScreen.classList.remove('hidden');
+                successScreen.classList.add('fade-in');
+            });
+
+            // Кнопка "Создать ещё"
+            resetBtn.addEventListener('click', () => {
+                form.reset();
+                
+                successScreen.classList.add('hidden');
+                successScreen.classList.remove('fade-in');
+                form.style.display = 'flex';
+                
+                // Возвращаем карточке дефолтный мужской класс
+                profileCard.className = 'avatar-card male-card';
+            });
+        });
+    </script>
+</body>
+</html>

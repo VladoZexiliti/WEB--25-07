@@ -1,0 +1,327 @@
+/* ================= БАЗА ================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Rajdhani', sans-serif;
+    background-color: #050505;
+    color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* ================= ГРАДИЕНТНЫЙ ФОН ================= */
+.glow-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: 
+        radial-gradient(circle at 15% 50%, rgba(255, 122, 24, 0.15), transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(255, 0, 127, 0.15), transparent 40%),
+        radial-gradient(circle at 50% 80%, rgba(0, 229, 255, 0.15), transparent 40%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.container {
+    width: 100%;
+    max-width: 700px;
+    background: rgba(15, 15, 15, 0.85);
+    border: 2px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 0, 127, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* ================= ЗАГОЛОВОК ================= */
+.game-title {
+    font-family: 'Orbitron', sans-serif;
+    text-align: center;
+    font-size: 32px;
+    font-weight: 900;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #ff7a18, #ff007f, #00e5ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(255, 0, 127, 0.5));
+}
+
+/* ================= ФОРМА ================= */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.input-group label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #aaa;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+/* Поля ввода */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+select,
+textarea {
+    width: 100%;
+    padding: 12px 15px;
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* Запрет растягивания */
+textarea {
+    resize: none; 
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #ff007f;
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.3), inset 0 0 10px rgba(255, 0, 127, 0.1);
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px top 50%;
+    background-size: 12px auto;
+}
+
+/* Кастомный File Input */
+.file-input {
+    width: 100%;
+    padding: 10px;
+    background: #111;
+    border: 2px dashed #ff7a18;
+    border-radius: 8px;
+    color: #aaa;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+}
+.file-input::file-selector-button {
+    padding: 8px 15px;
+    background: #ff7a18;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 15px;
+    font-family: 'Rajdhani', sans-serif;
+    transition: 0.3s;
+}
+.file-input::file-selector-button:hover {
+    background: #ff007f;
+}
+
+/* ================= РАДИО И ЧЕКБОКСЫ ================= */
+.custom-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.custom-radio, .custom-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    background: #111;
+    padding: 10px 18px;
+    border: 2px solid #333;
+    border-radius: 30px;
+    transition: all 0.3s;
+    user-select: none;
+}
+
+.custom-radio input, .custom-checkbox input {
+    display: none;
+}
+
+.custom-radio:hover, .custom-checkbox:hover {
+    border-color: #00e5ff;
+}
+
+.custom-radio:has(input:checked), 
+.custom-checkbox:has(input:checked) {
+    border-color: #ff7a18;
+    background: rgba(255, 122, 24, 0.1);
+    box-shadow: 0 0 10px rgba(255, 122, 24, 0.2);
+}
+
+/* ================= КНОПКА ОТПРАВКИ ================= */
+.submit-btn {
+    margin-top: 10px;
+    padding: 16px;
+    background: linear-gradient(90deg, #ff7a18, #ff007f, #00e5ff);
+    background-size: 200% auto;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+}
+
+.submit-btn:hover {
+    background-position: right center;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+/* ================= ЭКРАН УСПЕХА ================= */
+.hidden { display: none !important; }
+
+.success-screen {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.fade-in { animation: fadeIn 0.6s ease-out forwards; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.success-title {
+    font-family: 'Orbitron', sans-serif;
+    color: #00e5ff;
+    font-size: 24px;
+    margin-bottom: 30px;
+    text-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+}
+
+/* ================= КАРТОЧКА (КАПСУЛА) ================= */
+.avatar-card {
+    display: flex;
+    align-items: center;
+    /* Идеальная капсула (скруглены левая и правая стороны) */
+    border-radius: 65px; 
+    background: linear-gradient(135deg, rgba(255, 122, 24, 0.15), rgba(255, 0, 127, 0.15), rgba(0, 229, 255, 0.15));
+    border: 2px solid transparent; 
+    padding: 15px 30px 15px 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 450px;
+    min-height: 130px;
+    margin: 0 auto;
+    transition: all 0.4s ease;
+}
+
+/* Идеально круглая аватарка */
+.avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #222;
+    border: 3px solid transparent;
+    object-fit: cover;
+    margin-right: 20px;
+    flex-shrink: 0;
+    transition: all 0.4s ease;
+}
+
+.player-info {
+    text-align: left;
+    flex: 1;
+    min-width: 0;
+}
+
+.player-info h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px;
+    color: #fff;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-info p {
+    font-size: 14px;
+    color: #bbb;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+/* ================= ЦВЕТА ПОЛА ================= */
+
+/* Мужской: Голубой -> Розовый при наведении */
+.avatar-card.male-card {
+    border-color: #00e5ff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 229, 255, 0.2);
+}
+.avatar-card.male-card .avatar {
+    border-color: #00e5ff;
+}
+.avatar-card.male-card:hover {
+    border-color: #ff007f;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 0, 127, 0.4);
+    transform: translateY(-5px);
+}
+.avatar-card.male-card:hover .avatar {
+    border-color: #ff007f;
+}
+
+/* Женский: Розовый -> Голубой при наведении */
+.avatar-card.female-card {
+    border-color: #ff007f;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 0, 127, 0.2);
+}
+.avatar-card.female-card .avatar {
+    border-color: #ff007f;
+}
+.avatar-card.female-card:hover {
+    border-color: #00e5ff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 229, 255, 0.4);
+    transform: translateY(-5px);
+}
+.avatar-card.female-card:hover .avatar {
+    border-color: #00e5ff;
+}
