@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Калькулятор високосных лет</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Фоновые пятна -->
+<div class="blobs" id="blobs">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
+</div>
+
+<main class="app">
+  <!-- Обертка с flex:1 прижимает контент к центру, а футер к низу -->
+  <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+    <header class="hero">
+      <div class="eyebrow"><span class="dot"></span> Система расчета</div>
+      <h1>Високосный <span class="grad">год</span></h1>
+      <p class="sub">Введите год для определения количества дней.<br>"-" значит <b>до н.э</b>, но можно написать и так</p>
+    </header>
+
+    <!-- Калькулятор -->
+    <section class="calculator" id="calculator">
+      <form class="input-group" id="calc-form" autocomplete="off" novalidate>
+        <input
+          id="year-input"
+          type="text"
+          placeholder="Например: 2024 или -100000"
+          aria-label="Введите год"
+          spellcheck="false"
+          autofocus
+        />
+        <button class="btn-calc" type="submit" id="calc-btn">
+          <span class="btn-text">Рассчитать</span>
+          <div class="loader" id="loader"></div>
+        </button>
+      </form>
+
+      <!-- Результат -->
+      <div class="result-area" id="result-area">
+        <div class="result-card">
+          <div class="res-top">
+            <div>
+              <div class="res-label">Анализ года</div>
+              <div class="res-year" id="res-year">0</div>
+            </div>
+            <div class="res-badge" id="res-badge">...</div>
+          </div>
+          <div class="res-bottom">
+            <div class="res-days" id="res-days">0</div>
+            <div class="res-days-label">дней в году</div>
+          </div>
+          <div class="res-line"></div>
+        </div>
+      </div>
+
+      <!-- Ответ ИИ (скрыт по умолчанию) -->
+      <div class="ai-area" id="ai-area">
+        <div class="ai-card">
+          <div class="ai-label">⚠️ Ошибка ввода данных</div>
+          <div class="ai-text" id="ai-text"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="chips" id="chips">
+      <button class="chip" type="button" data-q="2028">2028</button>
+      <button class="chip" type="button" data-q="2027">2027</button>
+      <button class="chip" type="button" data-q="2000">2000</button>
+      <button class="chip" type="button" data-q="1901">1901</button>
+      <button class="chip" type="button" data-q="0">0</button>
+      <button class="chip" type="button" data-q="-1818">-1818</button>
+      <button class="chip" type="button" data-q="1818 до н.э">1818 до н.э</button>
+    </div>
+  </div>
+
+  <footer class="foot">Григорианский календарь · Астрономическая нумерация</footer>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('calc-form');
+  const input = document.getElementById('year-input');
+  const btn = document.getElementById('calc-btn');
+  const resultArea = document.getElementById('result-area');
+  const aiArea = document.getElementById('ai-area');
+  const aiText = document.getElementById('ai-text');
+  
+  const resYear = document.getElementById('res-year');
+  const resBadge = document.getElementById('res-badge');
+  const resDays = document.getElementById('res-days');
+  const resultCard = document.querySelector('.result-card');
+  const blobsEl = document.getElementById('blobs');
+
+  // Логика високосности (учитывая отрицательные значения)
+  const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
+
+  // Анимация цифр
+  function countTo(el, target, dur) {
+    const start = performance.now();
+    function frame(now) {
+      const p = Math.min(1, (now - start) / dur);
+      const e = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      el.textContent = Math.round(target * e);
+      if (p < 1) requestAnimationFrame(frame);
+      else el.textContent = target;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // Конфетти (только для високосных)
+  function burst(cx, cy) {
+    const colors = ['#FF7A18', '#FF4D9D', '#3FA9FF'];
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      const size = 5 + Math.random() * 9;
+      p.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;border-radius:${Math.random() > 0.5 ? '50%' : '3px'};background:${colors[i % 3]};pointer-events:none;z-index:9999;`;
+      document.body.appendChild(p);
+      const ang = Math.random() * Math.PI * 2;
+      const dist = 50 + Math.random() * 150;
+      p.animate([
+        { transform: 'translate(-50%,-50%) scale(1) rotate(0deg)', opacity: 1 },
+        { transform: `translate(calc(-50% + ${Math.cos(ang)*dist}px), calc(-50% + ${Math.sin(ang)*dist - 50}px)) scale(0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+      ], { duration: 800 + Math.random() * 400, easing: 'cubic-bezier(.15,.85,.35,1)' }).onfinish = () => p.remove();
+    }
+  }
+
+  // Обработка ввода
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const raw = input.value.trim();
+    if (!raw) return;
+
+    // Сброс предыдущих состояний
+    resultArea.style.display = 'none';
+    aiArea.style.display = 'none';
+    
+    // Проверяем, является ли ввод чистым числом (включая минус)
+    const yearMatch = raw.match(/^-?\d+$/);
+    
+    if (yearMatch) {
+      // РЕЖИМ КАЛЬКУЛЯТОРА
+      const year = Number(raw);
+      if (Math.abs(year) > 1e9) {
+        alert("Слишком большое число для расчета");
+        return;
+      }
+
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      // Имитация задержки для солидности
+      await new Promise(r => setTimeout(r, 400));
+
+      btn.classList.remove('loading');
+      btn.disabled = false;
+
+      const leap = isLeap(year);
+      const days = leap ? 366 : 365;
+
+      resultArea.style.display = 'block';
+      resultCard.className = 'result-card' + (leap ? '' : ' not-leap');
+      
+      resBadge.textContent = leap ? 'Високосный' : 'Не високосный';
+      countTo(resYear, year, 600);
+      countTo(resDays, days, 600);
+
+      if (leap) {
+        setTimeout(() => {
+          const rect = resultArea.getBoundingClientRect();
+          burst(rect.left + rect.width / 2, rect.top + 100);
+        }, 300);
+      }
+
+    } else {
+      // РЕЖИМ ИИ (Скрытая функция при вводе текста)
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      aiArea.style.display = 'block';
+      aiText.textContent = 'Анализ нестандартного запроса...';
+
+      try {
+        // Жесткий промпт: запрещаем ИИ выводить мысли и рассуждения
+        const prompt = `Ты — калькулятор високосных лет. Пользователь ввел текст вместо числа: "${raw}". Ответь ему коротко (строго 1-2 предложения), остроумно. Если там дата с каким-то текстом, то вычисли какой это год. ВАЖНО: Выведи только сам ответ, без мыслей, рассуждений и тегов. Твой ответ:`;
+        
+        // Используем API Pollinations с моделью OpenAI
+        const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=openai`);
+        
+        if (!response.ok) throw new Error('API error');
+        
+        let text = await response.text();
+        
+        // Очистка ответа от возможного мусора
+        text = text.replace(/```[\s\S]*?```/g, ''); // Удаляем блоки кода
+        text = text.replace(/^(Assistant|Ответ|AI|Калькулятор):/gi, '').trim(); // Удаляем префиксы
+        text = text.replace(/^["']|["']$/g, '').trim(); // Удаляем кавычки
+        
+        // Если ответ пустой или содержит признаки "мыслей", ставим фолбэк
+        if (!text || text.length < 5 || text.includes("Пользователь ввел") || text.includes("reasoning")) {
+           throw new Error("Invalid format");
+        }
+
+        aiText.textContent = text;
+      } catch (err) {
+        // Фолбэк, если API недоступен или выдал бред
+        aiText.textContent = `Ого, "${raw}" — это хрень какая-то! Я строгий калькулятор, но кажется, во мне проснулся ИИ. Введите цифры (например, 2024), и я всё посчитаю.`;
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+    input.value = '';
+  });
+
+  // Быстрые кнопки
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      input.value = chip.dataset.q;
+      form.dispatchEvent(new Event('submit'));
+    });
+  });
+
+  // Параллакс фона
+  let rafId = null;
+  document.addEventListener('mousemove', (e) => {
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => {
+      const x = (e.clientX / window.innerWidth - 0.5);
+      const y = (e.clientY / window.innerHeight - 0.5);
+      blobsEl.style.transform = `translate(${x * 40}px, ${y * 40}px)`;
+      rafId = null;
+    });
+  }, { passive: true });
+});
+</script>
+</body>
+</html>
