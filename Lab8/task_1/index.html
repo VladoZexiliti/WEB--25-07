@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Калькулятор покупок — Футуристичный менеджер</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- SVG-спрайт -->
+  <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <path d="M12 5v14M5 12h14"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12l5 5 9-10"/>
+    </symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <path d="M6 6l12 12M18 6L6 18"/>
+    </symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
+    </symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="20" r="1.5"/>
+      <circle cx="18" cy="20" r="1.5"/>
+      <path d="M3 3h3l2.5 13h11l2-9H6"/>
+    </symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 17l6-6-6-6M12 19h8"/>
+    </symbol>
+    <symbol id="i-coin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M12 7v10M9.5 9.5c.5-1 2-1.5 3-1.5s2.5.5 2.5 2-2 1.5-2.5 1.5-2 .5-2 2 1.5 2 2.5 2 2.5-.5 3-1.5"/>
+    </symbol>
+    <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 8l-9-5-9 5 9 5 9-5z"/>
+      <path d="M3 8v8l9 5 9-5V8"/>
+      <path d="M12 13v8"/>
+    </symbol>
+  </svg>
+
+  <main class="app-card" role="main">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="title-group" id="titleGroup">
+        <span class="fire">🔥</span>
+        <h1>
+          <span class="title-text">Калькулятор покупок</span>
+        </h1>
+      </div>
+      <div class="stats">
+        <div class="stat-badge" title="Позиций в списке">
+          <svg class="icon"><use href="#i-box"/></svg>
+          <span class="num" id="itemsCount">0</span>
+          <span class="lbl">POS</span>
+        </div>
+        <div class="stat-badge" title="Суммарное количество">
+          <svg class="icon"><use href="#i-cart"/></svg>
+          <span class="num" id="unitsCount">0</span>
+          <span class="lbl">UNIT</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Форма -->
+    <form class="add-form" id="addForm" novalidate autocomplete="off">
+      <div class="form-group name-group">
+        <label class="field-label" for="nameInput">Продукт</label>
+        <input type="text" id="nameInput" name="name" placeholder="Например: Молоко" maxlength="100">
+        <span class="error-msg" id="nameError"></span>
+      </div>
+      <div class="form-group price-group">
+        <label class="field-label" for="priceInput">Цена (₽)</label>
+        <input type="number" id="priceInput" name="price" placeholder="0.00" step="0.01" min="0.01" max="999999">
+        <span class="error-msg" id="priceError"></span>
+      </div>
+      <div class="form-group qty-group">
+        <label class="field-label" for="qtyInput">Кол-во</label>
+        <input type="number" id="qtyInput" name="qty" placeholder="1" step="1" min="1" max="99999">
+        <span class="error-msg" id="qtyError"></span>
+      </div>
+      <button type="submit" class="add-btn" id="addBtn">
+        <svg class="icon"><use href="#i-plus"/></svg>
+        <span>Добавить</span>
+      </button>
+    </form>
+
+    <!-- Таблица -->
+    <div class="table-wrap">
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th class="col-name">Продукт</th>
+            <th class="col-num">Цена</th>
+            <th class="col-num">Кол-во</th>
+            <th class="col-num">Сумма</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="productList"></tbody>
+      </table>
+      <div class="empty-hint" id="emptyHint">
+        <div class="terminal">
+          <svg class="icon"><use href="#i-terminal"/></svg>
+          <span>Добавь первый продукт<span class="cursor">_</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="footer">
+      <button type="button" class="clear-btn" id="clearBtn">
+        <svg class="icon"><use href="#i-trash"/></svg>
+        <span>Очистить всё</span>
+      </button>
+      <div class="total-block">
+        <span class="total-label">
+          <svg class="icon"><use href="#i-coin"/></svg>
+          Итого
+        </span>
+        <span class="total-value" id="totalValue">0,00 ₽</span>
+      </div>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'product-calculator-v1';
+
+      /** @type {{id:string,name:string,price:number,quantity:number}[]} */
+      let products = [];
+      let audioCtx = null;
+      let lastTotal = 0;
+      let toastTimer = null;
+
+      const $ = s => document.querySelector(s);
+      const form        = $('#addForm');
+      const nameInput   = $('#nameInput');
+      const priceInput  = $('#priceInput');
+      const qtyInput    = $('#qtyInput');
+      const nameError   = $('#nameError');
+      const priceError  = $('#priceError');
+      const qtyError    = $('#qtyError');
+      const productList = $('#productList');
+      const emptyHint   = $('#emptyHint');
+      const totalValue  = $('#totalValue');
+      const itemsCount  = $('#itemsCount');
+      const unitsCount  = $('#unitsCount');
+      const clearBtn    = $('#clearBtn');
+      const toastEl     = $('#toast');
+      const titleGroup  = $('#titleGroup');
+
+      // ---------- Утилиты ----------
+      const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
+      function escapeHtml(s) {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+      }
+
+      const fmt = new Intl.NumberFormat('ru-RU', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+      const fmtInt = new Intl.NumberFormat('ru-RU');
+      const formatPrice = n => fmt.format(n || 0) + ' ₽';
+      const formatNumber = n => fmt.format(n || 0);
+
+      // ---------- Аудио ----------
+      function initAudio() {
+        if (!audioCtx) {
+          try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) {}
+        }
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      }
+      function tone(freq, dur, type, vol) {
+        if (!audioCtx) return;
+        try {
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          o.type = type || 'sine';
+          o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          g.gain.setValueAtTime(vol || 0.06, audioCtx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (dur || 0.15));
+          o.connect(g); g.connect(audioCtx.destination);
+          o.start(); o.stop(audioCtx.currentTime + (dur || 0.15));
+        } catch (_) {}
+      }
+      const sClick    = () => tone(700, 0.06, 'sine', 0.05);
+      const sAdd      = () => { tone(880, 0.09, 'triangle', 0.07); setTimeout(() => tone(1320, 0.08, 'triangle', 0.05), 60); };
+      const sDelete   = () => { tone(280, 0.1, 'sawtooth', 0.05); setTimeout(() => tone(180, 0.14, 'sawtooth', 0.05), 60); };
+      const sEdit     = () => { tone(720, 0.07, 'sine', 0.05); setTimeout(() => tone(960, 0.07, 'sine', 0.04), 55); };
+      const sError    = () => tone(180, 0.2, 'square', 0.05);
+      const sClear    = () => { tone(600, 0.1, 'sawtooth', 0.06); setTimeout(() => tone(400, 0.12, 'sawtooth', 0.05), 80); setTimeout(() => tone(250, 0.15, 'sawtooth', 0.04), 170); };
+
+      // ---------- Хранилище ----------
+      function loadProducts() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            products = parsed.filter(p =>
+              p &&
+              typeof p.id === 'string' &&
+              typeof p.name === 'string' &&
+              typeof p.price === 'number' &&
+              typeof p.quantity === 'number' &&
+              p.price > 0 && p.quantity > 0
+            );
+          }
+        } catch (_) {}
+      }
+      function saveProducts() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(products)); } catch (_) {}
+      }
+
+      // ---------- Toast ----------
+      function showToast(msg, duration) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastEl.classList.remove('show'), duration || 1800);
+      }
+
+      // ---------- Валидация ----------
+      function validateField(field) {
+        let value, error = '';
+
+        if (field === 'name') {
+          value = nameInput.value.trim();
+          if (!value) error = 'Введите название';
+          else if (value.length < 2) error = 'Минимум 2 символа';
+          else if (value.length > 100) error = 'Максимум 100 символов';
+          nameError.textContent = error;
+          nameError.classList.toggle('show', !!error);
+          nameInput.classList.toggle('invalid', !!error);
+          return { valid: !error, value };
+        }
+
+        if (field === 'price') {
+          const raw = priceInput.value.trim();
+          if (!raw) error = 'Введите цену';
+          else {
+            const n = parseFloat(raw);
+            if (isNaN(n)) error = 'Не число';
+            else if (n <= 0) error = 'Больше 0';
+            else if (n > 999999) error = 'Слишком много';
+            else if (!/^\d+(\.\d{1,2})?$/.test(raw)) error = 'Макс. 2 знака';
+            else value = n;
+          }
+          priceError.textContent = error;
+          priceError.classList.toggle('show', !!error);
+          priceInput.classList.toggle('invalid', !!error);
+          return { valid: !error, value };
+        }
+
+        if (field === 'qty') {
+          const raw = qtyInput.value.trim();
+          if (!raw) error = 'Введите кол-во';
+          else {
+            const n = parseInt(raw, 10);
+            if (isNaN(n)) error = 'Не число';
+            else if (n < 1) error = 'Минимум 1';
+            else if (n > 99999) error = 'Слишком много';
+            else if (String(n) !== raw) error = 'Целое число';
+            else value = n;
+          }
+          qtyError.textContent = error;
+          qtyError.classList.toggle('show', !!error);
+          qtyInput.classList.toggle('invalid', !!error);
+          return { valid: !error, value };
+        }
+      }
+
+      function validateAll() {
+        const n = validateField('name');
+        const p = validateField('price');
+        const q = validateField('qty');
+        return {
+          valid: n.valid && p.valid && q.valid,
+          name: n.value, price: p.value, quantity: q.value,
+        };
+      }
+
+      // live-валидация при вводе (после первого ввода)
+      nameInput.addEventListener('blur', () => { if (nameInput.value.trim()) validateField('name'); });
+      priceInput.addEventListener('blur', () => { if (priceInput.value.trim()) validateField('price'); });
+      qtyInput.addEventListener('blur', () => { if (qtyInput.value.trim()) validateField('qty'); });
+      nameInput.addEventListener('input', () => { if (nameError.classList.contains('show')) validateField('name'); });
+      priceInput.addEventListener('input', () => { if (priceError.classList.contains('show')) validateField('price'); });
+      qtyInput.addEventListener('input', () => { if (qtyError.classList.contains('show')) validateField('qty'); });
+
+      // ---------- Подсчёт ----------
+      function calcTotal() {
+        return products.reduce((sum, p) => sum + p.price * p.quantity, 0);
+      }
+
+      function updateStats(animate) {
+        itemsCount.textContent = fmtInt.format(products.length);
+        const units = products.reduce((s, p) => s + p.quantity, 0);
+        unitsCount.textContent = fmtInt.format(units);
+
+        const newTotal = calcTotal();
+        if (animate && Math.abs(newTotal - lastTotal) > 0.001) {
+          animateTotal(lastTotal, newTotal);
+        } else {
+          totalValue.textContent = formatPrice(newTotal);
+        }
+        lastTotal = newTotal;
+      }
+
+      function animateTotal(from, to) {
+        const start = performance.now();
+        const duration = 420;
+        function step(now) {
+          const t = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+          const current = from + (to - from) * eased;
+          totalValue.textContent = formatPrice(current);
+          if (t < 1) requestAnimationFrame(step);
+        }
+        totalValue.classList.add('pulse');
+        setTimeout(() => totalValue.classList.remove('pulse'), duration + 100);
+        requestAnimationFrame(step);
+      }
+
+      // ---------- FLIP ----------
+      function captureRects() {
+        const map = new Map();
+        productList.querySelectorAll('tr[data-id]').forEach(el => {
+          map.set(el.dataset.id, el.getBoundingClientRect());
+        });
+        return map;
+      }
+      function applyFlip(first) {
+        productList.querySelectorAll('tr[data-id]').forEach(el => {
+          const fr = first.get(el.dataset.id);
+          if (!fr) return;
+          const lr = el.getBoundingClientRect();
+          const dy = fr.top - lr.top;
+          if (Math.abs(dy) < 1) return;
+          el.style.transition = 'none';
+          el.style.transform = `translateY(${dy}px)`;
+          requestAnimationFrame(() => {
+            el.style.transition = 'transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)';
+            el.style.transform = '';
+            setTimeout(() => { el.style.transition = ''; }, 380);
+          });
+        });
+      }
+
+      // ---------- Рендер ----------
+      function renderRow(p) {
+        const rowTotal = p.price * p.quantity;
+        const tr = document.createElement('tr');
+        tr.dataset.id = p.id;
+        tr.className = 'product-row';
+        tr.innerHTML = `
+          <td class="col-name" data-label="Продукт">
+            <span class="cell-text">${escapeHtml(p.name)}</span>
+          </td>
+          <td class="col-num" data-label="Цена">
+            <span class="cell-text num">${formatPrice(p.price)}</span>
+          </td>
+          <td class="col-num" data-label="Кол-во">
+            <span class="cell-text num">${fmtInt.format(p.quantity)}</span>
+          </td>
+          <td class="col-num col-sum" data-label="Сумма">
+            <span class="cell-text num strong">${formatPrice(rowTotal)}</span>
+          </td>
+          <td class="col-actions">
+            <div class="row-actions">
+              <button type="button" class="action-btn edit" title="Редактировать" aria-label="Редактировать">
+                <svg class="icon"><use href="#i-pencil"/></svg>
+                <span class="btn-label">Править</span>
+              </button>
+              <button type="button" class="action-btn delete" title="Удалить" aria-label="Удалить">
+                <svg class="icon"><use href="#i-trash"/></svg>
+                <span class="btn-label">Удалить</span>
+              </button>
+            </div>
+          </td>
+        `;
+        tr.querySelector('.action-btn.edit').addEventListener('click', e => {
+          e.stopPropagation();
+          startEdit(p.id, tr);
+        });
+        tr.querySelector('.action-btn.delete').addEventListener('click', e => {
+          e.stopPropagation();
+          deleteProduct(p.id, tr);
+        });
+        tr.addEventListener('dblclick', e => {
+          if (e.target.closest('input,button')) return;
+          startEdit(p.id, tr);
+        });
+        return tr;
+      }
+
+      function render() {
+        productList.innerHTML = '';
+        if (!products.length) {
+          emptyHint.style.display = '';
+          updateStats(true);
+          return;
+        }
+        emptyHint.style.display = 'none';
+        const frag = document.createDocumentFragment();
+        products.forEach(p => frag.appendChild(renderRow(p)));
+        productList.appendChild(frag);
+        updateStats(true);
+      }
+
+      function renderWithFlip() {
+        const first = captureRects();
+        render();
+        applyFlip(first);
+      }
+
+      // ---------- Добавление ----------
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        initAudio();
+        const r = validateAll();
+        if (!r.valid) {
+          sError();
+          form.classList.remove('shake');
+          void form.offsetWidth;
+          form.classList.add('shake');
+          return;
+        }
+        products.unshift({
+          id: uid(),
+          name: r.name,
+          price: r.price,
+          quantity: r.quantity,
+        });
+        saveProducts();
+        sAdd();
+        clearForm();
+        renderWithFlip();
+        showToast('Добавлено: ' + r.name, 1400);
+        const rect = form.getBoundingClientRect();
+        burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 14);
+      });
+
+      function clearForm() {
+        nameInput.value = '';
+        priceInput.value = '';
+        qtyInput.value = '';
+        [nameInput, priceInput, qtyInput].forEach(i => i.classList.remove('invalid'));
+        [nameError, priceError, qtyError].forEach(e => {
+          e.textContent = '';
+          e.classList.remove('show');
+        });
+        nameInput.focus();
+      }
+
+      // ---------- Удаление ----------
+      function deleteProduct(id, rowEl) {
+        sDelete();
+        rowEl.classList.add('deleting');
+        setTimeout(() => {
+          const idx = products.findIndex(p => p.id === id);
+          if (idx !== -1) { products.splice(idx, 1); saveProducts(); }
+          renderWithFlip();
+        }, 220);
+      }
+
+      // ---------- Редактирование ----------
+      function startEdit(id, rowEl) {
+        if (rowEl.classList.contains('editing')) return;
+        const p = products.find(x => x.id === id);
+        if (!p) return;
+        sEdit();
+        rowEl.classList.add('editing');
+
+        const nameCell = rowEl.querySelector('.col-name');
+        const priceCell = rowEl.querySelectorAll('.col-num')[0];
+        const qtyCell = rowEl.querySelectorAll('.col-num')[1];
+        const sumCell = rowEl.querySelector('.col-sum');
+        const actionsCell = rowEl.querySelector('.col-actions');
+
+        nameCell.innerHTML = `<input class="cell-input" type="text" maxlength="100" value="${escapeHtml(p.name)}" aria-label="Название">`;
+        priceCell.innerHTML = `<input class="cell-input num" type="number" step="0.01" min="0.01" max="999999" value="${p.price}" aria-label="Цена">`;
+        qtyCell.innerHTML = `<input class="cell-input num" type="number" step="1" min="1" max="99999" value="${p.quantity}" aria-label="Количество">`;
+        actionsCell.innerHTML = `
+          <div class="row-actions">
+            <button type="button" class="action-btn save" title="Сохранить" aria-label="Сохранить">
+              <svg class="icon"><use href="#i-check"/></svg>
+            </button>
+            <button type="button" class="action-btn cancel" title="Отменить" aria-label="Отменить">
+              <svg class="icon"><use href="#i-x"/></svg>
+            </button>
+          </div>
+        `;
+
+        const nameInp = nameCell.querySelector('input');
+        const priceInp = priceCell.querySelector('input');
+        const qtyInp = qtyCell.querySelector('input');
+
+        function liveSum() {
+          const pr = parseFloat(priceInp.value) || 0;
+          const q = parseInt(qtyInp.value, 10) || 0;
+          sumCell.querySelector('.cell-text').textContent = formatPrice(pr * q);
+        }
+        priceInp.addEventListener('input', liveSum);
+        qtyInp.addEventListener('input', liveSum);
+
+        // Фокус
+        nameInp.focus();
+        nameInp.select();
+
+        let finished = false;
+
+        function markInvalid(inp, msg) {
+          inp.classList.add('invalid');
+          showToast(msg, 1400);
+          sError();
+          inp.focus();
+        }
+
+        function save() {
+          if (finished) return;
+          const name = nameInp.value.trim();
+          const price = parseFloat(priceInp.value);
+          const qty = parseInt(qtyInp.value, 10);
+
+          if (!name || name.length < 2 || name.length > 100) {
+            return markInvalid(nameInp, 'Название: 2–100 символов');
+          }
+          if (isNaN(price) || price <= 0 || price > 999999) {
+            return markInvalid(priceInp, 'Цена: число > 0');
+          }
+          if (isNaN(qty) || qty < 1 || qty > 99999) {
+            return markInvalid(qtyInp, 'Кол-во: целое ≥ 1');
+          }
+
+          finished = true;
+          p.name = name;
+          p.price = price;
+          p.quantity = qty;
+          saveProducts();
+          sAdd();
+          renderWithFlip();
+          showToast('Обновлено', 1200);
+        }
+
+        function cancel() {
+          if (finished) return;
+          finished = true;
+          sClick();
+          renderWithFlip();
+        }
+
+        [nameInp, priceInp, qtyInp].forEach(inp => {
+          inp.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); save(); }
+            if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+            if (e.key === 'Tab' && !e.shiftKey && inp === qtyInp) {
+              e.preventDefault();
+              save();
+            }
+          });
+        });
+
+        actionsCell.querySelector('.save').addEventListener('click', save);
+        actionsCell.querySelector('.cancel').addEventListener('click', cancel);
+      }
+
+      // ---------- Очистить всё ----------
+      clearBtn.addEventListener('click', () => {
+        initAudio();
+        if (!products.length) {
+          sError();
+          showToast('Список пуст', 1200);
+          return;
+        }
+        if (!confirm('Удалить все продукты?')) return;
+        sClear();
+        products = [];
+        saveProducts();
+        renderWithFlip();
+        showToast('Список очищен', 1500);
+      });
+
+      // ---------- Конфетти ----------
+      function burstConfetti(x, y, count) {
+        const colors = ['#ff7a1a', '#ff4500', '#ffb347', '#ffffff', '#5b8def', '#8aa7f0'];
+        const n = count || 25;
+        for (let i = 0; i < n; i++) {
+          const p = document.createElement('div');
+          p.className = 'confetti-piece';
+          const size = 4 + Math.random() * 8;
+          p.style.width = size + 'px';
+          p.style.height = size + 'px';
+          p.style.background = colors[Math.floor(Math.random() * colors.length)];
+          p.style.left = x + 'px';
+          p.style.top = y + 'px';
+          p.style.borderRadius = Math.random() > 0.7 ? '50%' : '1px';
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 60 + Math.random() * 220;
+          const tx = Math.cos(angle) * dist;
+          const ty = Math.sin(angle) * dist - 80;
+          const rot = (Math.random() - 0.5) * 900;
+          p.style.setProperty('--tx', tx + 'px');
+          p.style.setProperty('--ty', ty + 'px');
+          p.style.setProperty('--rot', rot + 'deg');
+          document.body.appendChild(p);
+          setTimeout(() => p.remove(), 1400);
+        }
+      }
+
+      // ---------- Заголовок ----------
+      titleGroup.addEventListener('click', () => {
+        initAudio();
+        sEdit();
+        const r = titleGroup.getBoundingClientRect();
+        burstConfetti(r.left + r.width / 2, r.top + r.height / 2, 20);
+      });
+
+      // ---------- Init ----------
+      document.addEventListener('click', initAudio, { once: true });
+      document.addEventListener('keydown', initAudio, { once: true });
+
+      loadProducts();
+      lastTotal = calcTotal();
+      render();
+
+      setTimeout(() => {
+        if (window.innerWidth > 700) nameInput.focus();
+      }, 300);
+
+    })();
+  </script>
+</body>
+</html>

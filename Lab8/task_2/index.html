@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тихая лента — интерактивное пространство</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="bg-mountain" id="bg-mountain">
+    <div class="wave-container" id="wave-container">
+      <svg class="wave-layer layer-1" viewBox="0 0 1440 400" preserveAspectRatio="none">
+        <path fill="#ffe9df" d="M0,150 C320,280 640,-20 960,120 C1200,220 1320,300 1440,260 L1440,400 L0,400 Z"/>
+      </svg>
+      <svg class="wave-layer layer-2" viewBox="0 0 1440 400" preserveAspectRatio="none">
+        <path fill="#dff7f0" d="M0,220 C360,80 720,340 1080,200 C1240,140 1340,240 1440,200 L1440,400 L0,400 Z"/>
+      </svg>
+      <svg class="wave-layer layer-3" viewBox="0 0 1440 450" preserveAspectRatio="none">
+        <path fill="#f3ecff" d="M0,300 C280,160 560,420 840,280 C1120,140 1280,360 1440,260 L1440,450 L0,450 Z"/>
+      </svg>
+      <svg class="wave-layer layer-4" viewBox="0 0 1440 500" preserveAspectRatio="none">
+        <path fill="#ffc4ae" d="M0,380 C400,200 800,480 1200,320 C1320,280 1380,360 1440,340 L1440,500 L0,500 Z"/>
+      </svg>
+      <svg class="wave-layer layer-grass" viewBox="0 0 1440 200" preserveAspectRatio="none">
+        <path fill="#a8e8d8" d="M0,100 C100,140 150,50 250,90 C350,130 450,40 550,100 C650,160 750,30 850,90 C950,150 1050,40 1150,100 C1250,160 1350,50 1440,90 L1440,200 L0,200 Z"/>
+        <path fill="#7bc96f" d="M0,140 C80,100 160,170 280,120 C400,70 480,160 600,130 C720,100 800,170 920,110 C1040,50 1120,150 1240,120 C1320,100 1380,140 1440,120 L1440,200 L0,200 Z"/>
+        <path fill="#4fd1b5" d="M0,170 C120,140 180,190 320,160 C460,130 540,190 680,160 C820,130 880,180 1020,150 C1160,120 1240,180 1440,150 L1440,200 L0,200 Z" opacity="0.8"/>
+      </svg>
+    </div>
+    <div id="leaf-container"></div>
+  </div>
+
+  <div id="root">
+    <div style="padding:60px 20px;text-align:center;font-family:'Manrope',sans-serif;color:#6b5b54">
+      <p>Загрузка магии…</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.10/babel.min.js"></script>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useRef, useCallback, useMemo, useContext } = React;
+
+    /* ============================================================
+       0. УТИЛИТЫ И MARKDOWN
+       ============================================================ */
+    const STORAGE_KEY = 'soft-posts-v7-final';
+    const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
+    const dateFmt = new Intl.DateTimeFormat('ru-RU', {
+      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+    const formatDate = (iso) => { try { return dateFmt.format(new Date(iso)); } catch (e) { return ''; } };
+
+    function renderMarkdown(text) {
+      let processed = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                          .replace(/\*(.*?)\*/g, '<em>$1</em>');
+      
+      const lines = processed.split('\n');
+      let html = '';
+      let inList = false;
+      let listType = null;
+      let inTable = false;
+
+      const closeList = () => { if (inList) { html += `</${listType}>`; inList = false; listType = null; } };
+      const closeTable = () => { if (inTable) { html += `</tbody></table></div>`; inTable = false; } };
+
+      for (let line of lines) {
+        if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+          closeList();
+          if (!inTable) {
+            html += '<div class="table-wrapper"><table><tbody>';
+            inTable = true;
+          }
+          if (line.match(/^\|[-:\s|]+\|$/)) continue;
+          
+          const cells = line.split('|').filter((c, i, a) => i > 0 && i < a.length - 1);
+          html += '<tr>';
+          cells.forEach(cell => { html += `<td>${cell.trim()}</td>`; });
+          html += '</tr>';
+          continue;
+        } else {
+          closeTable();
+        }
+
+        if (line.match(/^### /)) { closeList(); html += `<h3>${line.slice(4)}</h3>`; continue; }
+        if (line.match(/^## /)) { closeList(); html += `<h2>${line.slice(3)}</h2>`; continue; }
+        if (line.match(/^# /)) { closeList(); html += `<h1>${line.slice(2)}</h1>`; continue; }
+
+        if (line.match(/^> /)) {
+          closeList();
+          html += `<blockquote>${line.slice(2)}</blockquote>`;
+          continue;
+        }
+
+        if (line.match(/^[-*] /)) {
+          if (!inList || listType !== 'ul') { closeList(); html += '<ul>'; inList = true; listType = 'ul'; }
+          html += `<li>${line.slice(2)}</li>`;
+          continue;
+        }
+        if (line.match(/^\d+\. /)) {
+          if (!inList || listType !== 'ol') { closeList(); html += '<ol>'; inList = true; listType = 'ol'; }
+          html += `<li>${line.replace(/^\d+\. /, '')}</li>`;
+          continue;
+        }
+
+        if (line.trim() === '') { closeList(); continue; }
+        
+        closeList();
+        html += `<p>${line}</p>`;
+      }
+      
+      closeList(); 
+      closeTable();
+      return { __html: html };
+    }
+
+    // 6 ОГРОМНЫХ ПОСТОВ
+    function seedPosts() {
+      const now = Date.now();
+      const d = (m) => new Date(now - 1000 * 60 * m).toISOString();
+      return [
+        {
+          id: 'seed-6', moodBase: 'lav', moodMod: 'sad',
+          title: 'Эстетика пустого пространства',
+          text: '## Почему пустота важна в дизайне\n\nМы часто пытаемся заполнить каждый пиксель экрана контентом. Нам кажется, что если остается свободное место, значит, мы что-то недоделали. Но пустота (negative space) — это не ошибка, это мощный инструмент.\n\nВоздух вокруг элементов дает им дышать. Он направляет взгляд пользователя и создает иерархию.\n\n### Принципы минимализма:\n1. **Убирайте лишнее.** Если элемент не несет смысла, удалите его. Каждая линия, каждый цвет должны быть оправданы.\n2. **Давайте контенту воздух.** Отступы (padding и margin) важнее, чем сами границы блоков.\n3. **Используйте типографику как декор.** Красивый шрифт и правильный межстрочный интервал могут заменить кучу картинок.\n\n> Совершенство достигается не тогда, когда нечего добавить, а когда нечего убрать. — Антуан де Сент-Экзюпери\n\nВот как выглядит сравнение подходов:\n\n| Подход | Плотность | Восприятие |\n|---|---|---|\n| Максимализм | Высокая | Шум, тревога |\n| Минимализм | Низкая | Ясность, фокус |\n\nПопробуйте в следующий раз не добавить новый блок, а увеличить отступы между существующими. Вы удивитесь, насколько дороже и спокойнее станет выглядеть интерфейс.',
+          date: d(5),
+        },
+        {
+          id: 'seed-1', moodBase: 'coral', moodMod: 'none',
+          title: 'Искусство медленного кода',
+          text: '## Почему спешка убивает качество\n\nВ современном мире разработки мы часто гонимся за фичами. Нам кажется, что скорость — это главный показатель успеха. Менеджеры ставят дедлайны, коллеги пушат код каждые пять минут, а в трендах постоянно мелькают новые фреймворки. Но настоящий, поддерживаемый код пишется не за клавиатурой в спешке, а за чашкой чая, когда ты спокойно обдумываешь архитектуру.\n\nКогда вы торопитесь, вы принимаете решения на автопилоте. Вы используете первые пришедшие в голову паттерны, копируете решения из StackOverflow, не вникая в суть. Через месяц такой код превращается в непроходимые джунгли, в которых страшно что-либо менять.\n\n### Три столпа медленного кода:\n- **Читайте больше, чем пишете.** Понимание чужого кода и архитектурных паттернов делает ваш код элегантнее. Изучение legacy-кода — это лучшая школа.\n- **Рефакторите сегодня, чтобы не страдать завтра.** Уделите 15 минут в конце дня, чтобы навести порядок в функциях, которые вы только что написали.\n- **Оставляйте комментарии для себя из будущего.** Через полгода вы забудете, почему сделали именно так. Объясните это своему будущему «я».\n\n> Программирование — это не скорость набора текста, это скорость мышления. Если вы печатаете быстрее, чем думаете, вы создаете проблемы.\n\nПопробуйте в следующий раз выделить 30 минут только на размышления и проектирование перед тем, как открыть редактор. Результат вас приятно удивит.',
+          date: d(15),
+        },
+        {
+          id: 'seed-2', moodBase: 'mint', moodMod: 'joy',
+          title: 'Зелёные тропы и цифровой детокс',
+          text: '## Возвращение к истокам\n\nГород забирает много энергии. Постоянный шум, спешащие люди, уведомления на экране телефона, синий свет монитора. Когда я чувствую выгорание, я ухожу в парк или лес. Нет ничего лучше, чем **отключить все уведомления** и просто послушать шум листвы.\n\nПрирода не требует от вас продуктивности. Она просто существует. И это невероятно исцеляет уставший мозг.\n\n### Что даёт природа:\n1. **Ясность ума.** Задачи решаются сами собой, когда о них не думаешь. Мозг переключается в фоновый режим и находит нестандартные решения.\n2. **Снижение тревожности.** Прогулки без телефона творят чудеса с нервной системой.\n3. **Новые идеи.** Природа — лучший генератор случайных чисел для творчества.\n\nНе обязательно ехать в горы или леса. Достаточно найти ближайший сквер и провести там 20 минут без гаджетов. Оставьте телефон в кармане, просто идите и дышите.',
+          date: d(120),
+        },
+        {
+          id: 'seed-3', moodBase: 'lav', moodMod: 'mel',
+          title: 'Тишина в шумном мире',
+          text: '## Почему тишина — роскошь\n\nМы живём в эпоху информационного шума. Каждую секунду нас пытаются отвлечь: соцсети, новости, реклама, чужие мнения. Но истинная продуктивность и креативность рождаются только в тишине.\n\nКогда вокруг тихо, вы начинаете слышать собственные мысли. А собственные мысли — это единственное, что действительно имеет значение.\n\n### Практика тишины:\n- Выключите фоновую музыку на 1 час. Просто поработайте в тишине.\n- Закройте лишние вкладки в браузере. Оставьте только то, что нужно для текущей задачи.\n- Используйте *режим полёта*, когда пишете или читаете.\n\n> Слушайте себя. Вы — лучший советчик. Никто не знает ваших истинных желаний, кроме вас самих.\n\nТишина — это не пустота. Это пространство, в котором рождается смысл. Дайте себе время побыть в этом пространстве.',
+          date: d(340),
+        },
+        {
+          id: 'seed-4', moodBase: 'coral', moodMod: 'joy',
+          title: 'Горные вершины и большие цели',
+          text: '## Взгляд сверху\n\nКогда смотришь на горы, понимаешь, насколько мелки повседневные проблемы. Любая большая цель — это как восхождение на гору: она требует времени, терпения и правильной подготовки.\n\nЕсли вы смотрите только на вершину, вы можете испугаться её высоты. Смотрите под ноги.\n\n### Стратегия восхождения:\n1. **Разбейте цель на мелкие шаги.** Каждый шаг — это отдельная задача на день.\n2. **Не смотрите постоянно на вершину.** Просто делайте свой шаг сегодня.\n3. **Делайте привалы для отдыха.** Выгорание — главный враг на длинной дистанции.\n4. **Наслаждайтесь видом на каждом этапе.** Путь так же важен, как и результат.\n\nВершина — это не конечная точка, а лишь место, откуда открывается новый вид. Не забывайте об этом в погоне за успехом.',
+          date: d(800),
+        },
+        {
+          id: 'seed-5', moodBase: 'mint', moodMod: 'none',
+          title: 'Почему мы пишем?',
+          text: '## Дневник как инструмент\n\nПисание — это не только передача информации, но и способ структурировать хаос в голове. Наши мысли летают беспорядочно, но когда мы переносим их на бумагу, они обретают форму.\n\n### Виды письма для рефлексии:\n1. **Утренние страницы** (по Джулии Кэмерон). Три листа от руки утром помогают очистить разум от мусора.\n2. **Вечерняя рефлексия.** Что получилось сегодня? Что можно улучшить? За что я благодарен?\n3. **Публичные посты.** Дисциплинируют и учат формулировать мысли так, чтобы их понимали другие.\n\n> Тот, кто пишет, — тот думает дважды. Сначала вы формулируете мысль, а затем проверяете, логична ли она.\n\nВот сравнение основных инструментов:\n\n| Инструмент | Эффект | Время |\n|---|---|---|\n| Утренние страницы | Очищение ума | 15 минут |\n| Дневник | Анализ дня | 5 минут |\n| Блог | Обмен опытом | 30 минут |\n\nНе бойтесь писать «в стол». Главное — начать.',
+          date: d(1500),
+        },
+      ];
+    }
+
+    function loadPosts() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return seedPosts();
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : seedPosts();
+      } catch (e) { return seedPosts(); }
+    }
+    function savePosts(posts) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(posts)); } catch (e) {}
+    }
+
+    /* ============================================================
+       1. ХУКИ
+       ============================================================ */
+    function parseHash() {
+      const path = window.location.hash.replace(/^#/, '') || '/';
+      if (path === '/') return { name: 'home', path };
+      if (path === '/new') return { name: 'new', path };
+      const m = path.match(/^\/post\/(.+)$/);
+      if (m) return { name: 'post', id: decodeURIComponent(m[1]), path };
+      return { name: 'notfound', path };
+    }
+    function useRoute() {
+      const [route, setRoute] = useState(parseHash);
+      useEffect(() => {
+        const onHash = () => setRoute(parseHash());
+        window.addEventListener('hashchange', onHash);
+        return () => window.removeEventListener('hashchange', onHash);
+      }, []);
+      return route;
+    }
+    const navigate = (path) => { window.location.hash = path; };
+
+    function useMouseParallax() {
+      useEffect(() => {
+        const container = document.getElementById('wave-container');
+        if (!container) return;
+        const handleMouseMove = (e) => {
+          const x = (e.clientX / window.innerWidth - 0.5) * 40;
+          const y = (e.clientY / window.innerHeight - 0.5) * 40;
+          container.style.setProperty('--mouse-x', `${x}px`);
+          container.style.setProperty('--mouse-y', `${y}px`);
+          container.style.setProperty('--rot-x', `${x * 0.1}deg`);
+          container.style.setProperty('--rot-y', `${y * 0.1}deg`);
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+      }, []);
+    }
+
+    function useFallingLeaves() {
+      useEffect(() => {
+        const container = document.getElementById('leaf-container');
+        if (!container) return;
+        const createLeaf = () => {
+          const leaf = document.createElement('div');
+          leaf.className = 'falling-leaf';
+          leaf.style.left = Math.random() * 100 + 'vw';
+          leaf.style.animationDuration = (10 + Math.random() * 8) + 's';
+          leaf.style.animationDelay = Math.random() * 5 + 's';
+          leaf.style.opacity = 0.2 + Math.random() * 0.4;
+          leaf.style.transform = `scale(${0.4 + Math.random() * 0.8})`;
+          leaf.innerHTML = `<svg viewBox="0 0 24 24" fill="none" width="100%" height="100%"><path d="M12 2 C 18 6, 20 14, 12 22 C 4 14, 6 6, 12 2 Z" fill="#7bc96f" opacity="0.8"/><path d="M12 4 L 12 20" stroke="#4a8f4a" stroke-width="1.2" opacity="0.6"/></svg>`;
+          container.appendChild(leaf);
+          setTimeout(() => leaf.remove(), 18000);
+        };
+        const interval = setInterval(createLeaf, 1500);
+        for(let i=0; i<5; i++) setTimeout(createLeaf, i * 300);
+        return () => clearInterval(interval);
+      }, []);
+    }
+
+    /* ============================================================
+       2. КОНТЕКСТ И ИКОНКИ
+       ============================================================ */
+    const PostsContext = React.createContext(null);
+    const usePosts = () => useContext(PostsContext);
+
+    const IconPlus = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>;
+    const IconTrash = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>;
+    const IconBack = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>;
+    const IconArrow = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>;
+    const IconBold = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h8a4 4 0 0 1 0 8H6zM6 12h9a4 4 0 0 1 0 8H6z"/></svg>;
+    const IconItalic = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 4h6M8 20h6M14 4l-4 16"/></svg>;
+    const IconH1 = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6v12M12 6v12M4 12h8M18 18v-8l-2 2"/></svg>;
+    const IconH2 = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6v12M12 6v12M4 12h8M16 18c2-2 4-2 4-4s-2-2-2-2-2 0-2 2"/></svg>;
+    const IconList = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>;
+    const IconQuote = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 11H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4v6zM20 11h-4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4v6z"/></svg>;
+    const IconTable = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>;
+    const IconEye = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+    const IconEdit = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>;
+
+    /* ============================================================
+       3. НАВИГАЦИЯ
+       ============================================================ */
+    function TopNav({ route }) {
+      const handleBrandClick = (e) => {
+        e.preventDefault();
+        const rect = e.currentTarget.getBoundingClientRect();
+        for (let i = 0; i < 20; i++) {
+          const p = document.createElement('div');
+          p.className = 'confetti-piece';
+          p.style.background = ['#ff7a52', '#4fd1b5', '#8b7ff5', '#7bc96f'][Math.floor(Math.random()*4)];
+          p.style.left = (rect.left + rect.width/2) + 'px';
+          p.style.top = (rect.top + rect.height/2) + 'px';
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 40 + Math.random() * 80;
+          p.style.setProperty('--tx', Math.cos(angle)*dist + 'px');
+          p.style.setProperty('--ty', Math.sin(angle)*dist + 'px');
+          document.body.appendChild(p);
+          setTimeout(() => p.remove(), 1000);
+        }
+        navigate('/');
+      };
+
+      return (
+        <header className="top-nav">
+          <a className="brand" href="#/" onClick={handleBrandClick}>
+            <span className="brand-dot"></span>
+            <span className="brand-name">Тихая лента</span>
+          </a>
+          <nav className="nav-links">
+            <a href="#/" className={'nav-link' + (route.name === 'home' ? ' active' : '')}>Лента</a>
+            <a href="#/new" className={'nav-link' + (route.name === 'new' ? ' active' : '')}>Написать</a>
+          </nav>
+        </header>
+      );
+    }
+
+    /* ============================================================
+       4. КОМПОНЕНТЫ ПОСТОВ
+       ============================================================ */
+    function PostsList() {
+      const { posts, removePost } = usePosts();
+      if (posts.length === 0) return <EmptyState />;
+      return (
+        <section className="posts-section" id="posts-list">
+          <div className="section-head"><h2>Все посты</h2><span className="count-pill">{posts.length}</span></div>
+          <ul className="posts-list">
+            {posts.map(p => <PostCard key={p.id} post={p} onDelete={removePost} />)}
+          </ul>
+        </section>
+      );
+    }
+
+    function PostCard({ post, onDelete }) {
+      const [confirming, setConfirming] = useState(false);
+      const [removing, setRemoving] = useState(false);
+      const cardRef = useRef(null);
+      
+      useEffect(() => {
+        if (!confirming) return;
+        const t = setTimeout(() => setConfirming(false), 3200);
+        return () => clearTimeout(t);
+      }, [confirming]);
+
+      const handleMouseMove = (e) => {
+        if (!cardRef.current) return;
+        const rect = cardRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (y - centerY) / 30;
+        const rotateY = (centerX - x) / 30;
+        cardRef.current.style.transform = `perspective(2000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`;
+      };
+
+      const handleMouseLeave = () => {
+        if (!cardRef.current) return;
+        cardRef.current.style.transform = `perspective(2000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+      };
+
+      const handleDelete = () => {
+        setRemoving(true);
+        setTimeout(() => onDelete(post.id), 220);
+      };
+
+      const plainText = post.text.replace(/[#*>\-|]/g, '').replace(/\n/g, ' ');
+      const moodClass = `mood-${post.moodBase || 'coral'}-${post.moodMod || 'none'}`;
+
+      return (
+        <li 
+          ref={cardRef}
+          className={`post-card ${moodClass} ${removing ? ' removing' : ''}`}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div className="post-card-top">
+            <time className="date-pill" dateTime={post.date}>{formatDate(post.date)}</time>
+            <div className="post-card-tools">
+              {confirming ? (
+                <React.Fragment>
+                  <button type="button" className="icon-btn danger" onClick={handleDelete}><IconTrash /> Удалить?</button>
+                  <button type="button" className="icon-btn" onClick={() => setConfirming(false)}>Отмена</button>
+                </React.Fragment>
+              ) : (
+                <button type="button" className="icon-btn" onClick={() => setConfirming(true)}><IconTrash /></button>
+              )}
+            </div>
+          </div>
+          <a className="post-card-link" href={'#/post/' + post.id}>
+            <h3 className="post-card-title">{post.title}</h3>
+            <p className="post-card-excerpt">{plainText}</p>
+            <span className="read-more">Читать целиком <IconArrow /></span>
+          </a>
+        </li>
+      );
+    }
+
+    function EmptyState() {
+      return (
+        <div className="empty-state">
+          <div className="empty-illustration">
+            <svg className="empty-sprout" viewBox="0 0 120 120">
+              <path d="M60 110 L60 50" stroke="#7bc96f" strokeWidth="3" strokeLinecap="round"/>
+              <path d="M60 70 Q32 68 26 42 Q54 46 60 70 Z" fill="#a8e8d8"/>
+              <path d="M60 60 Q88 56 94 30 Q66 36 60 60 Z" fill="#7bc96f"/>
+              <ellipse cx="60" cy="112" rx="34" ry="5" fill="#d6f3e6"/>
+            </svg>
+          </div>
+          <h3 className="empty-title">Пока пусто</h3>
+          <p className="empty-text">Первая запись всегда самая тёплая.</p>
+          <a className="btn btn-primary" href="#/new"><IconPlus /> Написать пост</a>
+        </div>
+      );
+    }
+
+    /* ============================================================
+       5. РЕДАКТОР (С ПРЕДПРОСМОТРОМ ЦВЕТА И КНОПКАМИ В БЛОКЕ)
+       ============================================================ */
+    const LIMITS = { titleMin: 3, titleMax: 90, textMin: 10, textMax: 12000 };
+    
+        const BASE_MOODS = [
+      { id: 'coral', label: 'Коралл', color: '#ff7a52' },
+      { id: 'mint', label: 'Мята', color: '#4fd1b5' },
+      { id: 'lav', label: 'Лаванда', color: '#8b7ff5' },
+      { id: 'yellow', label: 'Жёлтый', color: '#facc15' },
+    ];
+    const MOD_MOODS = [
+      { id: 'none', label: 'Обычный' },
+      { id: 'joy', label: 'Радостный' },
+      { id: 'sad', label: 'Грустный' },
+      { id: 'mel', label: 'Меланхоличный' },
+    ];
+
+    function PostForm() {
+      const { addPost } = usePosts();
+      const [title, setTitle] = useState('');
+      const [text, setText] = useState('');
+      const [moodBase, setMoodBase] = useState('coral');
+      const [moodMod, setMoodMod] = useState('none');
+      const [touched, setTouched] = useState({ title: false, text: false });
+      const [submitted, setSubmitted] = useState(false);
+      const [activeTab, setActiveTab] = useState('write');
+      const [showTableModal, setShowTableModal] = useState(false);
+      
+      const titleRef = useRef(null);
+      const textareaRef = useRef(null);
+
+      useEffect(() => { if (titleRef.current) titleRef.current.focus(); }, []);
+
+      const errors = useMemo(() => {
+        const e = {};
+        if (title.trim().length < LIMITS.titleMin) e.title = 'Название: минимум ' + LIMITS.titleMin + ' символа';
+        else if (title.trim().length > LIMITS.titleMax) e.title = 'Название: максимум ' + LIMITS.titleMax;
+        if (text.trim().length < LIMITS.textMin) e.text = 'Текст: минимум ' + LIMITS.textMin + ' символов';
+        else if (text.trim().length > LIMITS.textMax) e.text = 'Текст: максимум ' + LIMITS.textMax;
+        return e;
+      }, [title, text]);
+
+      const showError = (f) => (touched[f] || submitted) && errors[f];
+
+      const insertMarkdown = (prefix, suffix = '') => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selected = text.substring(start, end) || 'текст';
+        const newText = text.substring(0, start) + prefix + selected + suffix + text.substring(end);
+        setText(newText);
+        textarea.focus();
+        textarea.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
+      };
+
+      const insertTable = (rows, cols) => {
+        let table = '\n\n| ';
+        for(let i=1; i<=cols; i++) table += `Заголовок ${i} | `;
+        table += '\n|';
+        for(let i=0; i<cols; i++) table += '---|';
+        table += '\n';
+        for(let r=1; r<rows; r++) {
+            table += '| ';
+            for(let c=1; c<=cols; c++) table += `Текст | `;
+            table += '\n';
+        }
+        table += '\n'; 
+        insertMarkdown(table);
+        setShowTableModal(false);
+      };
+
+      function handleSubmit(ev) {
+        ev.preventDefault();
+        setSubmitted(true);
+        if (Object.keys(errors).length > 0) {
+          if (errors.title && titleRef.current) titleRef.current.focus();
+          else if (errors.text && textareaRef.current) textareaRef.current.focus();
+          return;
+        }
+        const post = addPost({ title, text, moodBase, moodMod });
+        
+        const btn = ev.target.querySelector('button[type="submit"]');
+        const rect = btn.getBoundingClientRect();
+        const confettiColor = BASE_MOODS.find(m => m.id === moodBase).color;
+        
+        for (let i = 0; i < 30; i++) {
+          const p = document.createElement('div');
+          p.className = 'confetti-piece';
+          p.style.background = confettiColor;
+          p.style.left = (rect.left + rect.width/2) + 'px';
+          p.style.top = (rect.top + rect.height/2) + 'px';
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 50 + Math.random() * 150;
+          p.style.setProperty('--tx', Math.cos(angle)*dist + 'px');
+          p.style.setProperty('--ty', Math.sin(angle)*dist - 50 + 'px');
+          document.body.appendChild(p);
+          setTimeout(() => p.remove(), 1000);
+        }
+
+        setTimeout(() => navigate('/post/' + post.id), 300);
+      }
+
+      return (
+        <React.Fragment>
+          <form className={`post-form mood-${moodBase}-${moodMod}`} onSubmit={handleSubmit} noValidate>
+            <div className="field">
+              <label className="field-label" htmlFor="post-title">
+                <span>Название</span>
+                <span className="counter">{title.trim().length}/{LIMITS.titleMax}</span>
+              </label>
+              <input
+                id="post-title" ref={titleRef}
+                className={'input' + (showError('title') ? ' invalid' : '')}
+                type="text" value={title} maxLength={LIMITS.titleMax}
+                placeholder="О чём эта запись?"
+                onChange={e => setTitle(e.target.value)}
+                onBlur={() => setTouched(p => ({...p, title: true}))}
+              />
+              {showError('title') && <span className="field-error">{errors.title}</span>}
+            </div>
+
+            <div className="field">
+              <label className="field-label" htmlFor="post-text">
+                <span>Текст (Markdown)</span>
+                <span className="counter">{text.trim().length}/{LIMITS.textMax}</span>
+              </label>
+              
+              <div className="editor-header">
+                <div className="editor-tabs">
+                  <button type="button" className={`tab-btn ${activeTab === 'write' ? 'active' : ''}`} onClick={() => setActiveTab('write')}><IconEdit /> Писать</button>
+                  <button type="button" className={`tab-btn ${activeTab === 'preview' ? 'active' : ''}`} onClick={() => setActiveTab('preview')}><IconEye /> Просмотр</button>
+                </div>
+                {activeTab === 'write' && (
+                  <div className="editor-toolbar">
+                    <button type="button" className="tool-btn" title="Заголовок 1" onClick={() => insertMarkdown('# ')}><IconH1 /></button>
+                    <button type="button" className="tool-btn" title="Заголовок 2" onClick={() => insertMarkdown('## ')}><IconH2 /></button>
+                    <div className="tool-divider"></div>
+                    <button type="button" className="tool-btn" title="Жирный" onClick={() => insertMarkdown('**', '**')}><IconBold /></button>
+                    <button type="button" className="tool-btn" title="Курсив" onClick={() => insertMarkdown('*', '*')}><IconItalic /></button>
+                    <div className="tool-divider"></div>
+                    <button type="button" className="tool-btn" title="Список" onClick={() => insertMarkdown('- ')}><IconList /></button>
+                    <button type="button" className="tool-btn" title="Цитата" onClick={() => insertMarkdown('> ')}><IconQuote /></button>
+                    <button type="button" className="tool-btn" title="Таблица (до 4х5)" onClick={() => setShowTableModal(true)}><IconTable /></button>
+                  </div>
+                )}
+              </div>
+
+              {activeTab === 'write' ? (
+                <textarea
+                  id="post-text" ref={textareaRef}
+                  className={'textarea' + (showError('text') ? ' invalid' : '')}
+                  value={text} maxLength={LIMITS.textMax}
+                  placeholder="Спокойно, вдумчиво, по-своему…"
+                  onChange={e => setText(e.target.value)}
+                  onBlur={() => setTouched(p => ({...p, text: true}))}
+                />
+              ) : (
+                <div className="textarea-preview post-body">
+                  {text.trim() ? <div dangerouslySetInnerHTML={renderMarkdown(text)} /> : <p style={{color:'#a3958e'}}>Здесь появится текст...</p>}
+                </div>
+              )}
+              {showError('text') && <span className="field-error">{errors.text}</span>}
+            </div>
+
+            {/* БЛОК НАСТРОЕНИЯ И ДЕЙСТВИЙ */}
+            <div className="field mood-field">
+              <label className="field-label"><span>Настроение и действие</span></label>
+              <div className="mood-container">
+                <div className="mood-rows">
+                  <div className="mood-row">
+                    <span className="mood-row-label">Цвет:</span>
+                    {BASE_MOODS.map(m => (
+                      <button
+                        key={m.id} type="button"
+                        className={`mood-btn base ${moodBase === m.id ? 'active' : ''}`}
+                        style={{ '--m-color': m.color }}
+                        onClick={() => setMoodBase(m.id)}
+                      >
+                        <span className="mood-dot"></span>{m.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mood-row">
+                    <span className="mood-row-label">Эмоция:</span>
+                    {MOD_MOODS.map(m => (
+                      <button
+                        key={m.id} type="button"
+                        className={`mood-btn mod ${moodMod === m.id ? 'active' : ''}`}
+                        onClick={() => setMoodMod(m.id)}
+                      >
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="form-actions-inline">
+                  <a className="btn btn-ghost" href="#/">Отмена</a>
+                  <button type="submit" className="btn btn-primary" style={{ background: 'var(--mood-color)', boxShadow: '0 10px 24px -12px var(--mood-color)' }}>
+                    <IconPlus /> Опубликовать
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          {showTableModal && (
+            <div className="modal-overlay" onClick={() => setShowTableModal(false)}>
+              <div className="modal-content" onClick={e => e.stopPropagation()}>
+                <h3>Создать таблицу</h3>
+                <p className="modal-sub">Выберите размер (строки: 1-5, столбцы: 1-4)</p>
+                <div className="table-controls">
+                  <div className="control-group">
+                    <label>Строки</label>
+                    <input type="number" id="table-rows" min="1" max="5" defaultValue="3" />
+                  </div>
+                  <div className="control-group">
+                    <label>Столбцы</label>
+                    <input type="number" id="table-cols" min="1" max="4" defaultValue="2" />
+                  </div>
+                </div>
+                <div className="modal-actions">
+                  <button className="btn btn-ghost" onClick={() => setShowTableModal(false)}>Отмена</button>
+                  <button className="btn btn-primary" onClick={() => {
+                    const r = parseInt(document.getElementById('table-rows').value) || 1;
+                    const c = parseInt(document.getElementById('table-cols').value) || 1;
+                    insertTable(Math.min(5, Math.max(1, r)), Math.min(4, Math.max(1, c)));
+                  }}>Вставить</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </React.Fragment>
+      );
+    }
+
+    /* ============================================================
+       6. СТРАНИЦЫ
+       ============================================================ */
+    function HomePage() {
+      return (
+        <div className="home-page">
+          <section className="hero">
+            <div className="hero-copy">
+              <span className="eyebrow">пространство для заметок</span>
+              <h1>Пишите мягко,<br/>читайте <span className="accent">спокойно</span></h1>
+              <svg className="wave-underline" viewBox="0 0 240 14" preserveAspectRatio="none">
+                <path d="M2 9 C 22 2, 42 2, 62 9 S 102 16, 122 9 S 162 2, 182 9 S 222 16, 238 9" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/>
+              </svg>
+              <p className="hero-sub">Лента, которая не торопит. Добавьте пару тёплых мыслей — и они аккуратно лягут в общий поток.</p>
+              <div className="hero-actions">
+                <a className="btn btn-primary" href="#/new"><IconPlus /> Новый пост</a>
+                <button type="button" className="btn btn-ghost" onClick={() => document.getElementById('posts-list')?.scrollIntoView({behavior:'smooth'})}>Смотреть ленту</button>
+              </div>
+            </div>
+            <div className="hero-art">
+              <svg viewBox="0 0 320 320">
+                <defs>
+                  <linearGradient id="blobGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#ffe3d6" /><stop offset="50%" stopColor="#ffc4ae" /><stop offset="100%" stopColor="#c4efdc" />
+                  </linearGradient>
+                </defs>
+                <g className="float">
+                  <path d="M170 16c66-4 130 42 128 122-2 82-52 148-134 154C82 298 20 242 22 158 24 76 100 20 170 16z" fill="url(#blobGrad)"/>
+                  <path d="M46 190c26-34 54 6 84-22s52 6 82-22 42-14 62-26" fill="none" stroke="#ff7a52" strokeWidth="3" strokeLinecap="round" opacity=".7" />
+                  <path d="M46 224c26-34 54 6 84-22s52 6 82-22 42-14 62-26" fill="none" stroke="#4fd1b5" strokeWidth="2.5" strokeLinecap="round" opacity=".55" />
+                  <g transform="translate(240, 60) rotate(20)"><path d="M0 0 C 10 6, 12 14, 0 22 C -12 14, -10 6, 0 0 Z" fill="#7bc96f"/></g>
+                  <g transform="translate(60, 100) rotate(-30)"><path d="M0 0 C 8 5, 10 12, 0 18 C -10 12, -8 5, 0 0 Z" fill="#4fd1b5"/></g>
+                </g>
+              </svg>
+            </div>
+          </section>
+          <PostsList />
+        </div>
+      );
+    }
+
+    function NewPostPage() {
+      return (
+        <div className="form-page">
+          <a className="back-link" href="#/"><IconBack /> В ленту</a>
+          <div className="form-card">
+            <header className="form-head">
+              <h1>Новый пост</h1>
+              <p>Пара тёплых слов — и запись появится в ленте.</p>
+            </header>
+            <PostForm />
+          </div>
+        </div>
+      );
+    }
+
+    function PostPage({ id }) {
+      const { posts, removePost } = usePosts();
+      const post = posts.find(p => p.id === id);
+      const [confirming, setConfirming] = useState(false);
+
+      useEffect(() => {
+        if (!confirming) return;
+        const t = setTimeout(() => setConfirming(false), 3200);
+        return () => clearTimeout(t);
+      }, [confirming]);
+
+      if (!post) {
+        return (
+          <div className="post-page">
+            <a className="back-link" href="#/"><IconBack /> В ленту</a>
+            <div className="empty-state"><h3 className="empty-title">Пост не найден</h3><p className="empty-text">Возможно, он был удалён.</p></div>
+          </div>
+        );
+      }
+
+      const moodClass = `mood-${post.moodBase || 'coral'}-${post.moodMod || 'none'}`;
+
+      return (
+        <div className={`post-page ${moodClass}`}>
+          <a className="back-link" href="#/"><IconBack /> В ленту</a>
+          <article className="post-article">
+            <div className="post-article-head">
+              <time className="date-pill" dateTime={post.date}>{formatDate(post.date)}</time>
+              <div className="post-card-tools always">
+                {confirming ? (
+                  <React.Fragment>
+                    <button type="button" className="icon-btn danger" onClick={() => { removePost(post.id); navigate('/'); }}><IconTrash /> Удалить?</button>
+                    <button type="button" className="icon-btn" onClick={() => setConfirming(false)}>Отмена</button>
+                  </React.Fragment>
+                ) : (
+                  <button type="button" className="icon-btn" onClick={() => setConfirming(true)}><IconTrash /> Удалить</button>
+                )}
+              </div>
+            </div>
+            <h1>{post.title}</h1>
+            <svg className="wave-underline" viewBox="0 0 240 14" preserveAspectRatio="none">
+              <path d="M2 9 C 22 2, 42 2, 62 9 S 102 16, 122 9 S 162 2, 182 9 S 222 16, 238 9" fill="none" stroke="var(--mood-color)" strokeWidth="4" strokeLinecap="round"/>
+            </svg>
+            <div className="post-body" dangerouslySetInnerHTML={renderMarkdown(post.text)} />
+          </article>
+        </div>
+      );
+    }
+
+    function NotFoundPage() {
+      return (
+        <div className="post-page"><div className="empty-state"><h3 className="empty-title">Страница не найдена</h3></div></div>
+      );
+    }
+
+    function SiteFooter() {
+      return (
+        <footer className="site-footer">
+          <svg className="footer-sprout" viewBox="0 0 60 30">
+            <path d="M30 28 L30 14" stroke="#7bc96f" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M30 18 Q18 17 14 8 Q26 10 30 18 Z" fill="#a8e8d8"/>
+            <path d="M30 12 Q42 10 46 2 Q34 5 30 12 Z" fill="#7bc96f"/>
+          </svg>
+          <p>Сделано мягко · {new Date().getFullYear()}</p>
+        </footer>
+      );
+    }
+
+    /* ============================================================
+       7. ГЛАВНЫЙ КОМПОНЕНТ
+       ============================================================ */
+    function App() {
+      const [posts, setPosts] = useState(loadPosts);
+      const route = useRoute();
+      
+      useMouseParallax();
+      useFallingLeaves();
+
+      useEffect(() => { savePosts(posts); }, [posts]);
+      useEffect(() => { window.scrollTo(0, 0); }, [route.path]);
+
+      useEffect(() => {
+        const handleBgClick = (e) => {
+          if (e.target.closest('.app-shell') || e.target.closest('.modal-content')) return;
+          const ripple = document.createElement('div');
+          ripple.className = 'bg-ripple';
+          const size = 100 + Math.random() * 200;
+          ripple.style.width = size + 'px';
+          ripple.style.height = size + 'px';
+          ripple.style.left = (e.clientX - size/2) + 'px';
+          ripple.style.top = (e.clientY - size/2) + 'px';
+          document.body.appendChild(ripple);
+          setTimeout(() => ripple.remove(), 1500);
+        };
+        document.addEventListener('click', handleBgClick);
+        return () => document.removeEventListener('click', handleBgClick);
+      }, []);
+
+      const addPost = useCallback(({ title, text, moodBase, moodMod }) => {
+        const post = { id: uid(), title: title.trim(), text: text.trim(), moodBase, moodMod, date: new Date().toISOString() };
+        setPosts(prev => [post, ...prev]);
+        return post;
+      }, []);
+
+      const removePost = useCallback((id) => {
+        setPosts(prev => prev.filter(p => p.id !== id));
+      }, []);
+
+      const ctx = useMemo(() => ({ posts, addPost, removePost }), [posts, addPost, removePost]);
+
+      let page;
+      if (route.name === 'home') page = <HomePage />;
+      else if (route.name === 'new') page = <NewPostPage />;
+      else if (route.name === 'post') page = <PostPage id={route.id} />;
+      else page = <NotFoundPage />;
+
+      return (
+        <PostsContext.Provider value={ctx}>
+          <div className="app-shell">
+            <TopNav route={route} />
+            <main className="page-wrap" key={route.path}>{page}</main>
+            <SiteFooter />
+          </div>
+        </PostsContext.Provider>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
