@@ -4,11 +4,13 @@
   --pink:#FF4D9D;
   --blue:#3FA9FF;
   --ink:#12203A;
+  --green:#1DB87A;
+  --red:#E63946;
 
   --grad-main:linear-gradient(120deg,var(--orange),var(--pink) 50%,var(--blue));
   --grad-warm:linear-gradient(120deg,var(--orange),var(--pink));
   --grad-full:linear-gradient(135deg,var(--orange),var(--pink),var(--blue),var(--orange));
-  
+
   --border-grad:linear-gradient(#fff,#fff) padding-box,
                 linear-gradient(135deg,var(--orange),var(--pink),var(--blue)) border-box;
 }
@@ -25,31 +27,52 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
-/* Фон */
+/* ===== Фон ===== */
 .blobs{position:fixed;inset:-10%;z-index:0;pointer-events:none;transition:transform 0.8s cubic-bezier(0.2,0.8,0.3,1)}
 .blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:0.3;animation:floaty 20s ease-in-out infinite}
 .b1{width:540px;height:540px;background:radial-gradient(circle,var(--orange),transparent 70%);top:-120px;left:-140px}
 .b2{width:480px;height:480px;background:radial-gradient(circle,var(--pink),transparent 70%);bottom:-180px;right:-140px;animation-delay:-7s}
 .b3{width:420px;height:420px;background:radial-gradient(circle,var(--blue),transparent 70%);top:38%;right:-180px;animation-delay:-13s}
 .b4{width:360px;height:360px;background:radial-gradient(circle,var(--pink),transparent 70%);top:55%;left:-160px;animation-delay:-4s}
-
 @keyframes floaty{
   0%,100%{transform:translate(0,0) scale(1)}
   33%{transform:translate(50px,-40px) scale(1.12)}
   66%{transform:translate(-40px,35px) scale(0.92)}
 }
 
-/* Каркас */
+/* ===== Каркас ===== */
 .app{
   position:relative;z-index:1;
   max-width:720px;margin:0 auto;
-  padding:50px 20px 90px;
+  padding:40px 20px 90px;
   display:flex;flex-direction:column;
   min-height:100vh;
 }
+.center-wrap{flex:1;display:flex;flex-direction:column;justify-content:center}
 
-/* Шапка */
-.hero{text-align:center;margin-bottom:40px}
+/* ===== Вкладки-режимы ===== */
+.tabs-nav{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+  margin-bottom:30px;
+}
+.tab-btn{
+  cursor:pointer;
+  padding:11px 22px;border-radius:999px;
+  font:inherit;font-size:14.5px;font-weight:800;color:var(--ink);
+  background:var(--border-grad);border:2px solid transparent;
+  transition:transform 0.3s cubic-bezier(0.2,0.9,0.3,1.6), box-shadow 0.3s, color 0.3s;
+}
+.tab-btn:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 12px 20px -15px var(--pink)}
+.tab-btn.active{
+  background:var(--grad-full);background-size:200% 200%;color:#fff;
+  border-color:transparent;
+  box-shadow:0 14px 28px -14px var(--pink);
+  animation:tabShift 6s linear infinite;
+}
+@keyframes tabShift{to{background-position:200% 0}}
+
+/* ===== Шапка ===== */
+.hero{text-align:center;margin-bottom:32px}
 .eyebrow{
   display:inline-flex;align-items:center;gap:9px;
   padding:9px 18px;border-radius:999px;
@@ -63,37 +86,42 @@ body{
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.6);opacity:0.55}}
 
 h1{font-size:clamp(34px,7vw,58px);font-weight:800;line-height:1.02;letter-spacing:-0.035em}
-h1 .grad{background:var(--grad-main);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:shift 7s linear infinite}
+h1 .grad{
+  background:var(--grad-main);background-size:220% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  animation:shift 7s linear infinite;
+}
 @keyframes shift{to{background-position:220% 0}}
-.sub{margin-top:16px;font-size:clamp(14px,2.4vw,16.5px);font-weight:600;opacity:0.55;line-height:1.5}
+.sub{margin-top:16px;font-size:clamp(13.5px,2.4vw,16px);font-weight:600;opacity:0.55;line-height:1.55}
 
-/* Калькулятор */
+/* ===== Калькулятор ===== */
 .calculator{
   background:var(--border-grad);
   border:2px solid transparent;
   border-radius:28px;
-  padding:30px;
+  padding:26px;
   box-shadow:0 26px 60px -40px rgba(255,122,24,0.8);
   position:relative;
   overflow:hidden;
 }
-.calculator::before {
+.calculator::before{
   content:"";position:absolute;inset:0;
   background:linear-gradient(135deg, rgba(255,122,24,0.05), rgba(255,77,157,0.05) 50%, rgba(63,169,255,0.05));
   pointer-events:none;
 }
 .calculator > * {position:relative;z-index:1}
 
-/* Форма */
+/* ===== Одна строка: [Сгенерировать] [input] [Рассчитать] ===== */
 .input-group{
-  display:flex;gap:12px;
+  display:flex;align-items:center;gap:6px;
   background:#fff;
   border-radius:999px;
   padding:6px;
   border:2px solid rgba(0,0,0,0.05);
   transition:border-color 0.3s, box-shadow 0.3s;
 }
-.input-group:focus-within {
+.input-group:focus-within{
   border-color:var(--pink);
   box-shadow:0 10px 30px -15px rgba(255,77,157,0.6);
 }
@@ -102,47 +130,63 @@ h1 .grad{background:var(--grad-main);background-size:220% 100%;-webkit-backgroun
   background:transparent;
   font:inherit;font-size:16px;font-weight:600;
   color:var(--ink);
-  padding:14px 20px;
+  padding:12px 14px;
 }
 .input-group input::placeholder{color:var(--ink);opacity:0.35}
 
-.btn-calc{
+/* Кнопки внутри "пилюли" */
+.btn-side{
   position:relative;overflow:hidden;
-  padding:0 28px;border:none;border-radius:999px;
-  background:var(--grad-full);background-size:220% 220%;
-  color:var(--white);font:inherit;font-weight:800;font-size:15px;
+  border:none;border-radius:999px;
+  font:inherit;font-weight:800;
   cursor:pointer;
-  transition:transform 0.3s cubic-bezier(0.2,0.9,0.3,1.6), background-position 0.55s;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  transition:transform 0.3s cubic-bezier(0.2,0.9,0.3,1.6), background-position 0.55s, box-shadow 0.3s;
+  white-space:nowrap;
+}
+.btn-side:active{transform:scale(0.97)}
+
+/* Сгенерировать (слева) — светлая с градиентной рамкой */
+.btn-generate{
+  padding:12px 18px;
+  font-size:13.5px;
+  color:var(--ink);
+  background:linear-gradient(#fff,#fff) padding-box, var(--grad-main) border-box;
+  border:2px solid transparent;
+}
+.btn-generate:hover{
+  transform:scale(1.04);
+  box-shadow:0 10px 20px -14px var(--pink);
+}
+
+/* Рассчитать (справа) — с градиентной заливкой */
+.btn-calc{
+  padding:14px 22px;
+  font-size:14.5px;
+  color:#fff;
+  background:var(--grad-full);background-size:220% 220%;
   box-shadow:0 10px 20px -10px var(--pink);
-  display:flex;align-items:center;justify-content:center;
 }
 .btn-calc:hover{transform:scale(1.03);background-position:100% 0}
-.btn-calc:active{transform:scale(0.97)}
 .btn-calc:disabled{opacity:0.7;cursor:not-allowed;transform:none}
 
-/* Лоадер в кнопке */
+/* Лоадер */
 .loader{
-  display:none;
-  width:20px;height:20px;
+  display:none;width:18px;height:18px;
   border:3px solid rgba(255,255,255,0.3);
-  border-top-color:#fff;
-  border-radius:50%;
+  border-top-color:#fff;border-radius:50%;
   animation:spin 0.8s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn-calc.loading .btn-text{display:none}
 .btn-calc.loading .loader{display:block}
 
-/* Результат */
-.result-area, .ai-area {
-  display:none;
-  margin-top:24px;
+/* ===== Результаты ===== */
+.result-area, .ai-area{
+  display:none;margin-top:22px;
   animation:slideUp 0.4s cubic-bezier(0.2,0.9,0.3,1.2) forwards;
 }
-@keyframes slideUp{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1;transform:translateY(0)}
-}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
 .result-card{
   background:var(--white);
@@ -151,30 +195,39 @@ h1 .grad{background:var(--grad-main);background-size:220% 100%;-webkit-backgroun
   background-origin:border-box;
   background-clip:padding-box, border-box;
   border-radius:20px;
-  padding:24px;
+  padding:22px;
   box-shadow:0 20px 40px -20px rgba(63,169,255,0.4);
 }
-.res-top{display:flex;justify-content:space-between;align-items:flex-start}
-.res-label{font-size:11px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;opacity:0.4;margin-bottom:8px}
+
+.res-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.res-label{font-size:11px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;opacity:0.45;margin-bottom:8px}
 .res-year{
-  font-size:42px;font-weight:800;line-height:1;letter-spacing:-0.03em;
+  font-size:40px;font-weight:800;line-height:1;letter-spacing:-0.03em;
   background:var(--grad-main);background-size:200% 100%;
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
   font-variant-numeric:tabular-nums;
 }
 .res-badge{
   padding:8px 16px;border-radius:999px;font-size:13px;font-weight:800;
   color:#fff;background:var(--grad-warm);
+  white-space:nowrap;
 }
-.result-card.not-leap .res-badge{background:linear-gradient(#fff,#fff) padding-box, var(--grad-cool) border-box;border:2px solid transparent;color:var(--ink)}
-
-.res-bottom{display:flex;align-items:baseline;gap:10px;margin-top:20px}
-.res-days{font-size:36px;font-weight:800;font-variant-numeric:tabular-nums}
-.res-days-label{font-size:15px;font-weight:700;opacity:0.5}
-.res-line{height:6px;border-radius:999px;margin-top:16px;background:var(--grad-full);background-size:250% 100%;animation:lineGrow 0.8s ease-out, shift 4s linear infinite}
+.result-card.not-leap .res-badge{
+  background:linear-gradient(#fff,#fff) padding-box, var(--grad-main) border-box;
+  border:2px solid transparent;color:var(--ink);
+}
+.res-bottom{display:flex;align-items:baseline;gap:10px;margin-top:18px;flex-wrap:wrap}
+.res-days{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums}
+.res-days-label{font-size:14px;font-weight:700;opacity:0.5}
+.res-line{
+  height:6px;border-radius:999px;margin-top:16px;
+  background:var(--grad-full);background-size:250% 100%;
+  animation:lineGrow 0.8s ease-out, shift 4s linear infinite;
+}
 @keyframes lineGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
-/* Ответ ИИ */
+/* ===== Ошибка / ИИ ===== */
 .ai-card{
   background:var(--white);
   border:2px solid transparent;
@@ -182,30 +235,77 @@ h1 .grad{background:var(--grad-main);background-size:220% 100%;-webkit-backgroun
   background-origin:border-box;
   background-clip:padding-box, border-box;
   border-radius:20px;
-  padding:20px 24px;
+  padding:18px 22px;
   box-shadow:0 20px 40px -20px rgba(255,77,157,0.4);
 }
 .ai-label{font-size:11px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;color:var(--pink);margin-bottom:10px}
-.ai-text{font-size:16px;font-weight:600;line-height:1.5;color:var(--ink)}
+.ai-text{font-size:15.5px;font-weight:600;line-height:1.5;color:var(--ink)}
 
-/* Чипы */
-.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:30px}
-.chip{
-  cursor:pointer;padding:10px 20px;border-radius:999px;
-  font:inherit;font-size:14px;font-weight:800;color:var(--ink);
-  background:var(--border-grad);border:2px solid transparent;
-  transition:transform 0.3s cubic-bezier(0.2,0.9,0.3,1.6), box-shadow 0.3s;
+/* ===== Отображение массива ===== */
+.arr-view{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin-top:6px;margin-bottom:4px;
+  min-height:32px;
 }
-.chip:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 12px 20px -15px var(--pink)}
-.chip:active{transform:scale(0.95)}
+.arr-chip{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:7px 13px;border-radius:10px;
+  font-size:14px;font-weight:700;
+  background:linear-gradient(#fff,#fff) padding-box, var(--grad-main) border-box;
+  border:2px solid transparent;
+  color:var(--ink);
+  font-variant-numeric:tabular-nums;
+  transition:transform 0.2s, box-shadow 0.2s;
+}
+.arr-chip:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 8px 16px -10px var(--pink)}
+.arr-chip.removed{
+  background:linear-gradient(#fff5f5,#fff5f5) padding-box, linear-gradient(var(--red), var(--pink)) border-box;
+  color:var(--red);
+  text-decoration:line-through;
+  text-decoration-thickness:2px;
+}
+.arr-chip.kept{
+  background:linear-gradient(#f2fff9,#f2fff9) padding-box, linear-gradient(var(--green), var(--blue)) border-box;
+  color:#0d6b45;
+}
+.arr-chip.frag{
+  font-family:'Courier New',monospace;
+  font-weight:800;
+  letter-spacing:0.05em;
+  background:linear-gradient(#fff,#fff) padding-box, var(--grad-warm) border-box;
+}
+.arr-empty{opacity:0.4;font-size:14px;font-weight:600;font-style:italic}
 
-/* Подвал */
+/* ===== Блоки частей ===== */
+.part-block{margin-top:18px}
+.part-title{
+  font-size:12px;font-weight:800;letter-spacing:0.10em;
+  text-transform:uppercase;color:var(--pink);
+  margin-bottom:10px;
+}
+.part-info{font-size:14.5px;font-weight:600;line-height:1.55;opacity:0.75;margin-bottom:8px}
+.part-sum{
+  font-size:34px;font-weight:800;
+  background:var(--grad-main);background-size:200% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  font-variant-numeric:tabular-nums;
+  line-height:1;
+  margin-bottom:6px;
+}
+
+/* ===== Подвал ===== */
 .foot{margin-top:40px;text-align:center;font-size:12.5px;font-weight:700;letter-spacing:0.04em;opacity:0.3}
 
 @media(max-width:560px){
-  .app{padding:30px 14px}
-  .input-group{flex-direction:column;border-radius:24px;padding:10px;gap:10px}
-  .input-group input{text-align:center;padding:12px}
-  .btn-calc{width:100%;padding:16px;border-radius:16px}
-  .res-year{font-size:32px}
+  .app{padding:24px 12px 60px}
+  .input-group{flex-wrap:nowrap;gap:4px;padding:4px}
+  .btn-generate{padding:10px 12px;font-size:14px}
+  .btn-generate .gen-text{display:none}
+  .btn-calc{padding:12px 14px;font-size:13px}
+  .input-group input{font-size:14.5px;padding:10px 8px}
+  .res-year{font-size:30px}
+  .part-sum{font-size:26px}
+  .res-days{font-size:26px}
+  .tab-btn{padding:9px 16px;font-size:13px}
 }
