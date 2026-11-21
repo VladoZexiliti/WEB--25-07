@@ -1,699 +1,209 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Огненный ToDo — Футуристичный менеджер задач</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TodoMatic — Tutorial Preview</title>
+  
+  <!-- Ссылка на вынесенный CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Подключаем React и Babel -->
+  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
 </head>
 <body>
 
-  <!-- SVG-спрайт иконок -->
-  <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
-    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-      <path d="M12 5v14M5 12h14"/>
-    </symbol>
-    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M5 12l5 5 9-10"/>
-    </symbol>
-    <symbol id="i-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-    </symbol>
-    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
-    </symbol>
-    <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="3" width="7" height="7" rx="1"/>
-      <rect x="14" y="3" width="7" height="7" rx="1"/>
-      <rect x="3" y="14" width="7" height="7" rx="1"/>
-      <rect x="14" y="14" width="7" height="7" rx="1"/>
-    </symbol>
-    <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-    </symbol>
-    <symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="9"/>
-      <path d="M8 12l3 3 5-6"/>
-    </symbol>
-    <symbol id="i-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/>
-      <path d="M19 14l.75 2.25L22 17l-2.25.75L19 20l-.75-2.25L16 17l2.25-.75L19 14z"/>
-    </symbol>
-    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="9"/>
-      <path d="M12 7v5l3 2"/>
-    </symbol>
-    <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
-    </symbol>
-    <symbol id="i-grip" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-      <circle cx="9" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/>
-      <circle cx="15" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-    </symbol>
-    <symbol id="i-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M4 17l6-6-6-6M12 19h8"/>
-    </symbol>
-  </svg>
+  <div id="root"></div>
 
-  <!-- Оверлей для сканлайнов сюрприза -->
-  <div class="scanlines" aria-hidden="true"></div>
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React;
 
-  <main class="app-card" role="main">
-    <!-- Заголовок -->
-    <header class="header">
-      <div class="title-group" id="titleGroup" title="Нажми меня">
-        <span class="fire">🔥</span>
-        <h1>
-          <span class="title-text" data-text="Огненный ToDo">Огненный ToDo</span>
-        </h1>
-      </div>
-      <div class="stats">
-        <button class="stat-badge" id="remainingStat" type="button" title="Осталось задач">
-          <svg class="icon"><use href="#i-clock"/></svg>
-          <span class="num" id="remainingCount">0</span>
-          <span class="lbl">REM</span>
+    // --- Утилиты и данные ---
+    const DATA = [
+      { id: "todo-0", name: "Eat", completed: true },
+      { id: "todo-1", name: "Sleep", completed: false },
+      { id: "todo-2", name: "Repeat", completed: false },
+    ];
+
+    function usePrevious(value) {
+      const ref = useRef(null);
+      useEffect(() => { ref.current = value; });
+      return ref.current;
+    }
+
+    // --- FilterButton ---
+    function FilterButton(props) {
+      return (
+        <button
+          type="button"
+          className="btn toggle-btn"
+          aria-pressed={props.isPressed}
+          onClick={() => props.setFilter(props.name)}
+        >
+          <span className="visually-hidden">Show </span>
+          <span>{props.name}</span>
+          <span className="visually-hidden"> tasks</span>
         </button>
-        <button class="stat-badge" id="totalStat" type="button" title="Всего задач">
-          <svg class="icon"><use href="#i-list"/></svg>
-          <span class="num" id="totalCount">0</span>
-          <span class="lbl">ALL</span>
-        </button>
-      </div>
-    </header>
+      );
+    }
 
-    <!-- Форма -->
-    <form class="input-form" id="todoForm" autocomplete="off">
-      <input type="text" id="todoInput" placeholder="Введите задачу..." maxlength="200" aria-label="Новая задача" />
-      <button type="submit" class="add-btn" id="addBtn">
-        <svg class="icon"><use href="#i-plus"/></svg>
-        <span>Добавить</span>
-      </button>
-    </form>
-
-    <!-- Фильтры -->
-    <div class="filters" role="group" aria-label="Фильтры">
-      <button class="filter-btn active" data-filter="all" type="button">
-        <svg class="icon"><use href="#i-grid"/></svg>
-        <span>Все</span>
-      </button>
-      <button class="filter-btn" data-filter="active" type="button">
-        <svg class="icon"><use href="#i-bolt"/></svg>
-        <span>Активные</span>
-      </button>
-      <button class="filter-btn" data-filter="completed" type="button">
-        <svg class="icon"><use href="#i-check-circle"/></svg>
-        <span>Выполнено</span>
-      </button>
-    </div>
-
-    <!-- Список -->
-    <div class="todo-list-container">
-      <ul id="todo-list" role="list"></ul>
-    </div>
-
-    <!-- Футер -->
-    <footer class="footer">
-      <button class="clear-btn" id="clearCompleted" type="button">
-        <svg class="icon"><use href="#i-trash"/></svg>
-        <span>Очистить выполненное</span>
-      </button>
-      <button class="surprise-btn" id="surpriseBtn" type="button">
-        <svg class="icon"><use href="#i-sparkles"/></svg>
-        <span>Сюрприз</span>
-      </button>
-    </footer>
-  </main>
-
-  <div class="toast" id="toast"></div>
-
-  <script>
-    (function () {
-      'use strict';
-
-      const STORAGE_KEY = 'fire-todo-futuristic-v2';
-
-      /** @type {{id:string,text:string,completed:boolean}[]} */
-      let todos = [];
-      let currentFilter = 'all';
-      let audioCtx = null;
-
-      const $ = (s) => document.querySelector(s);
-      const listEl       = $('#todo-list');
-      const inputEl      = $('#todoInput');
-      const formEl       = $('#todoForm');
-      const remainingEl  = $('#remainingCount');
-      const totalEl      = $('#totalCount');
-      const clearBtn     = $('#clearCompleted');
-      const surpriseBtn  = $('#surpriseBtn');
-      const toastEl      = $('#toast');
-      const filterBtns   = document.querySelectorAll('.filter-btn');
-      const scanlines    = $('.scanlines');
-      const titleGroup   = $('#titleGroup');
-
-      let toastTimer = null;
-      let surpriseTimer = null;
-
-      // ---------- Хранилище ----------
-      function loadTodos() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return;
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) {
-            todos = parsed.filter(t =>
-              t && typeof t.id === 'string' && typeof t.text === 'string'
-            );
-          }
-        } catch (_) {}
+    // --- Form ---
+    function Form(props) {
+      const [name, setName] = useState("");
+      function handleSubmit(event) {
+        event.preventDefault();
+        if (name.trim() !== "") props.addTask(name);
+        setName("");
       }
-      function saveTodos() {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(todos)); } catch (_) {}
+      function handleChange(event) { setName(event.target.value); }
+      return (
+        <form onSubmit={handleSubmit}>
+          <h2 className="label-wrapper">
+            <label htmlFor="new-todo-input" className="label__lg">
+              What needs to be done?
+            </label>
+          </h2>
+          <input
+            type="text" id="new-todo-input" className="input input__lg"
+            name="text" autoComplete="off" value={name} onChange={handleChange}
+          />
+          <button type="submit" className="btn btn__primary btn__lg">Add</button>
+        </form>
+      );
+    }
+
+    // --- Todo ---
+    function Todo(props) {
+      const [isEditing, setEditing] = useState(false);
+      const [newName, setNewName] = useState("");
+      const editFieldRef = useRef(null);
+      const editButtonRef = useRef(null);
+      const wasEditing = usePrevious(isEditing);
+
+      function handleChange(e) { setNewName(e.target.value); }
+      function handleSubmit(e) {
+        e.preventDefault();
+        if (newName.trim() !== "") props.editTask(props.id, newName);
+        setNewName("");
+        setEditing(false);
       }
 
-      // ---------- Аудио ----------
-      function initAudio() {
-        if (!audioCtx) {
-          try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) {}
-        }
-        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-      }
-      function tone(freq, dur, type, vol) {
-        if (!audioCtx) return;
-        try {
-          const o = audioCtx.createOscillator();
-          const g = audioCtx.createGain();
-          o.type = type || 'sine';
-          o.frequency.setValueAtTime(freq, audioCtx.currentTime);
-          g.gain.setValueAtTime(vol || 0.06, audioCtx.currentTime);
-          g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (dur || 0.15));
-          o.connect(g); g.connect(audioCtx.destination);
-          o.start(); o.stop(audioCtx.currentTime + (dur || 0.15));
-        } catch (_) {}
-      }
-      const sClick    = () => tone(700, 0.06, 'sine', 0.05);
-      const sAdd      = () => { tone(880, 0.09, 'triangle', 0.07); setTimeout(() => tone(1320, 0.08, 'triangle', 0.05), 60); };
-      const sComplete = () => { tone(523, 0.08, 'sine', 0.07); setTimeout(() => tone(659, 0.08, 'sine', 0.07), 70); setTimeout(() => tone(1047, 0.14, 'sine', 0.07), 150); };
-      const sDelete   = () => { tone(280, 0.1, 'sawtooth', 0.05); setTimeout(() => tone(180, 0.14, 'sawtooth', 0.05), 60); };
-      const sError    = () => tone(180, 0.18, 'square', 0.05);
-
-      // ---------- Утилиты ----------
-      const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-      function escapeHtml(s) {
-        const d = document.createElement('div');
-        d.textContent = s;
-        return d.innerHTML;
-      }
-
-      function showToast(msg, duration) {
-        toastEl.textContent = msg;
-        toastEl.classList.add('show');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toastEl.classList.remove('show'), duration || 2200);
-      }
-
-      // ---------- FLIP-анимация ----------
-      function captureRects() {
-        const map = new Map();
-        listEl.querySelectorAll('.todo-item').forEach(el => {
-          map.set(el.dataset.id, el.getBoundingClientRect());
-        });
-        return map;
-      }
-
-      function applyFlip(firstRects) {
-        listEl.querySelectorAll('.todo-item').forEach(el => {
-          const fr = firstRects.get(el.dataset.id);
-          if (!fr) return;
-          const lr = el.getBoundingClientRect();
-          const dx = fr.left - lr.left;
-          const dy = fr.top - lr.top;
-          if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
-          el.style.transition = 'none';
-          el.style.transform = `translate(${dx}px, ${dy}px)`;
-          requestAnimationFrame(() => {
-            el.style.transition = 'transform 0.38s cubic-bezier(0.22, 0.61, 0.36, 1)';
-            el.style.transform = '';
-            setTimeout(() => { el.style.transition = ''; }, 420);
-          });
-        });
-      }
-
-      function renderWithFlip() {
-        const first = captureRects();
-        render();
-        applyFlip(first);
-      }
-
-      // ---------- Рендер ----------
-      function getFiltered() {
-        if (currentFilter === 'active') return todos.filter(t => !t.completed);
-        if (currentFilter === 'completed') return todos.filter(t => t.completed);
-        return todos;
-      }
-
-      function updateStats() {
-        const rem = todos.filter(t => !t.completed).length;
-        remainingEl.textContent = rem;
-        totalEl.textContent = todos.length;
-      }
-
-      function buildItem(todo) {
-        const li = document.createElement('li');
-        li.className = 'todo-item' + (todo.completed ? ' completed' : '');
-        li.dataset.id = todo.id;
-        li.setAttribute('draggable', 'true');
-        li.setAttribute('role', 'listitem');
-        li.innerHTML = `
-          <span class="drag-handle" aria-hidden="true" title="Перетащи">
-            <svg class="icon"><use href="#i-grip"/></svg>
-          </span>
-          <label class="checkbox-wrapper">
-            <input type="checkbox" ${todo.completed ? 'checked' : ''} aria-label="Выполнено">
-            <span class="checkmark"><svg class="icon"><use href="#i-check"/></svg></span>
-          </label>
-          <span class="todo-text" title="Двойной клик — редактировать">${escapeHtml(todo.text)}</span>
-          <div class="todo-actions">
-            <button type="button" class="action-btn edit" title="Править" aria-label="Править">
-              <svg class="icon"><use href="#i-pencil"/></svg>
-              <span class="btn-label">Править</span>
+      const editingTemplate = (
+        <form className="stack-small" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="todo-label" htmlFor={props.id}>
+              New name for {props.name}
+            </label>
+            <input
+              id={props.id} className="todo-text" type="text"
+              value={newName} onChange={handleChange} ref={editFieldRef}
+            />
+          </div>
+          <div className="btn-group">
+            <button type="button" className="btn todo-cancel" onClick={() => setEditing(false)}>
+              Cancel <span className="visually-hidden">renaming {props.name}</span>
             </button>
-            <button type="button" class="action-btn delete" title="Удалить" aria-label="Удалить">
-              <svg class="icon"><use href="#i-trash"/></svg>
-              <span class="btn-label">Удалить</span>
+            <button type="submit" className="btn btn__primary todo-edit">
+              Save <span className="visually-hidden">new name for {props.name}</span>
             </button>
           </div>
-        `;
-        return li;
+        </form>
+      );
+
+      const viewTemplate = (
+        <div className="stack-small">
+          <div className="c-cb">
+            <input
+              id={props.id} type="checkbox" defaultChecked={props.completed}
+              onChange={() => props.toggleTaskCompleted(props.id)}
+            />
+            <label className="todo-label" htmlFor={props.id}>{props.name}</label>
+          </div>
+          <div className="btn-group">
+            <button type="button" className="btn" onClick={() => setEditing(true)} ref={editButtonRef}>
+              Edit <span className="visually-hidden">{props.name}</span>
+            </button>
+            <button type="button" className="btn btn__danger" onClick={() => props.deleteTask(props.id)}>
+              Delete <span className="visually-hidden">{props.name}</span>
+            </button>
+          </div>
+        </div>
+      );
+
+      useEffect(() => {
+        if (!wasEditing && isEditing) editFieldRef.current.focus();
+        else if (wasEditing && !isEditing) editButtonRef.current.focus();
+      }, [wasEditing, isEditing]);
+
+      return <li className="todo">{isEditing ? editingTemplate : viewTemplate}</li>;
+    }
+
+    // --- App ---
+    const FILTER_MAP = {
+      All: () => true,
+      Active: (task) => !task.completed,
+      Completed: (task) => task.completed,
+    };
+    const FILTER_NAMES = Object.keys(FILTER_MAP);
+
+    function App(props) {
+      const [tasks, setTasks] = useState(props.tasks);
+      const [filter, setFilter] = useState("All");
+
+      function toggleTaskCompleted(id) {
+        setTasks(tasks.map((task) => id === task.id ? { ...task, completed: !task.completed } : task));
+      }
+      function deleteTask(id) {
+        setTasks(tasks.filter((task) => id !== task.id));
+      }
+      function editTask(id, newName) {
+        setTasks(tasks.map((task) => id === task.id ? { ...task, name: newName } : task));
+      }
+      function addTask(name) {
+        const newTask = { id: "todo-" + Date.now(), name: name, completed: false };
+        setTasks([...tasks, newTask]);
       }
 
-      function render() {
-        const filtered = getFiltered();
-        listEl.innerHTML = '';
+      const taskList = tasks.filter(FILTER_MAP[filter]).map((task) => (
+        <Todo
+          id={task.id} name={task.name} completed={task.completed} key={task.id}
+          toggleTaskCompleted={toggleTaskCompleted} deleteTask={deleteTask} editTask={editTask}
+        />
+      ));
 
-        if (!filtered.length) {
-          const empty = document.createElement('li');
-          empty.className = 'empty-state';
-          const msg = todos.length === 0
-            ? 'Добавь свою первую задачу'
-            : currentFilter === 'active'
-              ? 'Нет активных задач'
-              : currentFilter === 'completed'
-                ? 'Нет выполненных задач'
-                : 'Пусто';
-          empty.innerHTML = `
-            <div class="terminal">
-              <svg class="icon"><use href="#i-terminal"/></svg>
-              <span class="terminal-text">${msg}<span class="cursor">_</span></span>
-            </div>
-          `;
-          listEl.appendChild(empty);
-          updateStats();
-          return;
-        }
+      const filterList = FILTER_NAMES.map((name) => (
+        <FilterButton key={name} name={name} isPressed={name === filter} setFilter={setFilter} />
+      ));
 
-        const frag = document.createDocumentFragment();
-        filtered.forEach(t => frag.appendChild(buildItem(t)));
-        listEl.appendChild(frag);
+      const tasksNoun = taskList.length !== 1 ? "tasks" : "task";
+      const headingText = `${taskList.length} ${tasksNoun} remaining`;
 
-        // Навешиваем обработчики
-        listEl.querySelectorAll('.todo-item').forEach(bindItem);
+      const listHeadingRef = useRef(null);
+      const prevTaskLength = usePrevious(tasks.length);
 
-        updateStats();
-      }
+      useEffect(() => {
+        if (tasks.length < prevTaskLength) listHeadingRef.current.focus();
+      }, [tasks.length, prevTaskLength]);
 
-      function bindItem(li) {
-        const id = li.dataset.id;
-        const cb = li.querySelector('input[type="checkbox"]');
-        const textEl = li.querySelector('.todo-text');
-        const editBtn = li.querySelector('.action-btn.edit');
-        const delBtn = li.querySelector('.action-btn.delete');
+      return (
+        <div className="todoapp stack-large">
+          <h1>TodoMatic</h1>
+          <Form addTask={addTask} />
+          <div className="filters btn-group stack-exception">{filterList}</div>
+          <h2 id="list-heading" tabIndex="-1" ref={listHeadingRef}>{headingText}</h2>
+          <ul role="list" className="todo-list stack-large stack-exception" aria-labelledby="list-heading">
+            {taskList}
+          </ul>
+        </div>
+      );
+    }
 
-        cb.addEventListener('change', () => toggleTodo(id, cb.checked, li));
-        textEl.addEventListener('dblclick', () => startEdit(id, li));
-        editBtn.addEventListener('click', (e) => { e.stopPropagation(); startEdit(id, li); });
-        delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteTodo(id, li); });
-
-        li.addEventListener('dragstart', onDragStart);
-        li.addEventListener('dragend', onDragEnd);
-      }
-
-      // ---------- Действия ----------
-      function addTodo(text) {
-        const trimmed = text.trim();
-        if (!trimmed) {
-          sError();
-          inputEl.classList.remove('shake');
-          void inputEl.offsetWidth;
-          inputEl.classList.add('shake');
-          inputEl.focus();
-          return;
-        }
-        todos.unshift({ id: uid(), text: trimmed, completed: false });
-        saveTodos();
-        sAdd();
-        inputEl.value = '';
-        inputEl.focus();
-        renderWithFlip();
-        const rect = formEl.getBoundingClientRect();
-        burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 14);
-      }
-
-      function toggleTodo(id, completed, liEl) {
-        const t = todos.find(x => x.id === id);
-        if (!t) return;
-        t.completed = completed;
-        saveTodos();
-        if (completed) {
-          sComplete();
-          const r = liEl.getBoundingClientRect();
-          burstConfetti(r.left + r.width / 2, r.top + r.height / 2, 30);
-        } else sClick();
-        renderWithFlip();
-      }
-
-      function deleteTodo(id, liEl) {
-        sDelete();
-        liEl.classList.add('deleting');
-        setTimeout(() => {
-          const idx = todos.findIndex(t => t.id === id);
-          if (idx !== -1) { todos.splice(idx, 1); saveTodos(); }
-          renderWithFlip();
-        }, 220);
-      }
-
-      function startEdit(id, liEl) {
-        const t = todos.find(x => x.id === id);
-        if (!t) return;
-        const textEl = liEl.querySelector('.todo-text');
-        if (!textEl) return;
-
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'edit-input';
-        input.value = t.text;
-        input.maxLength = 200;
-        input.setAttribute('aria-label', 'Редактировать');
-        textEl.replaceWith(input);
-        input.focus();
-        input.setSelectionRange(input.value.length, input.value.length);
-
-        let done = false;
-        const finish = (save) => {
-          if (done) return;
-          done = true;
-          const val = input.value.trim();
-          if (save && val && val !== t.text) {
-            t.text = val; saveTodos(); sAdd();
-          } else if (save && !val) {
-            todos = todos.filter(x => x.id !== id);
-            saveTodos(); sDelete();
-          }
-          renderWithFlip();
-        };
-        input.addEventListener('blur', () => finish(true));
-        input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') { e.preventDefault(); finish(true); }
-          if (e.key === 'Escape') { e.preventDefault(); finish(false); }
-        });
-      }
-
-      function clearCompleted() {
-        const count = todos.filter(t => t.completed).length;
-        if (!count) { sError(); showToast('Нечего очищать'); return; }
-        todos = todos.filter(t => !t.completed);
-        saveTodos();
-        sDelete();
-        renderWithFlip();
-        const r = clearBtn.getBoundingClientRect();
-        burstConfetti(r.left + r.width / 2, r.top + r.height / 2, 25);
-        showToast(`Удалено: ${count}`);
-      }
-
-      // ---------- DRAG & DROP с FLIP ----------
-      let dragId = null;
-      let placeholder = null;
-      let lastInsertBefore = null;
-
-      function onDragStart(e) {
-        const li = e.target.closest('.todo-item');
-        if (!li) return;
-        dragId = li.dataset.id;
-        lastInsertBefore = null;
-        li.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', dragId);
-
-        const r = li.getBoundingClientRect();
-        placeholder = document.createElement('li');
-        placeholder.className = 'todo-placeholder';
-        placeholder.style.height = r.height + 'px';
-        li.after(placeholder);
-        sClick();
-      }
-
-      function onDragEnd(e) {
-        const li = e.target.closest('.todo-item');
-        if (li) li.classList.remove('dragging');
-        if (placeholder) { placeholder.remove(); placeholder = null; }
-        listEl.querySelectorAll('.todo-item').forEach(el => el.classList.remove('drag-over'));
-        dragId = null;
-        lastInsertBefore = null;
-      }
-
-      listEl.addEventListener('dragover', (e) => {
-        if (!dragId || !placeholder) return;
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-
-        const items = Array.from(listEl.querySelectorAll('.todo-item:not(.dragging)'));
-        let insertBefore = null;
-        for (const item of items) {
-          const r = item.getBoundingClientRect();
-          if (e.clientY < r.top + r.height / 2) { insertBefore = item; break; }
-        }
-        if (insertBefore === lastInsertBefore) return;
-        lastInsertBefore = insertBefore;
-
-        const first = captureRects();
-        if (insertBefore) listEl.insertBefore(placeholder, insertBefore);
-        else listEl.appendChild(placeholder);
-        applyFlip(first);
-      });
-
-      listEl.addEventListener('drop', (e) => {
-        if (!dragId || !placeholder) return;
-        e.preventDefault();
-
-        const first = captureRects();
-        const children = Array.from(listEl.children);
-        const newOrderIds = [];
-        children.forEach(ch => {
-          if (ch === placeholder) newOrderIds.push(dragId);
-          else if (ch.classList.contains('todo-item') && ch.dataset.id !== dragId) {
-            newOrderIds.push(ch.dataset.id);
-          }
-        });
-
-        // Переупорядочиваем только видимые элементы в массиве todos
-        const visible = new Set(newOrderIds);
-        const reordered = newOrderIds.map(id => todos.find(t => t.id === id)).filter(Boolean);
-        let vi = 0;
-        todos = todos.map(t => visible.has(t.id) ? reordered[vi++] : t);
-        saveTodos();
-
-        placeholder.remove();
-        placeholder = null;
-        dragId = null;
-        lastInsertBefore = null;
-        sClick();
-
-        render();
-        applyFlip(first);
-      });
-
-      // ---------- Фильтры ----------
-      filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          filterBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentFilter = btn.dataset.filter;
-          renderWithFlip();
-          sClick();
-        });
-      });
-
-      // ---------- Конфетти ----------
-      function burstConfetti(x, y, count) {
-        const colors = ['#ff6b00', '#ff8c00', '#ffa500', '#ff4500', '#ffffff', '#d4d4d4'];
-        const n = count || 25;
-        for (let i = 0; i < n; i++) {
-          const p = document.createElement('div');
-          p.className = 'confetti-piece';
-          const size = 4 + Math.random() * 8;
-          p.style.width = size + 'px';
-          p.style.height = size + 'px';
-          p.style.background = colors[Math.floor(Math.random() * colors.length)];
-          p.style.left = x + 'px';
-          p.style.top = y + 'px';
-          p.style.borderRadius = Math.random() > 0.7 ? '50%' : '1px';
-          const angle = Math.random() * Math.PI * 2;
-          const dist = 60 + Math.random() * 220;
-          const tx = Math.cos(angle) * dist;
-          const ty = Math.sin(angle) * dist - 80;
-          const rot = (Math.random() - 0.5) * 900;
-          p.style.setProperty('--tx', tx + 'px');
-          p.style.setProperty('--ty', ty + 'px');
-          p.style.setProperty('--rot', rot + 'deg');
-          document.body.appendChild(p);
-          setTimeout(() => p.remove(), 1400);
-        }
-      }
-
-      // ---------- СЮРПРИЗ: максимум эффектов ----------
-      function spawnWave(i) {
-        const w = document.createElement('div');
-        w.className = 'surprise-wave';
-        const colors = ['#ff6b00', '#ff4500', '#ffa500', '#ffffff'];
-        w.style.borderColor = colors[i % colors.length];
-        document.body.appendChild(w);
-        setTimeout(() => w.remove(), 1500);
-      }
-
-      function spawnGlitchChars(count) {
-        const chars = '01!@#$%^&*<>{}[]/\\|=+-_';
-        for (let i = 0; i < count; i++) {
-          const el = document.createElement('div');
-          el.className = 'glitch-char';
-          el.textContent = chars[Math.floor(Math.random() * chars.length)];
-          el.style.left = (Math.random() * 100) + 'vw';
-          el.style.top = (Math.random() * 100) + 'vh';
-          el.style.color = Math.random() > 0.4 ? '#ff6b00' : '#ffffff';
-          el.style.fontSize = (10 + Math.random() * 22) + 'px';
-          document.body.appendChild(el);
-          requestAnimationFrame(() => el.classList.add('show'));
-          setTimeout(() => {
-            el.classList.remove('show');
-            setTimeout(() => el.remove(), 300);
-          }, 400 + Math.random() * 800);
-        }
-      }
-
-      function triggerSurprise() {
-        initAudio();
-
-        // Звук — восходящее арпеджио
-        [523, 659, 784, 1047, 1319].forEach((f, i) =>
-          setTimeout(() => tone(f, 0.12, 'square', 0.06), i * 70)
-        );
-
-        // Тряска
-        document.body.classList.add('surprise-shake');
-        setTimeout(() => document.body.classList.remove('surprise-shake'), 700);
-
-        // Глитч
-        document.body.classList.add('surprise-glitch');
-        setTimeout(() => document.body.classList.remove('surprise-glitch'), 900);
-
-        // Инверсия/вспышка
-        document.body.classList.add('surprise-flash');
-        setTimeout(() => document.body.classList.remove('surprise-flash'), 850);
-
-        // Сканлайны
-        scanlines.classList.add('active');
-        setTimeout(() => scanlines.classList.remove('active'), 900);
-
-        // Волны
-        for (let i = 0; i < 3; i++) setTimeout(() => spawnWave(i), i * 130);
-
-        // Глитч-символы
-        spawnGlitchChars(35);
-
-        // Множественные волны конфетти
-        for (let i = 0; i < 4; i++) {
-          setTimeout(() => {
-            burstConfetti(
-              window.innerWidth * (0.15 + Math.random() * 0.7),
-              window.innerHeight * (0.15 + Math.random() * 0.7),
-              35
-            );
-          }, i * 120);
-        }
-
-        // Пульс карточки
-        document.querySelector('.app-card').classList.add('surprise-active');
-        setTimeout(() => document.querySelector('.app-card').classList.remove('surprise-active'), 2000);
-
-        // Случайный оттенок фона
-        const hue = Math.floor(Math.random() * 40) - 20;
-        document.body.style.filter = `hue-rotate(${hue}deg)`;
-        setTimeout(() => { document.body.style.filter = ''; }, 1500);
-
-        // Тост
-        const msgs = [
-          'СИСТЕМА ПЕРЕГРУЖЕНА',
-          'НЕЙРО-ИМПУЛЬС',
-          'ПРОТОКОЛ ОГОНЬ АКТИВЕН',
-          'КВАНТОВЫЙ ВСПЛЕСК',
-          'ПРОДУКТИВНОСТЬ 100%',
-          'МАКСИМАЛЬНЫЙ ЗАРЯД',
-        ];
-        showToast(msgs[Math.floor(Math.random() * msgs.length)], 2600);
-
-        clearTimeout(surpriseTimer);
-        surpriseTimer = setTimeout(() => {}, 2600);
-      }
-
-      surpriseBtn.addEventListener('click', triggerSurprise);
-
-      // ---------- Клик по заголовку ----------
-      titleGroup.addEventListener('click', () => {
-        initAudio();
-        sComplete();
-        const r = titleGroup.getBoundingClientRect();
-        burstConfetti(r.left + r.width / 2, r.top + r.height / 2, 22);
-      });
-
-      // ---------- Статистика ----------
-      document.getElementById('remainingStat').addEventListener('click', function () {
-        const rem = todos.filter(t => !t.completed).length;
-        showToast(`Осталось: ${rem}`, 1500);
-        const r = this.getBoundingClientRect();
-        burstConfetti(r.left + r.width / 2, r.top + r.height / 2, 10);
-        sClick();
-      });
-      document.getElementById('totalStat').addEventListener('click', function () {
-        showToast(`Всего: ${todos.length}`, 1500);
-        const r = this.getBoundingClientRect();
-        burstConfetti(r.left + r.width / 2, r.top + r.height / 2, 10);
-        sClick();
-      });
-
-      // ---------- Форма ----------
-      formEl.addEventListener('submit', (e) => {
-        e.preventDefault();
-        initAudio();
-        addTodo(inputEl.value);
-      });
-
-      // ---------- Очистить выполненное ----------
-      clearBtn.addEventListener('click', () => {
-        initAudio();
-        clearCompleted();
-      });
-
-      // ---------- Аудио-init ----------
-      document.addEventListener('click', initAudio, { once: true });
-      document.addEventListener('keydown', initAudio, { once: true });
-
-      // ---------- Старт ----------
-      loadTodos();
-      render();
-      setTimeout(() => { if (window.innerWidth > 700) inputEl.focus(); }, 300);
-
-    })();
+    // --- Монтирование ---
+    const container = document.getElementById("root");
+    const root = ReactDOM.createRoot(container);
+    root.render(<App tasks={DATA} />);
   </script>
 </body>
 </html>
