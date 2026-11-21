@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тихая лента — интерактивное пространство</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <div class="bg-mountain" id="bg-mountain">
+    <div class="wave-container" id="wave-container">
+      <svg class="wave-layer layer-1" viewBox="0 0 1440 400" preserveAspectRatio="none">
+        <path fill="#ffe9df" d="M0,150 C320,280 640,-20 960,120 C1200,220 1320,300 1440,260 L1440,400 L0,400 Z"/>
+      </svg>
+      <svg class="wave-layer layer-2" viewBox="0 0 1440 400" preserveAspectRatio="none">
+        <path fill="#dff7f0" d="M0,220 C360,80 720,340 1080,200 C1240,140 1340,240 1440,200 L1440,400 L0,400 Z"/>
+      </svg>
+      <svg class="wave-layer layer-3" viewBox="0 0 1440 450" preserveAspectRatio="none">
+        <path fill="#f3ecff" d="M0,300 C280,160 560,420 840,280 C1120,140 1280,360 1440,260 L1440,450 L0,450 Z"/>
+      </svg>
+      <svg class="wave-layer layer-4" viewBox="0 0 1440 500" preserveAspectRatio="none">
+        <path fill="#ffc4ae" d="M0,380 C400,200 800,480 1200,320 C1320,280 1380,360 1440,340 L1440,500 L0,500 Z"/>
+      </svg>
+      <svg class="wave-layer layer-grass" viewBox="0 0 1440 200" preserveAspectRatio="none">
+        <path fill="#a8e8d8" d="M0,100 C100,140 150,50 250,90 C350,130 450,40 550,100 C650,160 750,30 850,90 C950,150 1050,40 1150,100 C1250,160 1350,50 1440,90 L1440,200 L0,200 Z"/>
+        <path fill="#7bc96f" d="M0,140 C80,100 160,170 280,120 C400,70 480,160 600,130 C720,100 800,170 920,110 C1040,50 1120,150 1240,120 C1320,100 1380,140 1440,120 L1440,200 L0,200 Z"/>
+        <path fill="#4fd1b5" d="M0,170 C120,140 180,190 320,160 C460,130 540,190 680,160 C820,130 880,180 1020,150 C1160,120 1240,180 1440,150 L1440,200 L0,200 Z" opacity="0.8"/>
+      </svg>
+    </div>
+    <div id="leaf-container"></div>
+  </div>
+
+  <div id="root"></div>
+
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

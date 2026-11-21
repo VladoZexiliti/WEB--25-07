@@ -1,651 +1,594 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Калькулятор покупок — Футуристичный менеджер</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
+  <div id="root"></div>
+
   <!-- SVG-спрайт -->
   <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
-    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-      <path d="M12 5v14M5 12h14"/>
-    </symbol>
-    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M5 12l5 5 9-10"/>
-    </symbol>
-    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-      <path d="M6 6l12 12M18 6L6 18"/>
-    </symbol>
-    <symbol id="i-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-    </symbol>
-    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
-    </symbol>
-    <symbol id="i-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="9" cy="20" r="1.5"/>
-      <circle cx="18" cy="20" r="1.5"/>
-      <path d="M3 3h3l2.5 13h11l2-9H6"/>
-    </symbol>
-    <symbol id="i-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M4 17l6-6-6-6M12 19h8"/>
-    </symbol>
-    <symbol id="i-coin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="9"/>
-      <path d="M12 7v10M9.5 9.5c.5-1 2-1.5 3-1.5s2.5.5 2.5 2-2 1.5-2.5 1.5-2 .5-2 2 1.5 2 2.5 2 2.5-.5 3-1.5"/>
-    </symbol>
-    <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 8l-9-5-9 5 9 5 9-5z"/>
-      <path d="M3 8v8l9 5 9-5V8"/>
-      <path d="M12 13v8"/>
-    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 3h3l2.5 13h11l2-9H6"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6M12 19h8"/></symbol>
+    <symbol id="i-coin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c.5-1 2-1.5 3-1.5s2.5.5 2.5 2-2 1.5-2.5 1.5-2 .5-2 2 1.5 2 2.5 2 2.5-.5 3-1.5"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></symbol>
   </svg>
 
-  <main class="app-card" role="main">
+  <!-- React + Babel с CDN -->
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
 
-    <!-- Header -->
-    <header class="header">
-      <div class="title-group" id="titleGroup">
-        <span class="fire">🔥</span>
-        <h1>
-          <span class="title-text">Калькулятор покупок</span>
-        </h1>
-      </div>
-      <div class="stats">
-        <div class="stat-badge" title="Позиций в списке">
-          <svg class="icon"><use href="#i-box"/></svg>
-          <span class="num" id="itemsCount">0</span>
-          <span class="lbl">POS</span>
-        </div>
-        <div class="stat-badge" title="Суммарное количество">
-          <svg class="icon"><use href="#i-cart"/></svg>
-          <span class="num" id="unitsCount">0</span>
-          <span class="lbl">UNIT</span>
-        </div>
-      </div>
-    </header>
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
-    <!-- Форма -->
-    <form class="add-form" id="addForm" novalidate autocomplete="off">
-      <div class="form-group name-group">
-        <label class="field-label" for="nameInput">Продукт</label>
-        <input type="text" id="nameInput" name="name" placeholder="Например: Молоко" maxlength="100">
-        <span class="error-msg" id="nameError"></span>
-      </div>
-      <div class="form-group price-group">
-        <label class="field-label" for="priceInput">Цена (₽)</label>
-        <input type="number" id="priceInput" name="price" placeholder="0.00" step="0.01" min="0.01" max="999999">
-        <span class="error-msg" id="priceError"></span>
-      </div>
-      <div class="form-group qty-group">
-        <label class="field-label" for="qtyInput">Кол-во</label>
-        <input type="number" id="qtyInput" name="qty" placeholder="1" step="1" min="1" max="99999">
-        <span class="error-msg" id="qtyError"></span>
-      </div>
-      <button type="submit" class="add-btn" id="addBtn">
-        <svg class="icon"><use href="#i-plus"/></svg>
-        <span>Добавить</span>
-      </button>
-    </form>
+    /* ======================= FORMAT ======================= */
+    const priceFormatter = new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const intFormatter = new Intl.NumberFormat('ru-RU');
+    const formatPrice = (v) => `${priceFormatter.format(v || 0)} ₽`;
+    const formatInt = (v) => intFormatter.format(v || 0);
 
-    <!-- Таблица -->
-    <div class="table-wrap">
-      <table class="products-table">
-        <thead>
-          <tr>
-            <th class="col-name">Продукт</th>
-            <th class="col-num">Цена</th>
-            <th class="col-num">Кол-во</th>
-            <th class="col-num">Сумма</th>
-            <th class="col-actions"></th>
+    /* ======================= VALIDATION ======================= */
+    const MIN_NAME = 2, MAX_NAME = 100, MAX_PRICE = 999999, MAX_QTY = 99999;
+
+    function validateName(raw) {
+      const value = String(raw ?? '').trim();
+      if (!value) return { valid: false, value: '', error: 'Введите название' };
+      if (value.length < MIN_NAME) return { valid: false, value, error: 'Минимум 2 символа' };
+      if (value.length > MAX_NAME) return { valid: false, value, error: 'Максимум 100 символов' };
+      return { valid: true, value, error: '' };
+    }
+    function validatePrice(raw) {
+      const str = String(raw ?? '').trim();
+      if (!str) return { valid: false, value: 0, error: 'Введите цену' };
+      const num = parseFloat(str);
+      if (Number.isNaN(num)) return { valid: false, value: 0, error: 'Не число' };
+      if (num <= 0) return { valid: false, value: 0, error: 'Больше 0' };
+      if (num > MAX_PRICE) return { valid: false, value: 0, error: 'Слишком много' };
+      if (!/^\d+(\.\d{1,2})?$/.test(str)) return { valid: false, value: 0, error: 'Макс. 2 знака' };
+      return { valid: true, value: num, error: '' };
+    }
+    function validateQuantity(raw) {
+      const str = String(raw ?? '').trim();
+      if (!str) return { valid: false, value: 0, error: 'Введите кол-во' };
+      const num = parseInt(str, 10);
+      if (Number.isNaN(num)) return { valid: false, value: 0, error: 'Не число' };
+      if (num < 1) return { valid: false, value: 0, error: 'Минимум 1' };
+      if (num > MAX_QTY) return { valid: false, value: 0, error: 'Слишком много' };
+      if (String(num) !== str) return { valid: false, value: 0, error: 'Целое число' };
+      return { valid: true, value: num, error: '' };
+    }
+
+    /* ======================= STORAGE ======================= */
+    const STORAGE_KEY = 'product-calculator-v1';
+    const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    const isValidProduct = (p) =>
+      p && typeof p.id === 'string' && typeof p.name === 'string' &&
+      typeof p.price === 'number' && typeof p.quantity === 'number' &&
+      p.price > 0 && p.quantity > 0;
+
+    function loadProducts() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed.filter(isValidProduct) : [];
+      } catch { return []; }
+    }
+    function saveProducts(products) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(products)); } catch {}
+    }
+
+    /* ======================= AUDIO ======================= */
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) audioCtx = new Ctx();
+        } catch { audioCtx = null; }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+    }
+    function tone(freq, dur = 0.15, type = 'sine', vol = 0.06) {
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+      } catch {}
+    }
+    const SOUNDS = {
+      click: () => tone(700, 0.06, 'sine', 0.05),
+      add:   () => { tone(880, 0.09, 'triangle', 0.07); setTimeout(() => tone(1320, 0.08, 'triangle', 0.05), 60); },
+      delete:() => { tone(280, 0.1, 'sawtooth', 0.05); setTimeout(() => tone(180, 0.14, 'sawtooth', 0.05), 60); },
+      edit:  () => { tone(720, 0.07, 'sine', 0.05); setTimeout(() => tone(960, 0.07, 'sine', 0.04), 55); },
+      error: () => tone(180, 0.2, 'square', 0.05),
+      clear: () => { tone(600, 0.1, 'sawtooth', 0.06); setTimeout(() => tone(400, 0.12, 'sawtooth', 0.05), 80); setTimeout(() => tone(250, 0.15, 'sawtooth', 0.04), 170); },
+    };
+    function playSound(name) { if (!audioCtx) return; const p = SOUNDS[name]; if (p) p(); }
+
+    /* ======================= CONFETTI ======================= */
+    const CONFETTI_COLORS = ['#ff7a1a','#ff4500','#ffb347','#ffffff','#5b8def','#8aa7f0'];
+    function burstConfetti(x, y, count = 25) {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        const size = 4 + Math.random() * 8;
+        piece.style.width = size + 'px';
+        piece.style.height = size + 'px';
+        piece.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+        piece.style.left = x + 'px';
+        piece.style.top = y + 'px';
+        piece.style.borderRadius = Math.random() > 0.7 ? '50%' : '1px';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 60 + Math.random() * 220;
+        const tx = Math.cos(angle) * dist;
+        const ty = Math.sin(angle) * dist - 80;
+        const rot = (Math.random() - 0.5) * 900;
+        piece.style.setProperty('--tx', tx + 'px');
+        piece.style.setProperty('--ty', ty + 'px');
+        piece.style.setProperty('--rot', rot + 'deg');
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 1400);
+      }
+    }
+
+    /* ======================= HEADER ======================= */
+    function Header({ itemsCount, unitsCount }) {
+      const titleRef = useRef(null);
+      const onClick = () => {
+        initAudio();
+        playSound('edit');
+        const el = titleRef.current;
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        burstConfetti(r.left + r.width / 2, r.top + r.height / 2, 20);
+      };
+      return (
+        <header className="header">
+          <div
+            className="title-group"
+            ref={titleRef}
+            onClick={onClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
+          >
+            <span className="fire" aria-hidden="true">🔥</span>
+            <h1><span className="title-text">Калькулятор покупок</span></h1>
+          </div>
+          <div className="stats">
+            <div className="stat-badge" title="Позиций в списке">
+              <svg className="icon"><use href="#i-box" /></svg>
+              <span className="num">{formatInt(itemsCount)}</span>
+              <span className="lbl">POS</span>
+            </div>
+            <div className="stat-badge" title="Суммарное количество">
+              <svg className="icon"><use href="#i-cart" /></svg>
+              <span className="num">{formatInt(unitsCount)}</span>
+              <span className="lbl">UNIT</span>
+            </div>
+          </div>
+        </header>
+      );
+    }
+
+    /* ======================= FORM ======================= */
+    const EMPTY_VALUES = { name: '', price: '', quantity: '' };
+    const EMPTY_ERRORS = { name: '', price: '', quantity: '' };
+    const VALIDATORS = { name: validateName, price: validatePrice, quantity: validateQuantity };
+
+    function ProductForm({ onAdd }) {
+      const [values, setValues] = useState(EMPTY_VALUES);
+      const [errors, setErrors] = useState(EMPTY_ERRORS);
+      const [shake, setShake] = useState(false);
+      const formRef = useRef(null);
+      const nameRef = useRef(null);
+
+      const handleChange = (field) => (e) => {
+        const { value } = e.target;
+        setValues(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+          const r = VALIDATORS[field](value);
+          setErrors(prev => ({ ...prev, [field]: r.valid ? '' : r.error }));
+        }
+      };
+      const handleBlur = (field) => () => {
+        if (!values[field].trim()) return;
+        const r = VALIDATORS[field](values[field]);
+        setErrors(prev => ({ ...prev, [field]: r.valid ? '' : r.error }));
+      };
+      const triggerShake = () => {
+        setShake(false);
+        requestAnimationFrame(() => setShake(true));
+        setTimeout(() => setShake(false), 420);
+      };
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        initAudio();
+        const name = validateName(values.name);
+        const price = validatePrice(values.price);
+        const quantity = validateQuantity(values.quantity);
+        setErrors({ name: name.error, price: price.error, quantity: quantity.error });
+        if (!name.valid || !price.valid || !quantity.valid) {
+          playSound('error'); triggerShake(); return;
+        }
+        onAdd({ name: name.value, price: price.value, quantity: quantity.value });
+        setValues(EMPTY_VALUES);
+        setErrors(EMPTY_ERRORS);
+        playSound('add');
+        nameRef.current && nameRef.current.focus();
+        const rect = formRef.current && formRef.current.getBoundingClientRect();
+        if (rect) burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 14);
+      };
+
+      return (
+        <form ref={formRef} className={'add-form' + (shake ? ' shake' : '')} noValidate autoComplete="off" onSubmit={handleSubmit}>
+          <div className="form-group name-group">
+            <label className="field-label" htmlFor="nameInput">Продукт</label>
+            <input
+              ref={nameRef} id="nameInput" name="name" type="text"
+              placeholder="Например: Молоко" maxLength={100}
+              value={values.name} onChange={handleChange('name')} onBlur={handleBlur('name')}
+              className={errors.name ? 'invalid' : ''}
+            />
+            <span className={'error-msg' + (errors.name ? ' show' : '')}>{errors.name}</span>
+          </div>
+          <div className="form-group price-group">
+            <label className="field-label" htmlFor="priceInput">Цена (₽)</label>
+            <input
+              id="priceInput" name="price" type="number" placeholder="0.00"
+              step="0.01" min="0.01" max="999999"
+              value={values.price} onChange={handleChange('price')} onBlur={handleBlur('price')}
+              className={errors.price ? 'invalid' : ''}
+            />
+            <span className={'error-msg' + (errors.price ? ' show' : '')}>{errors.price}</span>
+          </div>
+          <div className="form-group qty-group">
+            <label className="field-label" htmlFor="qtyInput">Кол-во</label>
+            <input
+              id="qtyInput" name="quantity" type="number" placeholder="1"
+              step="1" min="1" max="99999"
+              value={values.quantity} onChange={handleChange('quantity')} onBlur={handleBlur('quantity')}
+              className={errors.quantity ? 'invalid' : ''}
+            />
+            <span className={'error-msg' + (errors.quantity ? ' show' : '')}>{errors.quantity}</span>
+          </div>
+          <button type="submit" className="add-btn">
+            <svg className="icon"><use href="#i-plus" /></svg>
+            <span>Добавить</span>
+          </button>
+        </form>
+      );
+    }
+
+    /* ======================= ROW ======================= */
+    function ProductRow({ product, onDelete, onSave, notify }) {
+      const [editing, setEditing] = useState(false);
+      const [deleting, setDeleting] = useState(false);
+      const [draft, setDraft] = useState({ name: '', price: '', quantity: '' });
+      const [invalidField, setInvalidField] = useState('');
+
+      const nameRef = useRef(null);
+      const priceRef = useRef(null);
+      const qtyRef = useRef(null);
+
+      useEffect(() => {
+        if (!editing) return;
+        const el = nameRef.current;
+        if (el) { el.focus(); el.select(); }
+      }, [editing]);
+
+      const startEdit = () => {
+        if (editing || deleting) return;
+        setDraft({ name: product.name, price: String(product.price), quantity: String(product.quantity) });
+        setInvalidField('');
+        setEditing(true);
+        playSound('edit');
+      };
+      const cancelEdit = () => { setEditing(false); setInvalidField(''); playSound('click'); };
+      const handleDraftChange = (field) => (e) => {
+        const { value } = e.target;
+        setDraft(prev => ({ ...prev, [field]: value }));
+        if (invalidField === field) setInvalidField('');
+      };
+      const fieldError = (field, message, ref) => {
+        setInvalidField(field);
+        playSound('error');
+        notify && notify(message, 1500);
+        ref.current && ref.current.focus();
+      };
+      const save = () => {
+        const name = validateName(draft.name);
+        if (!name.valid) return fieldError('name', 'Название: 2–100 символов', nameRef);
+        const price = validatePrice(draft.price);
+        if (!price.valid) return fieldError('price', 'Цена: число > 0', priceRef);
+        const quantity = validateQuantity(draft.quantity);
+        if (!quantity.valid) return fieldError('quantity', 'Кол-во: целое ≥ 1', qtyRef);
+        playSound('add');
+        onSave(product.id, { name: name.value, price: price.value, quantity: quantity.value });
+        setEditing(false);
+        setInvalidField('');
+      };
+      const handleKeyDown = (field) => (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); save(); }
+        else if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); }
+        else if (e.key === 'Tab' && !e.shiftKey && field === 'quantity') { e.preventDefault(); save(); }
+      };
+      const handleDelete = () => {
+        if (deleting) return;
+        playSound('delete');
+        setDeleting(true);
+        setTimeout(() => onDelete(product.id), 220);
+      };
+      const handleDoubleClick = (e) => {
+        if (e.target.closest('input, button')) return;
+        startEdit();
+      };
+
+      const draftPrice = parseFloat(draft.price);
+      const draftQty = parseInt(draft.quantity, 10);
+      const draftTotal = (Number.isNaN(draftPrice) ? 0 : draftPrice) * (Number.isNaN(draftQty) ? 0 : draftQty);
+
+      if (editing) {
+        return (
+          <tr className="product-row editing" data-id={product.id}>
+            <td className="col-name" data-label="Продукт">
+              <input
+                ref={nameRef}
+                className={'cell-input' + (invalidField === 'name' ? ' invalid' : '')}
+                type="text" maxLength={100}
+                value={draft.name} onChange={handleDraftChange('name')}
+                onKeyDown={handleKeyDown('name')} aria-label="Название"
+              />
+            </td>
+            <td className="col-num" data-label="Цена">
+              <input
+                ref={priceRef}
+                className={'cell-input num' + (invalidField === 'price' ? ' invalid' : '')}
+                type="number" step="0.01" min="0.01" max="999999"
+                value={draft.price} onChange={handleDraftChange('price')}
+                onKeyDown={handleKeyDown('price')} aria-label="Цена"
+              />
+            </td>
+            <td className="col-num" data-label="Кол-во">
+              <input
+                ref={qtyRef}
+                className={'cell-input num' + (invalidField === 'quantity' ? ' invalid' : '')}
+                type="number" step="1" min="1" max="99999"
+                value={draft.quantity} onChange={handleDraftChange('quantity')}
+                onKeyDown={handleKeyDown('quantity')} aria-label="Количество"
+              />
+            </td>
+            <td className="col-num col-sum" data-label="Сумма">
+              <span className="cell-text num strong">{formatPrice(draftTotal)}</span>
+            </td>
+            <td className="col-actions">
+              <div className="row-actions">
+                <button type="button" className="action-btn save" title="Сохранить" aria-label="Сохранить" onClick={save}>
+                  <svg className="icon"><use href="#i-check" /></svg>
+                </button>
+                <button type="button" className="action-btn cancel" title="Отменить" aria-label="Отменить" onClick={cancelEdit}>
+                  <svg className="icon"><use href="#i-x" /></svg>
+                </button>
+              </div>
+            </td>
           </tr>
-        </thead>
-        <tbody id="productList"></tbody>
-      </table>
-      <div class="empty-hint" id="emptyHint">
-        <div class="terminal">
-          <svg class="icon"><use href="#i-terminal"/></svg>
-          <span>Добавь первый продукт<span class="cursor">_</span></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Футер -->
-    <footer class="footer">
-      <button type="button" class="clear-btn" id="clearBtn">
-        <svg class="icon"><use href="#i-trash"/></svg>
-        <span>Очистить всё</span>
-      </button>
-      <div class="total-block">
-        <span class="total-label">
-          <svg class="icon"><use href="#i-coin"/></svg>
-          Итого
-        </span>
-        <span class="total-value" id="totalValue">0,00 ₽</span>
-      </div>
-    </footer>
-  </main>
-
-  <div class="toast" id="toast"></div>
-
-  <script>
-    (function () {
-      'use strict';
-
-      const STORAGE_KEY = 'product-calculator-v1';
-
-      /** @type {{id:string,name:string,price:number,quantity:number}[]} */
-      let products = [];
-      let audioCtx = null;
-      let lastTotal = 0;
-      let toastTimer = null;
-
-      const $ = s => document.querySelector(s);
-      const form        = $('#addForm');
-      const nameInput   = $('#nameInput');
-      const priceInput  = $('#priceInput');
-      const qtyInput    = $('#qtyInput');
-      const nameError   = $('#nameError');
-      const priceError  = $('#priceError');
-      const qtyError    = $('#qtyError');
-      const productList = $('#productList');
-      const emptyHint   = $('#emptyHint');
-      const totalValue  = $('#totalValue');
-      const itemsCount  = $('#itemsCount');
-      const unitsCount  = $('#unitsCount');
-      const clearBtn    = $('#clearBtn');
-      const toastEl     = $('#toast');
-      const titleGroup  = $('#titleGroup');
-
-      // ---------- Утилиты ----------
-      const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-
-      function escapeHtml(s) {
-        const d = document.createElement('div');
-        d.textContent = s;
-        return d.innerHTML;
+        );
       }
 
-      const fmt = new Intl.NumberFormat('ru-RU', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
-      const fmtInt = new Intl.NumberFormat('ru-RU');
-      const formatPrice = n => fmt.format(n || 0) + ' ₽';
-      const formatNumber = n => fmt.format(n || 0);
-
-      // ---------- Аудио ----------
-      function initAudio() {
-        if (!audioCtx) {
-          try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) {}
-        }
-        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-      }
-      function tone(freq, dur, type, vol) {
-        if (!audioCtx) return;
-        try {
-          const o = audioCtx.createOscillator();
-          const g = audioCtx.createGain();
-          o.type = type || 'sine';
-          o.frequency.setValueAtTime(freq, audioCtx.currentTime);
-          g.gain.setValueAtTime(vol || 0.06, audioCtx.currentTime);
-          g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (dur || 0.15));
-          o.connect(g); g.connect(audioCtx.destination);
-          o.start(); o.stop(audioCtx.currentTime + (dur || 0.15));
-        } catch (_) {}
-      }
-      const sClick    = () => tone(700, 0.06, 'sine', 0.05);
-      const sAdd      = () => { tone(880, 0.09, 'triangle', 0.07); setTimeout(() => tone(1320, 0.08, 'triangle', 0.05), 60); };
-      const sDelete   = () => { tone(280, 0.1, 'sawtooth', 0.05); setTimeout(() => tone(180, 0.14, 'sawtooth', 0.05), 60); };
-      const sEdit     = () => { tone(720, 0.07, 'sine', 0.05); setTimeout(() => tone(960, 0.07, 'sine', 0.04), 55); };
-      const sError    = () => tone(180, 0.2, 'square', 0.05);
-      const sClear    = () => { tone(600, 0.1, 'sawtooth', 0.06); setTimeout(() => tone(400, 0.12, 'sawtooth', 0.05), 80); setTimeout(() => tone(250, 0.15, 'sawtooth', 0.04), 170); };
-
-      // ---------- Хранилище ----------
-      function loadProducts() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return;
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) {
-            products = parsed.filter(p =>
-              p &&
-              typeof p.id === 'string' &&
-              typeof p.name === 'string' &&
-              typeof p.price === 'number' &&
-              typeof p.quantity === 'number' &&
-              p.price > 0 && p.quantity > 0
-            );
-          }
-        } catch (_) {}
-      }
-      function saveProducts() {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(products)); } catch (_) {}
-      }
-
-      // ---------- Toast ----------
-      function showToast(msg, duration) {
-        toastEl.textContent = msg;
-        toastEl.classList.add('show');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toastEl.classList.remove('show'), duration || 1800);
-      }
-
-      // ---------- Валидация ----------
-      function validateField(field) {
-        let value, error = '';
-
-        if (field === 'name') {
-          value = nameInput.value.trim();
-          if (!value) error = 'Введите название';
-          else if (value.length < 2) error = 'Минимум 2 символа';
-          else if (value.length > 100) error = 'Максимум 100 символов';
-          nameError.textContent = error;
-          nameError.classList.toggle('show', !!error);
-          nameInput.classList.toggle('invalid', !!error);
-          return { valid: !error, value };
-        }
-
-        if (field === 'price') {
-          const raw = priceInput.value.trim();
-          if (!raw) error = 'Введите цену';
-          else {
-            const n = parseFloat(raw);
-            if (isNaN(n)) error = 'Не число';
-            else if (n <= 0) error = 'Больше 0';
-            else if (n > 999999) error = 'Слишком много';
-            else if (!/^\d+(\.\d{1,2})?$/.test(raw)) error = 'Макс. 2 знака';
-            else value = n;
-          }
-          priceError.textContent = error;
-          priceError.classList.toggle('show', !!error);
-          priceInput.classList.toggle('invalid', !!error);
-          return { valid: !error, value };
-        }
-
-        if (field === 'qty') {
-          const raw = qtyInput.value.trim();
-          if (!raw) error = 'Введите кол-во';
-          else {
-            const n = parseInt(raw, 10);
-            if (isNaN(n)) error = 'Не число';
-            else if (n < 1) error = 'Минимум 1';
-            else if (n > 99999) error = 'Слишком много';
-            else if (String(n) !== raw) error = 'Целое число';
-            else value = n;
-          }
-          qtyError.textContent = error;
-          qtyError.classList.toggle('show', !!error);
-          qtyInput.classList.toggle('invalid', !!error);
-          return { valid: !error, value };
-        }
-      }
-
-      function validateAll() {
-        const n = validateField('name');
-        const p = validateField('price');
-        const q = validateField('qty');
-        return {
-          valid: n.valid && p.valid && q.valid,
-          name: n.value, price: p.value, quantity: q.value,
-        };
-      }
-
-      // live-валидация при вводе (после первого ввода)
-      nameInput.addEventListener('blur', () => { if (nameInput.value.trim()) validateField('name'); });
-      priceInput.addEventListener('blur', () => { if (priceInput.value.trim()) validateField('price'); });
-      qtyInput.addEventListener('blur', () => { if (qtyInput.value.trim()) validateField('qty'); });
-      nameInput.addEventListener('input', () => { if (nameError.classList.contains('show')) validateField('name'); });
-      priceInput.addEventListener('input', () => { if (priceError.classList.contains('show')) validateField('price'); });
-      qtyInput.addEventListener('input', () => { if (qtyError.classList.contains('show')) validateField('qty'); });
-
-      // ---------- Подсчёт ----------
-      function calcTotal() {
-        return products.reduce((sum, p) => sum + p.price * p.quantity, 0);
-      }
-
-      function updateStats(animate) {
-        itemsCount.textContent = fmtInt.format(products.length);
-        const units = products.reduce((s, p) => s + p.quantity, 0);
-        unitsCount.textContent = fmtInt.format(units);
-
-        const newTotal = calcTotal();
-        if (animate && Math.abs(newTotal - lastTotal) > 0.001) {
-          animateTotal(lastTotal, newTotal);
-        } else {
-          totalValue.textContent = formatPrice(newTotal);
-        }
-        lastTotal = newTotal;
-      }
-
-      function animateTotal(from, to) {
-        const start = performance.now();
-        const duration = 420;
-        function step(now) {
-          const t = Math.min((now - start) / duration, 1);
-          const eased = 1 - Math.pow(1 - t, 3);
-          const current = from + (to - from) * eased;
-          totalValue.textContent = formatPrice(current);
-          if (t < 1) requestAnimationFrame(step);
-        }
-        totalValue.classList.add('pulse');
-        setTimeout(() => totalValue.classList.remove('pulse'), duration + 100);
-        requestAnimationFrame(step);
-      }
-
-      // ---------- FLIP ----------
-      function captureRects() {
-        const map = new Map();
-        productList.querySelectorAll('tr[data-id]').forEach(el => {
-          map.set(el.dataset.id, el.getBoundingClientRect());
-        });
-        return map;
-      }
-      function applyFlip(first) {
-        productList.querySelectorAll('tr[data-id]').forEach(el => {
-          const fr = first.get(el.dataset.id);
-          if (!fr) return;
-          const lr = el.getBoundingClientRect();
-          const dy = fr.top - lr.top;
-          if (Math.abs(dy) < 1) return;
-          el.style.transition = 'none';
-          el.style.transform = `translateY(${dy}px)`;
-          requestAnimationFrame(() => {
-            el.style.transition = 'transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)';
-            el.style.transform = '';
-            setTimeout(() => { el.style.transition = ''; }, 380);
-          });
-        });
-      }
-
-      // ---------- Рендер ----------
-      function renderRow(p) {
-        const rowTotal = p.price * p.quantity;
-        const tr = document.createElement('tr');
-        tr.dataset.id = p.id;
-        tr.className = 'product-row';
-        tr.innerHTML = `
-          <td class="col-name" data-label="Продукт">
-            <span class="cell-text">${escapeHtml(p.name)}</span>
+      return (
+        <tr className={'product-row' + (deleting ? ' deleting' : '')} data-id={product.id} onDoubleClick={handleDoubleClick}>
+          <td className="col-name" data-label="Продукт">
+            <span className="cell-text">{product.name}</span>
           </td>
-          <td class="col-num" data-label="Цена">
-            <span class="cell-text num">${formatPrice(p.price)}</span>
+          <td className="col-num" data-label="Цена">
+            <span className="cell-text num">{formatPrice(product.price)}</span>
           </td>
-          <td class="col-num" data-label="Кол-во">
-            <span class="cell-text num">${fmtInt.format(p.quantity)}</span>
+          <td className="col-num" data-label="Кол-во">
+            <span className="cell-text num">{formatInt(product.quantity)}</span>
           </td>
-          <td class="col-num col-sum" data-label="Сумма">
-            <span class="cell-text num strong">${formatPrice(rowTotal)}</span>
+          <td className="col-num col-sum" data-label="Сумма">
+            <span className="cell-text num strong">{formatPrice(product.price * product.quantity)}</span>
           </td>
-          <td class="col-actions">
-            <div class="row-actions">
-              <button type="button" class="action-btn edit" title="Редактировать" aria-label="Редактировать">
-                <svg class="icon"><use href="#i-pencil"/></svg>
-                <span class="btn-label">Править</span>
+          <td className="col-actions">
+            <div className="row-actions">
+              <button type="button" className="action-btn edit" title="Редактировать" aria-label="Редактировать" onClick={startEdit}>
+                <svg className="icon"><use href="#i-pencil" /></svg>
+                <span className="btn-label">Править</span>
               </button>
-              <button type="button" class="action-btn delete" title="Удалить" aria-label="Удалить">
-                <svg class="icon"><use href="#i-trash"/></svg>
-                <span class="btn-label">Удалить</span>
+              <button type="button" className="action-btn delete" title="Удалить" aria-label="Удалить" onClick={handleDelete}>
+                <svg className="icon"><use href="#i-trash" /></svg>
+                <span className="btn-label">Удалить</span>
               </button>
             </div>
           </td>
-        `;
-        tr.querySelector('.action-btn.edit').addEventListener('click', e => {
-          e.stopPropagation();
-          startEdit(p.id, tr);
-        });
-        tr.querySelector('.action-btn.delete').addEventListener('click', e => {
-          e.stopPropagation();
-          deleteProduct(p.id, tr);
-        });
-        tr.addEventListener('dblclick', e => {
-          if (e.target.closest('input,button')) return;
-          startEdit(p.id, tr);
-        });
-        return tr;
-      }
+        </tr>
+      );
+    }
 
-      function render() {
-        productList.innerHTML = '';
-        if (!products.length) {
-          emptyHint.style.display = '';
-          updateStats(true);
-          return;
-        }
-        emptyHint.style.display = 'none';
-        const frag = document.createDocumentFragment();
-        products.forEach(p => frag.appendChild(renderRow(p)));
-        productList.appendChild(frag);
-        updateStats(true);
-      }
+    /* ======================= TABLE ======================= */
+    function ProductTable({ products, onDelete, onSave, notify }) {
+      return (
+        <div className="table-wrap">
+          <table className="products-table">
+            <thead>
+              <tr>
+                <th className="col-name">Продукт</th>
+                <th className="col-num">Цена</th>
+                <th className="col-num">Кол-во</th>
+                <th className="col-num">Сумма</th>
+                <th className="col-actions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map(p => (
+                <ProductRow key={p.id} product={p} onDelete={onDelete} onSave={onSave} notify={notify} />
+              ))}
+            </tbody>
+          </table>
+          {products.length === 0 && (
+            <div className="empty-hint">
+              <div className="terminal">
+                <svg className="icon"><use href="#i-terminal" /></svg>
+                <span>Добавь первый продукт<span className="cursor">_</span></span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
 
-      function renderWithFlip() {
-        const first = captureRects();
-        render();
-        applyFlip(first);
-      }
-
-      // ---------- Добавление ----------
-      form.addEventListener('submit', e => {
-        e.preventDefault();
-        initAudio();
-        const r = validateAll();
-        if (!r.valid) {
-          sError();
-          form.classList.remove('shake');
-          void form.offsetWidth;
-          form.classList.add('shake');
-          return;
-        }
-        products.unshift({
-          id: uid(),
-          name: r.name,
-          price: r.price,
-          quantity: r.quantity,
-        });
-        saveProducts();
-        sAdd();
-        clearForm();
-        renderWithFlip();
-        showToast('Добавлено: ' + r.name, 1400);
-        const rect = form.getBoundingClientRect();
-        burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 14);
-      });
-
-      function clearForm() {
-        nameInput.value = '';
-        priceInput.value = '';
-        qtyInput.value = '';
-        [nameInput, priceInput, qtyInput].forEach(i => i.classList.remove('invalid'));
-        [nameError, priceError, qtyError].forEach(e => {
-          e.textContent = '';
-          e.classList.remove('show');
-        });
-        nameInput.focus();
-      }
-
-      // ---------- Удаление ----------
-      function deleteProduct(id, rowEl) {
-        sDelete();
-        rowEl.classList.add('deleting');
-        setTimeout(() => {
-          const idx = products.findIndex(p => p.id === id);
-          if (idx !== -1) { products.splice(idx, 1); saveProducts(); }
-          renderWithFlip();
-        }, 220);
-      }
-
-      // ---------- Редактирование ----------
-      function startEdit(id, rowEl) {
-        if (rowEl.classList.contains('editing')) return;
-        const p = products.find(x => x.id === id);
-        if (!p) return;
-        sEdit();
-        rowEl.classList.add('editing');
-
-        const nameCell = rowEl.querySelector('.col-name');
-        const priceCell = rowEl.querySelectorAll('.col-num')[0];
-        const qtyCell = rowEl.querySelectorAll('.col-num')[1];
-        const sumCell = rowEl.querySelector('.col-sum');
-        const actionsCell = rowEl.querySelector('.col-actions');
-
-        nameCell.innerHTML = `<input class="cell-input" type="text" maxlength="100" value="${escapeHtml(p.name)}" aria-label="Название">`;
-        priceCell.innerHTML = `<input class="cell-input num" type="number" step="0.01" min="0.01" max="999999" value="${p.price}" aria-label="Цена">`;
-        qtyCell.innerHTML = `<input class="cell-input num" type="number" step="1" min="1" max="99999" value="${p.quantity}" aria-label="Количество">`;
-        actionsCell.innerHTML = `
-          <div class="row-actions">
-            <button type="button" class="action-btn save" title="Сохранить" aria-label="Сохранить">
-              <svg class="icon"><use href="#i-check"/></svg>
-            </button>
-            <button type="button" class="action-btn cancel" title="Отменить" aria-label="Отменить">
-              <svg class="icon"><use href="#i-x"/></svg>
-            </button>
+    /* ======================= FOOTER ======================= */
+    function Footer({ total, pulse, onClear }) {
+      return (
+        <footer className="footer">
+          <button type="button" className="clear-btn" onClick={onClear}>
+            <svg className="icon"><use href="#i-trash" /></svg>
+            <span>Очистить всё</span>
+          </button>
+          <div className="total-block">
+            <span className="total-label">
+              <svg className="icon"><use href="#i-coin" /></svg>
+              Итого
+            </span>
+            <span className={'total-value' + (pulse ? ' pulse' : '')}>{formatPrice(total)}</span>
           </div>
-        `;
+        </footer>
+      );
+    }
 
-        const nameInp = nameCell.querySelector('input');
-        const priceInp = priceCell.querySelector('input');
-        const qtyInp = qtyCell.querySelector('input');
+    /* ======================= TOAST ======================= */
+    function Toast({ message }) {
+      return (
+        <div className={'toast' + (message ? ' show' : '')} role="status" aria-live="polite">
+          {message || ''}
+        </div>
+      );
+    }
 
-        function liveSum() {
-          const pr = parseFloat(priceInp.value) || 0;
-          const q = parseInt(qtyInp.value, 10) || 0;
-          sumCell.querySelector('.cell-text').textContent = formatPrice(pr * q);
-        }
-        priceInp.addEventListener('input', liveSum);
-        qtyInp.addEventListener('input', liveSum);
+    /* ======================= APP ======================= */
+    function App() {
+      const [products, setProducts] = useState(loadProducts);
+      const [toast, setToast] = useState(null);
+      const [pulse, setPulse] = useState(false);
+      const toastTimer = useRef(null);
 
-        // Фокус
-        nameInp.focus();
-        nameInp.select();
+      const total = useMemo(() => products.reduce((s, p) => s + p.price * p.quantity, 0), [products]);
+      const units = useMemo(() => products.reduce((s, p) => s + p.quantity, 0), [products]);
 
-        let finished = false;
+      const [displayTotal, setDisplayTotal] = useState(total);
+      const prevTotalRef = useRef(total);
 
-        function markInvalid(inp, msg) {
-          inp.classList.add('invalid');
-          showToast(msg, 1400);
-          sError();
-          inp.focus();
-        }
+      useEffect(() => { saveProducts(products); }, [products]);
 
-        function save() {
-          if (finished) return;
-          const name = nameInp.value.trim();
-          const price = parseFloat(priceInp.value);
-          const qty = parseInt(qtyInp.value, 10);
+      useEffect(() => {
+        const handler = () => initAudio();
+        document.addEventListener('click', handler, { once: true });
+        document.addEventListener('keydown', handler, { once: true });
+        return () => {
+          document.removeEventListener('click', handler);
+          document.removeEventListener('keydown', handler);
+        };
+      }, []);
 
-          if (!name || name.length < 2 || name.length > 100) {
-            return markInvalid(nameInp, 'Название: 2–100 символов');
+      useEffect(() => () => clearTimeout(toastTimer.current), []);
+
+      useEffect(() => {
+        const t = setTimeout(() => {
+          if (window.innerWidth > 700) {
+            const el = document.getElementById('nameInput');
+            if (el) el.focus();
           }
-          if (isNaN(price) || price <= 0 || price > 999999) {
-            return markInvalid(priceInp, 'Цена: число > 0');
-          }
-          if (isNaN(qty) || qty < 1 || qty > 99999) {
-            return markInvalid(qtyInp, 'Кол-во: целое ≥ 1');
-          }
+        }, 300);
+        return () => clearTimeout(t);
+      }, []);
 
-          finished = true;
-          p.name = name;
-          p.price = price;
-          p.quantity = qty;
-          saveProducts();
-          sAdd();
-          renderWithFlip();
-          showToast('Обновлено', 1200);
-        }
+      useEffect(() => {
+        const from = prevTotalRef.current;
+        const to = total;
+        if (Math.abs(to - from) < 0.001) { setDisplayTotal(to); return; }
+        prevTotalRef.current = to;
+        const start = performance.now();
+        const duration = 420;
+        let raf = 0;
+        const step = (now) => {
+          const t = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+          setDisplayTotal(from + (to - from) * eased);
+          if (t < 1) raf = requestAnimationFrame(step); else setDisplayTotal(to);
+        };
+        raf = requestAnimationFrame(step);
+        setPulse(true);
+        const pulseTimer = setTimeout(() => setPulse(false), 520);
+        return () => { cancelAnimationFrame(raf); clearTimeout(pulseTimer); };
+      }, [total]);
 
-        function cancel() {
-          if (finished) return;
-          finished = true;
-          sClick();
-          renderWithFlip();
-        }
+      const showToast = useCallback((msg, duration = 1800) => {
+        setToast(msg);
+        clearTimeout(toastTimer.current);
+        toastTimer.current = setTimeout(() => setToast(null), duration);
+      }, []);
 
-        [nameInp, priceInp, qtyInp].forEach(inp => {
-          inp.addEventListener('keydown', e => {
-            if (e.key === 'Enter') { e.preventDefault(); save(); }
-            if (e.key === 'Escape') { e.preventDefault(); cancel(); }
-            if (e.key === 'Tab' && !e.shiftKey && inp === qtyInp) {
-              e.preventDefault();
-              save();
-            }
-          });
-        });
+      const handleAdd = useCallback((item) => {
+        setProducts(prev => [{ id: uid(), ...item }, ...prev]);
+        showToast('Добавлено: ' + item.name, 1400);
+      }, [showToast]);
 
-        actionsCell.querySelector('.save').addEventListener('click', save);
-        actionsCell.querySelector('.cancel').addEventListener('click', cancel);
-      }
+      const handleSave = useCallback((id, patch) => {
+        setProducts(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+        showToast('Обновлено', 1200);
+      }, [showToast]);
 
-      // ---------- Очистить всё ----------
-      clearBtn.addEventListener('click', () => {
+      const handleDelete = useCallback((id) => {
+        setProducts(prev => prev.filter(p => p.id !== id));
+        showToast('Удалено', 1200);
+      }, [showToast]);
+
+      const handleClear = useCallback(() => {
         initAudio();
-        if (!products.length) {
-          sError();
-          showToast('Список пуст', 1200);
-          return;
-        }
-        if (!confirm('Удалить все продукты?')) return;
-        sClear();
-        products = [];
-        saveProducts();
-        renderWithFlip();
+        if (!products.length) { playSound('error'); showToast('Список пуст', 1200); return; }
+        if (!window.confirm('Удалить все продукты?')) return;
+        playSound('clear');
+        setProducts([]);
         showToast('Список очищен', 1500);
-      });
+      }, [products.length, showToast]);
 
-      // ---------- Конфетти ----------
-      function burstConfetti(x, y, count) {
-        const colors = ['#ff7a1a', '#ff4500', '#ffb347', '#ffffff', '#5b8def', '#8aa7f0'];
-        const n = count || 25;
-        for (let i = 0; i < n; i++) {
-          const p = document.createElement('div');
-          p.className = 'confetti-piece';
-          const size = 4 + Math.random() * 8;
-          p.style.width = size + 'px';
-          p.style.height = size + 'px';
-          p.style.background = colors[Math.floor(Math.random() * colors.length)];
-          p.style.left = x + 'px';
-          p.style.top = y + 'px';
-          p.style.borderRadius = Math.random() > 0.7 ? '50%' : '1px';
-          const angle = Math.random() * Math.PI * 2;
-          const dist = 60 + Math.random() * 220;
-          const tx = Math.cos(angle) * dist;
-          const ty = Math.sin(angle) * dist - 80;
-          const rot = (Math.random() - 0.5) * 900;
-          p.style.setProperty('--tx', tx + 'px');
-          p.style.setProperty('--ty', ty + 'px');
-          p.style.setProperty('--rot', rot + 'deg');
-          document.body.appendChild(p);
-          setTimeout(() => p.remove(), 1400);
-        }
-      }
+      return (
+        <>
+          <main className="app-card" role="main">
+            <Header itemsCount={products.length} unitsCount={units} />
+            <ProductForm onAdd={handleAdd} />
+            <ProductTable products={products} onDelete={handleDelete} onSave={handleSave} notify={showToast} />
+            <Footer total={displayTotal} pulse={pulse} onClear={handleClear} />
+          </main>
+          <Toast message={toast} />
+        </>
+      );
+    }
 
-      // ---------- Заголовок ----------
-      titleGroup.addEventListener('click', () => {
-        initAudio();
-        sEdit();
-        const r = titleGroup.getBoundingClientRect();
-        burstConfetti(r.left + r.width / 2, r.top + r.height / 2, 20);
-      });
-
-      // ---------- Init ----------
-      document.addEventListener('click', initAudio, { once: true });
-      document.addEventListener('keydown', initAudio, { once: true });
-
-      loadProducts();
-      lastTotal = calcTotal();
-      render();
-
-      setTimeout(() => {
-        if (window.innerWidth > 700) nameInput.focus();
-      }, 300);
-
-    })();
+    /* ======================= RENDER ======================= */
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Тихая лента — интерактивное пространство</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
@@ -40,88 +40,99 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.10/babel.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
 
   <script type="text/babel" data-presets="react">
-    const { useState, useEffect, useRef, useCallback, useMemo, useContext } = React;
+    const {
+      useState, useEffect, useRef, useCallback, useMemo, useContext, createContext,
+    } = React;
 
     /* ============================================================
-       0. УТИЛИТЫ И MARKDOWN
+       УТИЛИТЫ
        ============================================================ */
     const STORAGE_KEY = 'soft-posts-v7-final';
     const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 
     const dateFmt = new Intl.DateTimeFormat('ru-RU', {
-      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+      day: 'numeric', month: 'long', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
     });
     const formatDate = (iso) => { try { return dateFmt.format(new Date(iso)); } catch (e) { return ''; } };
 
+    /* ============================================================
+       MARKDOWN
+       ============================================================ */
     function renderMarkdown(text) {
-      let processed = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                          .replace(/\*(.*?)\*/g, '<em>$1</em>');
-      
+      const processed = String(text)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+
       const lines = processed.split('\n');
       let html = '';
       let inList = false;
       let listType = null;
       let inTable = false;
 
-      const closeList = () => { if (inList) { html += `</${listType}>`; inList = false; listType = null; } };
-      const closeTable = () => { if (inTable) { html += `</tbody></table></div>`; inTable = false; } };
+      const closeList = () => {
+        if (inList) { html += '</' + listType + '>'; inList = false; listType = null; }
+      };
+      const closeTable = () => {
+        if (inTable) { html += '</tbody></table></div>'; inTable = false; }
+      };
 
-      for (let line of lines) {
-        if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
+
+        if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
           closeList();
-          if (!inTable) {
-            html += '<div class="table-wrapper"><table><tbody>';
-            inTable = true;
-          }
-          if (line.match(/^\|[-:\s|]+\|$/)) continue;
-          
-          const cells = line.split('|').filter((c, i, a) => i > 0 && i < a.length - 1);
+          if (!inTable) { html += '<div class="table-wrapper"><table><tbody>'; inTable = true; }
+          if (/^\|[-:\s|]+\|$/.test(trimmed)) continue;
+          const cells = trimmed.split('|').filter((c, i2, a) => i2 > 0 && i2 < a.length - 1);
           html += '<tr>';
-          cells.forEach(cell => { html += `<td>${cell.trim()}</td>`; });
+          cells.forEach(cell => { html += '<td>' + cell.trim() + '</td>'; });
           html += '</tr>';
           continue;
-        } else {
-          closeTable();
         }
+        closeTable();
 
-        if (line.match(/^### /)) { closeList(); html += `<h3>${line.slice(4)}</h3>`; continue; }
-        if (line.match(/^## /)) { closeList(); html += `<h2>${line.slice(3)}</h2>`; continue; }
-        if (line.match(/^# /)) { closeList(); html += `<h1>${line.slice(2)}</h1>`; continue; }
+        if (line.startsWith('### ')) { closeList(); html += '<h3>' + line.slice(4) + '</h3>'; continue; }
+        if (line.startsWith('## '))  { closeList(); html += '<h2>' + line.slice(3) + '</h2>'; continue; }
+        if (line.startsWith('# '))   { closeList(); html += '<h1>' + line.slice(2) + '</h1>'; continue; }
 
-        if (line.match(/^> /)) {
+        if (line.startsWith('> ')) {
           closeList();
-          html += `<blockquote>${line.slice(2)}</blockquote>`;
+          html += '<blockquote>' + line.slice(2) + '</blockquote>';
           continue;
         }
 
-        if (line.match(/^[-*] /)) {
+        if (/^[-*] /.test(line)) {
           if (!inList || listType !== 'ul') { closeList(); html += '<ul>'; inList = true; listType = 'ul'; }
-          html += `<li>${line.slice(2)}</li>`;
+          html += '<li>' + line.slice(2) + '</li>';
           continue;
         }
-        if (line.match(/^\d+\. /)) {
+        if (/^\d+\. /.test(line)) {
           if (!inList || listType !== 'ol') { closeList(); html += '<ol>'; inList = true; listType = 'ol'; }
-          html += `<li>${line.replace(/^\d+\. /, '')}</li>`;
+          html += '<li>' + line.replace(/^\d+\. /, '') + '</li>';
           continue;
         }
 
-        if (line.trim() === '') { closeList(); continue; }
-        
+        if (trimmed === '') { closeList(); continue; }
+
         closeList();
-        html += `<p>${line}</p>`;
+        html += '<p>' + line + '</p>';
       }
-      
-      closeList(); 
+
+      closeList();
       closeTable();
       return { __html: html };
     }
 
-    // 6 ОГРОМНЫХ ПОСТОВ
+    /* ============================================================
+       SEED POSTS
+       ============================================================ */
     function seedPosts() {
       const now = Date.now();
       const d = (m) => new Date(now - 1000 * 60 * m).toISOString();
@@ -178,7 +189,7 @@
     }
 
     /* ============================================================
-       1. ХУКИ
+       ХУКИ
        ============================================================ */
     function parseHash() {
       const path = window.location.hash.replace(/^#/, '') || '/';
@@ -203,16 +214,16 @@
       useEffect(() => {
         const container = document.getElementById('wave-container');
         if (!container) return;
-        const handleMouseMove = (e) => {
+        const handler = (e) => {
           const x = (e.clientX / window.innerWidth - 0.5) * 40;
           const y = (e.clientY / window.innerHeight - 0.5) * 40;
-          container.style.setProperty('--mouse-x', `${x}px`);
-          container.style.setProperty('--mouse-y', `${y}px`);
-          container.style.setProperty('--rot-x', `${x * 0.1}deg`);
-          container.style.setProperty('--rot-y', `${y * 0.1}deg`);
+          container.style.setProperty('--mouse-x', x + 'px');
+          container.style.setProperty('--mouse-y', y + 'px');
+          container.style.setProperty('--rot-x', (x * 0.1) + 'deg');
+          container.style.setProperty('--rot-y', (y * 0.1) + 'deg');
         };
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mousemove', handler);
+        return () => window.removeEventListener('mousemove', handler);
       }, []);
     }
 
@@ -227,60 +238,95 @@
           leaf.style.animationDuration = (10 + Math.random() * 8) + 's';
           leaf.style.animationDelay = Math.random() * 5 + 's';
           leaf.style.opacity = 0.2 + Math.random() * 0.4;
-          leaf.style.transform = `scale(${0.4 + Math.random() * 0.8})`;
-          leaf.innerHTML = `<svg viewBox="0 0 24 24" fill="none" width="100%" height="100%"><path d="M12 2 C 18 6, 20 14, 12 22 C 4 14, 6 6, 12 2 Z" fill="#7bc96f" opacity="0.8"/><path d="M12 4 L 12 20" stroke="#4a8f4a" stroke-width="1.2" opacity="0.6"/></svg>`;
+          leaf.style.transform = 'scale(' + (0.4 + Math.random() * 0.8) + ')';
+          leaf.innerHTML = '<svg viewBox="0 0 24 24" fill="none" width="100%" height="100%"><path d="M12 2 C 18 6, 20 14, 12 22 C 4 14, 6 6, 12 2 Z" fill="#7bc96f" opacity="0.8"/><path d="M12 4 L 12 20" stroke="#4a8f4a" stroke-width="1.2" opacity="0.6"/></svg>';
           container.appendChild(leaf);
           setTimeout(() => leaf.remove(), 18000);
         };
         const interval = setInterval(createLeaf, 1500);
-        for(let i=0; i<5; i++) setTimeout(createLeaf, i * 300);
+        for (let i = 0; i < 5; i++) setTimeout(createLeaf, i * 300);
         return () => clearInterval(interval);
       }, []);
     }
 
+    function useBgRipple() {
+      useEffect(() => {
+        const handler = (e) => {
+          if (e.target.closest('.app-shell') || e.target.closest('.modal-content')) return;
+          const ripple = document.createElement('div');
+          ripple.className = 'bg-ripple';
+          const size = 100 + Math.random() * 200;
+          ripple.style.width = size + 'px';
+          ripple.style.height = size + 'px';
+          ripple.style.left = (e.clientX - size / 2) + 'px';
+          ripple.style.top = (e.clientY - size / 2) + 'px';
+          document.body.appendChild(ripple);
+          setTimeout(() => ripple.remove(), 1500);
+        };
+        document.addEventListener('click', handler);
+        return () => document.removeEventListener('click', handler);
+      }, []);
+    }
+
     /* ============================================================
-       2. КОНТЕКСТ И ИКОНКИ
+       КОНФЕТТИ
        ============================================================ */
-    const PostsContext = React.createContext(null);
+    function fireConfetti(x, y, color, count) {
+      count = count || 20;
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'confetti-piece';
+        p.style.background = color;
+        p.style.left = x + 'px';
+        p.style.top = y + 'px';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 40 + Math.random() * 120;
+        p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+        p.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 1000);
+      }
+    }
+    const BRAND_CONFETTI_COLORS = ['#ff7a52', '#4fd1b5', '#8b7ff5', '#7bc96f'];
+
+    /* ============================================================
+       КОНТЕКСТ
+       ============================================================ */
+    const PostsContext = createContext(null);
     const usePosts = () => useContext(PostsContext);
 
-    const IconPlus = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>;
-    const IconTrash = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>;
-    const IconBack = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>;
-    const IconArrow = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>;
-    const IconBold = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h8a4 4 0 0 1 0 8H6zM6 12h9a4 4 0 0 1 0 8H6z"/></svg>;
-    const IconItalic = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 4h6M8 20h6M14 4l-4 16"/></svg>;
-    const IconH1 = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6v12M12 6v12M4 12h8M18 18v-8l-2 2"/></svg>;
-    const IconH2 = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6v12M12 6v12M4 12h8M16 18c2-2 4-2 4-4s-2-2-2-2-2 0-2 2"/></svg>;
-    const IconList = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>;
-    const IconQuote = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 11H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4v6zM20 11h-4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4v6z"/></svg>;
-    const IconTable = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>;
-    const IconEye = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
-    const IconEdit = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>;
+    /* ============================================================
+       ИКОНКИ
+       ============================================================ */
+    const IconPlus    = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>;
+    const IconTrash   = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>;
+    const IconBack    = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>;
+    const IconArrow   = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>;
+    const IconBold    = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h8a4 4 0 0 1 0 8H6zM6 12h9a4 4 0 0 1 0 8H6z"/></svg>;
+    const IconItalic  = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 4h6M8 20h6M14 4l-4 16"/></svg>;
+    const IconH1      = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6v12M12 6v12M4 12h8M18 18v-8l-2 2"/></svg>;
+    const IconH2      = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6v12M12 6v12M4 12h8M16 18c2-2 4-2 4-4s-2-2-2-2-2 0-2 2"/></svg>;
+    const IconList    = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>;
+    const IconQuote   = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 11H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4v6zM20 11h-4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4v6z"/></svg>;
+    const IconTable   = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>;
+    const IconEye     = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+    const IconEdit    = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>;
 
     /* ============================================================
-       3. НАВИГАЦИЯ
+       TOP NAV
        ============================================================ */
     function TopNav({ route }) {
       const handleBrandClick = (e) => {
         e.preventDefault();
         const rect = e.currentTarget.getBoundingClientRect();
-        for (let i = 0; i < 20; i++) {
-          const p = document.createElement('div');
-          p.className = 'confetti-piece';
-          p.style.background = ['#ff7a52', '#4fd1b5', '#8b7ff5', '#7bc96f'][Math.floor(Math.random()*4)];
-          p.style.left = (rect.left + rect.width/2) + 'px';
-          p.style.top = (rect.top + rect.height/2) + 'px';
-          const angle = Math.random() * Math.PI * 2;
-          const dist = 40 + Math.random() * 80;
-          p.style.setProperty('--tx', Math.cos(angle)*dist + 'px');
-          p.style.setProperty('--ty', Math.sin(angle)*dist + 'px');
-          document.body.appendChild(p);
-          setTimeout(() => p.remove(), 1000);
-        }
+        fireConfetti(
+          rect.left + rect.width / 2,
+          rect.top + rect.height / 2,
+          BRAND_CONFETTI_COLORS[Math.floor(Math.random() * BRAND_CONFETTI_COLORS.length)],
+          20
+        );
         navigate('/');
       };
-
       return (
         <header className="top-nav">
           <a className="brand" href="#/" onClick={handleBrandClick}>
@@ -296,26 +342,13 @@
     }
 
     /* ============================================================
-       4. КОМПОНЕНТЫ ПОСТОВ
+       POST CARD
        ============================================================ */
-    function PostsList() {
-      const { posts, removePost } = usePosts();
-      if (posts.length === 0) return <EmptyState />;
-      return (
-        <section className="posts-section" id="posts-list">
-          <div className="section-head"><h2>Все посты</h2><span className="count-pill">{posts.length}</span></div>
-          <ul className="posts-list">
-            {posts.map(p => <PostCard key={p.id} post={p} onDelete={removePost} />)}
-          </ul>
-        </section>
-      );
-    }
-
     function PostCard({ post, onDelete }) {
       const [confirming, setConfirming] = useState(false);
       const [removing, setRemoving] = useState(false);
       const cardRef = useRef(null);
-      
+
       useEffect(() => {
         if (!confirming) return;
         const t = setTimeout(() => setConfirming(false), 3200);
@@ -325,32 +358,26 @@
       const handleMouseMove = (e) => {
         if (!cardRef.current) return;
         const rect = cardRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const rotateX = (y - centerY) / 30;
-        const rotateY = (centerX - x) / 30;
-        cardRef.current.style.transform = `perspective(2000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`;
+        const rotateX = (e.clientY - rect.top - rect.height / 2) / 30;
+        const rotateY = (rect.width / 2 - (e.clientX - rect.left)) / 30;
+        cardRef.current.style.transform = 'perspective(2000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) scale3d(1.01, 1.01, 1.01)';
       };
-
       const handleMouseLeave = () => {
         if (!cardRef.current) return;
-        cardRef.current.style.transform = `perspective(2000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+        cardRef.current.style.transform = 'perspective(2000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
       };
-
       const handleDelete = () => {
         setRemoving(true);
         setTimeout(() => onDelete(post.id), 220);
       };
 
       const plainText = post.text.replace(/[#*>\-|]/g, '').replace(/\n/g, ' ');
-      const moodClass = `mood-${post.moodBase || 'coral'}-${post.moodMod || 'none'}`;
+      const moodClass = 'mood-' + (post.moodBase || 'coral') + '-' + (post.moodMod || 'none');
 
       return (
-        <li 
+        <li
           ref={cardRef}
-          className={`post-card ${moodClass} ${removing ? ' removing' : ''}`}
+          className={'post-card ' + moodClass + (removing ? ' removing' : '')}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -376,6 +403,9 @@
       );
     }
 
+    /* ============================================================
+       EMPTY STATE
+       ============================================================ */
     function EmptyState() {
       return (
         <div className="empty-state">
@@ -395,11 +425,64 @@
     }
 
     /* ============================================================
-       5. РЕДАКТОР (С ПРЕДПРОСМОТРОМ ЦВЕТА И КНОПКАМИ В БЛОКЕ)
+       POSTS LIST
+       ============================================================ */
+    function PostsList() {
+      const { posts, removePost } = usePosts();
+      if (posts.length === 0) return <EmptyState />;
+      return (
+        <section className="posts-section" id="posts-list">
+          <div className="section-head">
+            <h2>Все посты</h2>
+            <span className="count-pill">{posts.length}</span>
+          </div>
+          <ul className="posts-list">
+            {posts.map(p => <PostCard key={p.id} post={p} onDelete={removePost} />)}
+          </ul>
+        </section>
+      );
+    }
+
+    /* ============================================================
+       TABLE MODAL
+       ============================================================ */
+    function TableModal({ onClose, onInsert }) {
+      const [rows, setRows] = useState(3);
+      const [cols, setCols] = useState(2);
+      const handleInsert = () => {
+        onInsert(Math.min(5, Math.max(1, rows)), Math.min(4, Math.max(1, cols)));
+      };
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>Создать таблицу</h3>
+            <p className="modal-sub">Выберите размер (строки: 1-5, столбцы: 1-4)</p>
+            <div className="table-controls">
+              <div className="control-group">
+                <label htmlFor="table-rows">Строки</label>
+                <input id="table-rows" type="number" min="1" max="5" value={rows}
+                  onChange={e => setRows(parseInt(e.target.value, 10) || 1)} />
+              </div>
+              <div className="control-group">
+                <label htmlFor="table-cols">Столбцы</label>
+                <input id="table-cols" type="number" min="1" max="4" value={cols}
+                  onChange={e => setCols(parseInt(e.target.value, 10) || 1)} />
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button type="button" className="btn btn-ghost" onClick={onClose}>Отмена</button>
+              <button type="button" className="btn btn-primary" onClick={handleInsert}>Вставить</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ============================================================
+       POST FORM
        ============================================================ */
     const LIMITS = { titleMin: 3, titleMax: 90, textMin: 10, textMax: 12000 };
-    
-        const BASE_MOODS = [
+    const BASE_MOODS = [
       { id: 'coral', label: 'Коралл', color: '#ff7a52' },
       { id: 'mint', label: 'Мята', color: '#4fd1b5' },
       { id: 'lav', label: 'Лаванда', color: '#8b7ff5' },
@@ -422,7 +505,7 @@
       const [submitted, setSubmitted] = useState(false);
       const [activeTab, setActiveTab] = useState('write');
       const [showTableModal, setShowTableModal] = useState(false);
-      
+
       const titleRef = useRef(null);
       const textareaRef = useRef(null);
 
@@ -439,7 +522,8 @@
 
       const showError = (f) => (touched[f] || submitted) && errors[f];
 
-      const insertMarkdown = (prefix, suffix = '') => {
+      const insertMarkdown = (prefix, suffix) => {
+        suffix = suffix || '';
         const textarea = textareaRef.current;
         if (!textarea) return;
         const start = textarea.selectionStart;
@@ -453,21 +537,21 @@
 
       const insertTable = (rows, cols) => {
         let table = '\n\n| ';
-        for(let i=1; i<=cols; i++) table += `Заголовок ${i} | `;
+        for (let i = 1; i <= cols; i++) table += 'Заголовок ' + i + ' | ';
         table += '\n|';
-        for(let i=0; i<cols; i++) table += '---|';
+        for (let i = 0; i < cols; i++) table += '---|';
         table += '\n';
-        for(let r=1; r<rows; r++) {
-            table += '| ';
-            for(let c=1; c<=cols; c++) table += `Текст | `;
-            table += '\n';
+        for (let r = 1; r < rows; r++) {
+          table += '| ';
+          for (let c = 1; c <= cols; c++) table += 'Текст | ';
+          table += '\n';
         }
-        table += '\n'; 
+        table += '\n';
         insertMarkdown(table);
         setShowTableModal(false);
       };
 
-      function handleSubmit(ev) {
+      const handleSubmit = (ev) => {
         ev.preventDefault();
         setSubmitted(true);
         if (Object.keys(errors).length > 0) {
@@ -476,31 +560,16 @@
           return;
         }
         const post = addPost({ title, text, moodBase, moodMod });
-        
         const btn = ev.target.querySelector('button[type="submit"]');
         const rect = btn.getBoundingClientRect();
         const confettiColor = BASE_MOODS.find(m => m.id === moodBase).color;
-        
-        for (let i = 0; i < 30; i++) {
-          const p = document.createElement('div');
-          p.className = 'confetti-piece';
-          p.style.background = confettiColor;
-          p.style.left = (rect.left + rect.width/2) + 'px';
-          p.style.top = (rect.top + rect.height/2) + 'px';
-          const angle = Math.random() * Math.PI * 2;
-          const dist = 50 + Math.random() * 150;
-          p.style.setProperty('--tx', Math.cos(angle)*dist + 'px');
-          p.style.setProperty('--ty', Math.sin(angle)*dist - 50 + 'px');
-          document.body.appendChild(p);
-          setTimeout(() => p.remove(), 1000);
-        }
-
+        fireConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2 - 50, confettiColor, 30);
         setTimeout(() => navigate('/post/' + post.id), 300);
-      }
+      };
 
       return (
         <React.Fragment>
-          <form className={`post-form mood-${moodBase}-${moodMod}`} onSubmit={handleSubmit} noValidate>
+          <form className={'post-form mood-' + moodBase + '-' + moodMod} onSubmit={handleSubmit} noValidate>
             <div className="field">
               <label className="field-label" htmlFor="post-title">
                 <span>Название</span>
@@ -512,7 +581,7 @@
                 type="text" value={title} maxLength={LIMITS.titleMax}
                 placeholder="О чём эта запись?"
                 onChange={e => setTitle(e.target.value)}
-                onBlur={() => setTouched(p => ({...p, title: true}))}
+                onBlur={() => setTouched(p => ({ ...p, title: true }))}
               />
               {showError('title') && <span className="field-error">{errors.title}</span>}
             </div>
@@ -522,11 +591,11 @@
                 <span>Текст (Markdown)</span>
                 <span className="counter">{text.trim().length}/{LIMITS.textMax}</span>
               </label>
-              
+
               <div className="editor-header">
                 <div className="editor-tabs">
-                  <button type="button" className={`tab-btn ${activeTab === 'write' ? 'active' : ''}`} onClick={() => setActiveTab('write')}><IconEdit /> Писать</button>
-                  <button type="button" className={`tab-btn ${activeTab === 'preview' ? 'active' : ''}`} onClick={() => setActiveTab('preview')}><IconEye /> Просмотр</button>
+                  <button type="button" className={'tab-btn ' + (activeTab === 'write' ? 'active' : '')} onClick={() => setActiveTab('write')}><IconEdit /> Писать</button>
+                  <button type="button" className={'tab-btn ' + (activeTab === 'preview' ? 'active' : '')} onClick={() => setActiveTab('preview')}><IconEye /> Просмотр</button>
                 </div>
                 {activeTab === 'write' && (
                   <div className="editor-toolbar">
@@ -538,7 +607,7 @@
                     <div className="tool-divider"></div>
                     <button type="button" className="tool-btn" title="Список" onClick={() => insertMarkdown('- ')}><IconList /></button>
                     <button type="button" className="tool-btn" title="Цитата" onClick={() => insertMarkdown('> ')}><IconQuote /></button>
-                    <button type="button" className="tool-btn" title="Таблица (до 4х5)" onClick={() => setShowTableModal(true)}><IconTable /></button>
+                    <button type="button" className="tool-btn" title="Таблица" onClick={() => setShowTableModal(true)}><IconTable /></button>
                   </div>
                 )}
               </div>
@@ -550,17 +619,16 @@
                   value={text} maxLength={LIMITS.textMax}
                   placeholder="Спокойно, вдумчиво, по-своему…"
                   onChange={e => setText(e.target.value)}
-                  onBlur={() => setTouched(p => ({...p, text: true}))}
+                  onBlur={() => setTouched(p => ({ ...p, text: true }))}
                 />
               ) : (
                 <div className="textarea-preview post-body">
-                  {text.trim() ? <div dangerouslySetInnerHTML={renderMarkdown(text)} /> : <p style={{color:'#a3958e'}}>Здесь появится текст...</p>}
+                  {text.trim() ? <div dangerouslySetInnerHTML={renderMarkdown(text)} /> : <p style={{ color: '#a3958e' }}>Здесь появится текст...</p>}
                 </div>
               )}
               {showError('text') && <span className="field-error">{errors.text}</span>}
             </div>
 
-            {/* БЛОК НАСТРОЕНИЯ И ДЕЙСТВИЙ */}
             <div className="field mood-field">
               <label className="field-label"><span>Настроение и действие</span></label>
               <div className="mood-container">
@@ -570,7 +638,7 @@
                     {BASE_MOODS.map(m => (
                       <button
                         key={m.id} type="button"
-                        className={`mood-btn base ${moodBase === m.id ? 'active' : ''}`}
+                        className={'mood-btn base ' + (moodBase === m.id ? 'active' : '')}
                         style={{ '--m-color': m.color }}
                         onClick={() => setMoodBase(m.id)}
                       >
@@ -583,17 +651,19 @@
                     {MOD_MOODS.map(m => (
                       <button
                         key={m.id} type="button"
-                        className={`mood-btn mod ${moodMod === m.id ? 'active' : ''}`}
+                        className={'mood-btn mod ' + (moodMod === m.id ? 'active' : '')}
                         onClick={() => setMoodMod(m.id)}
-                      >
-                        {m.label}
-                      </button>
+                      >{m.label}</button>
                     ))}
                   </div>
                 </div>
                 <div className="form-actions-inline">
                   <a className="btn btn-ghost" href="#/">Отмена</a>
-                  <button type="submit" className="btn btn-primary" style={{ background: 'var(--mood-color)', boxShadow: '0 10px 24px -12px var(--mood-color)' }}>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    style={{ background: 'var(--mood-color)', boxShadow: '0 10px 24px -12px var(--mood-color)' }}
+                  >
                     <IconPlus /> Опубликовать
                   </button>
                 </div>
@@ -602,37 +672,14 @@
           </form>
 
           {showTableModal && (
-            <div className="modal-overlay" onClick={() => setShowTableModal(false)}>
-              <div className="modal-content" onClick={e => e.stopPropagation()}>
-                <h3>Создать таблицу</h3>
-                <p className="modal-sub">Выберите размер (строки: 1-5, столбцы: 1-4)</p>
-                <div className="table-controls">
-                  <div className="control-group">
-                    <label>Строки</label>
-                    <input type="number" id="table-rows" min="1" max="5" defaultValue="3" />
-                  </div>
-                  <div className="control-group">
-                    <label>Столбцы</label>
-                    <input type="number" id="table-cols" min="1" max="4" defaultValue="2" />
-                  </div>
-                </div>
-                <div className="modal-actions">
-                  <button className="btn btn-ghost" onClick={() => setShowTableModal(false)}>Отмена</button>
-                  <button className="btn btn-primary" onClick={() => {
-                    const r = parseInt(document.getElementById('table-rows').value) || 1;
-                    const c = parseInt(document.getElementById('table-cols').value) || 1;
-                    insertTable(Math.min(5, Math.max(1, r)), Math.min(4, Math.max(1, c)));
-                  }}>Вставить</button>
-                </div>
-              </div>
-            </div>
+            <TableModal onClose={() => setShowTableModal(false)} onInsert={insertTable} />
           )}
         </React.Fragment>
       );
     }
 
     /* ============================================================
-       6. СТРАНИЦЫ
+       PAGES
        ============================================================ */
     function HomePage() {
       return (
@@ -702,15 +749,18 @@
         return (
           <div className="post-page">
             <a className="back-link" href="#/"><IconBack /> В ленту</a>
-            <div className="empty-state"><h3 className="empty-title">Пост не найден</h3><p className="empty-text">Возможно, он был удалён.</p></div>
+            <div className="empty-state">
+              <h3 className="empty-title">Пост не найден</h3>
+              <p className="empty-text">Возможно, он был удалён.</p>
+            </div>
           </div>
         );
       }
 
-      const moodClass = `mood-${post.moodBase || 'coral'}-${post.moodMod || 'none'}`;
+      const moodClass = 'mood-' + (post.moodBase || 'coral') + '-' + (post.moodMod || 'none');
 
       return (
-        <div className={`post-page ${moodClass}`}>
+        <div className={'post-page ' + moodClass}>
           <a className="back-link" href="#/"><IconBack /> В ленту</a>
           <article className="post-article">
             <div className="post-article-head">
@@ -738,7 +788,11 @@
 
     function NotFoundPage() {
       return (
-        <div className="post-page"><div className="empty-state"><h3 className="empty-title">Страница не найдена</h3></div></div>
+        <div className="post-page">
+          <div className="empty-state">
+            <h3 className="empty-title">Страница не найдена</h3>
+          </div>
+        </div>
       );
     }
 
@@ -756,37 +810,28 @@
     }
 
     /* ============================================================
-       7. ГЛАВНЫЙ КОМПОНЕНТ
+       APP
        ============================================================ */
     function App() {
       const [posts, setPosts] = useState(loadPosts);
       const route = useRoute();
-      
+
       useMouseParallax();
       useFallingLeaves();
+      useBgRipple();
 
       useEffect(() => { savePosts(posts); }, [posts]);
       useEffect(() => { window.scrollTo(0, 0); }, [route.path]);
 
-      useEffect(() => {
-        const handleBgClick = (e) => {
-          if (e.target.closest('.app-shell') || e.target.closest('.modal-content')) return;
-          const ripple = document.createElement('div');
-          ripple.className = 'bg-ripple';
-          const size = 100 + Math.random() * 200;
-          ripple.style.width = size + 'px';
-          ripple.style.height = size + 'px';
-          ripple.style.left = (e.clientX - size/2) + 'px';
-          ripple.style.top = (e.clientY - size/2) + 'px';
-          document.body.appendChild(ripple);
-          setTimeout(() => ripple.remove(), 1500);
-        };
-        document.addEventListener('click', handleBgClick);
-        return () => document.removeEventListener('click', handleBgClick);
-      }, []);
-
       const addPost = useCallback(({ title, text, moodBase, moodMod }) => {
-        const post = { id: uid(), title: title.trim(), text: text.trim(), moodBase, moodMod, date: new Date().toISOString() };
+        const post = {
+          id: uid(),
+          title: title.trim(),
+          text: text.trim(),
+          moodBase,
+          moodMod,
+          date: new Date().toISOString(),
+        };
         setPosts(prev => [post, ...prev]);
         return post;
       }, []);
@@ -795,7 +840,10 @@
         setPosts(prev => prev.filter(p => p.id !== id));
       }, []);
 
-      const ctx = useMemo(() => ({ posts, addPost, removePost }), [posts, addPost, removePost]);
+      const ctx = useMemo(
+        () => ({ posts, addPost, removePost }),
+        [posts, addPost, removePost]
+      );
 
       let page;
       if (route.name === 'home') page = <HomePage />;
