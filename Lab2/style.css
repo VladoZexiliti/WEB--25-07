@@ -1,4 +1,3 @@
-/* === БАЗОВЫЕ НАСТРОЙКИ === */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -16,7 +15,14 @@ body {
   align-items: center;
 }
 
-/* === ФОНОВЫЕ СВЕЧЕНИЯ === */
+.state {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .bg-orbs {
   position: fixed;
   inset: 0;
@@ -47,18 +53,16 @@ body {
   100% { transform: translate(50px, 50px); }
 }
 
-/* === СТЕКЛО (LIQUID GLASS) === */
 .glass-panel, .glass-nav {
   background: rgba(20, 15, 10, 0.6);
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
   border: 1px solid rgba(90, 190, 255, 0.4);
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.6),
     inset 0 0 20px rgba(90, 190, 255, 0.1);
 }
 
-/* === НАВИГАЦИЯ === */
 .glass-nav {
   margin-top: 40px;
   padding: 8px;
@@ -68,6 +72,9 @@ body {
   z-index: 10;
 }
 .nav-btn {
+  display: inline-block;
+  text-align: center;
+  user-select: none;
   background: transparent;
   border: 1px solid transparent;
   color: #ccc;
@@ -82,14 +89,14 @@ body {
   color: #fff;
   background: rgba(255, 140, 0, 0.1);
 }
-.nav-btn.active {
+#p1:checked ~ .glass-nav label[for="p1"],
+#p2:checked ~ .glass-nav label[for="p2"] {
   background: linear-gradient(135deg, #FF8C00, #FF4500);
   color: #fff;
   border-color: #5abEFF;
   box-shadow: 0 0 20px rgba(255, 140, 0, 0.4);
 }
 
-/* === ПЕРЕКЛЮЧЕНИЕ СТРАНИЦ === */
 .page {
   display: none;
   width: 100%;
@@ -98,16 +105,14 @@ body {
   opacity: 0;
   transition: opacity 0.4s ease;
 }
-.page.active {
+#p1:checked ~ #page-1,
+#p2:checked ~ #page-2 {
   display: flex;
   flex-direction: column;
   align-items: center;
   opacity: 1;
 }
 
-/* ==========================================
-   ЗАДАНИЕ 1: ЦИФРЫ
-   ========================================== */
 .digit-stage {
   display: flex;
   align-items: center;
@@ -131,9 +136,9 @@ body {
 .d-cell {
   width: clamp(40px, 6vw, 64px);
   height: clamp(40px, 6vw, 64px);
-  border-radius: 22%; /* Скругление */
-  background: #FF8C00; /* Сплошной оранжевый цвет */
-  box-shadow: 
+  border-radius: 22%;
+  background: #FF8C00;
+  box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.4),
     0 8px 24px -6px rgba(255, 140, 0, 0.6);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -147,9 +152,6 @@ body {
   pointer-events: none;
 }
 
-/* ==========================================
-   ЗАДАНИЕ 2: МАКЕТ
-   ========================================== */
 .controls {
   display: flex;
   align-items: center;
@@ -167,6 +169,9 @@ body {
   gap: 10px;
 }
 .res-btn {
+  display: inline-block;
+  user-select: none;
+  text-align: center;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(90, 190, 255, 0.3);
   color: #fff;
@@ -179,13 +184,14 @@ body {
 .res-btn:hover {
   background: rgba(255, 140, 0, 0.2);
 }
-.res-btn.active {
+#r320:checked  ~ #page-2 label[for="r320"],
+#r768:checked  ~ #page-2 label[for="r768"],
+#r1200:checked ~ #page-2 label[for="r1200"] {
   background: linear-gradient(135deg, #FF8C00, #FF4500);
   border-color: #fff;
   box-shadow: 0 0 15px rgba(255, 140, 0, 0.5);
 }
 
-/* Чекбокс (Сетка) */
 .glass-checkbox {
   display: flex;
   align-items: center;
@@ -193,24 +199,21 @@ body {
   cursor: pointer;
   user-select: none;
 }
-.glass-checkbox input {
-  display: none;
-}
 .checkmark {
-  width: 32px; /* Увеличен размер */
-  height: 32px; /* Увеличен размер */
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   border: 1px solid rgba(90, 190, 255, 0.6);
   background: rgba(255, 255, 255, 0.05);
   position: relative;
   transition: all 0.2s;
 }
-.glass-checkbox input:checked + .checkmark {
+#grid-toggle:checked ~ #page-2 .checkmark {
   background: #FF8C00;
   border-color: #fff;
   box-shadow: 0 0 10px rgba(255, 140, 0, 0.6);
 }
-.glass-checkbox input:checked + .checkmark::after {
+#grid-toggle:checked ~ #page-2 .checkmark::after {
   content: '✓';
   position: absolute;
   inset: 0;
@@ -218,7 +221,7 @@ body {
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 20px; /* Увеличен размер галочки */
+  font-size: 20px;
   font-weight: bold;
 }
 .label-text {
@@ -227,7 +230,6 @@ body {
   font-size: 16px;
 }
 
-/* === ОБЕРТКА МАКЕТА === */
 .viewport-wrapper {
   width: 100%;
   display: flex;
@@ -244,7 +246,10 @@ body {
   flex-direction: column;
 }
 
-/* === СЕТКА ПОВЕРХ (WHITE GRID OVERLAY) === */
+#r320:checked  ~ #page-2 .layout-container { max-width: 320px; }
+#r768:checked  ~ #page-2 .layout-container { max-width: 768px; }
+#r1200:checked ~ #page-2 .layout-container { max-width: 1200px; }
+
 .grid-overlay {
   position: absolute;
   inset: 0;
@@ -252,18 +257,26 @@ body {
   z-index: 10;
   opacity: 0;
   transition: opacity 0.3s;
-  
-  background-image: 
+
+  background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.8) 2px, transparent 2px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 2px, transparent 2px);
   background-size: calc(100% / 12) 150px;
   background-position: -1px -1px;
 }
-.layout-container.show-grid .grid-overlay {
+#grid-toggle:checked ~ #page-2 .grid-overlay {
   opacity: 1;
 }
 
-/* === FLEXBOX БЛОКИ === */
+.layout-mode {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+}
+#r320:checked  ~ #page-2 .mode-320  { display: flex; }
+#r768:checked  ~ #page-2 .mode-768  { display: flex; }
+#r1200:checked ~ #page-2 .mode-1200 { display: flex; }
+
 .g-row {
   display: flex;
   width: 100%;
@@ -304,8 +317,20 @@ body {
 .g-block:hover::after {
   opacity: 1;
 }
+.g-block.ghost {
+  background: transparent;
+  border-color: transparent;
+  cursor: default;
+}
+.g-block.ghost:hover {
+  filter: none;
+  box-shadow: none;
+  z-index: auto;
+}
+.g-block.ghost::after {
+  content: none;
+}
 
-/* Вложенная сетка (9 блоков) */
 .g-grid {
   display: flex;
   flex-wrap: wrap;
@@ -314,7 +339,6 @@ body {
   width: 33.333%;
 }
 
-/* Утилитарные классы для ширины */
 .w-1 { width: 8.333%; }
 .w-2 { width: 16.666%; }
 .w-3 { width: 25%; }
@@ -324,6 +348,6 @@ body {
 .w-9 { width: 75%; }
 .w-12 { width: 100%; }
 
-/* Модификаторы высоты */
+.h-150 { height: 150px !important; }
 .h-300 { height: 300px !important; }
 .h-450 { height: 450px !important; }
